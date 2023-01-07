@@ -12,11 +12,13 @@ conkyrc.config = {
 
     update_interval = 1,
 
-    -- awesome wm --
+    -- Enlightenment --
     own_window = true,
     own_window_class = 'conky',
-    own_window_type = 'override',
-    own_window_hints = 'undecorated,sticky,skip_taskbar,skip_pager',
+    own_window_type = 'normal',
+    own_window_transparent = false,
+    own_window_hints = 'undecorated,sticky,below,skip_taskbar,skip_pager',
+    own_window_argb_visual = true,
 
     double_buffer = true,
 
