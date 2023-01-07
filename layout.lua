@@ -53,24 +53,24 @@ function polycore.setup()
         widget.Filler{height=82},
 
         -- Requires `nvidia-smi` to be installed. Does not work for AMD GPUs.
-        widget.Gpu(),
+        --widget.Gpu(),
         widget.Filler{height=1},
-        widget.GpuTop{lines=5, color=secondary_text_color},
+        --widget.GpuTop{lines=5, color=secondary_text_color},
         widget.Filler{height=66},
 
         -- Adjust the interface name for your system. Run `ifconfig` to find
         -- out yours. Common names are "eth0" and "wlan0".
-        widget.Network{interface="enp0s31f6", downspeed=5 * 1024, upspeed=1024,
+        widget.Network{interface="eth0", downspeed=5 * 1024, upspeed=1024,
                        graph_height=22},
         widget.Filler{height=34},
 
         -- Mount paths. Devices that aren't mounted will not be rendered until
         -- they appear. That way external drives can be displayed automatically.
-        widget.Drive("/"),
-        widget.Drive("/home"),
-        widget.Drive("/mnt/blackstor"),
-        widget.Drive("/mnt/bluestor"),
-        widget.Drive("/mnt/cryptstor"),
+        --widget.Drive("/"),
+        --widget.Drive("/home"),
+        --widget.Drive("/mnt/blackstor"),
+        --widget.Drive("/mnt/bluestor"),
+        --widget.Drive("/mnt/cryptstor"),
         widget.Filler(),
     }
     local root = widget.Frame(widget.Group(widgets), {
