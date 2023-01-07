@@ -44,7 +44,7 @@ conkyrc.config = {
 
     -- font --
     use_xft = true,  -- Use Xft (anti-aliased font and stuff)
-    font = 'Ubuntu:pixelsize=10',
+    font = 'Play:pixelsize=10',
     override_utf8_locale = true,
     xftalpha = 0,  -- Alpha of Xft font. Must be a value at or between 1 and 0.
 
@@ -62,7 +62,7 @@ conkyrc.config = {
 
     -- title: title
     template1 = [[
-${template9}${offset 1}${font Ubuntu:pixelsize=11:bold}${color0}[ \1 ]$color$font]],
+${template9}${offset 1}${font Play:pixelsize=11:bold}${color0}[ \1 ]$color$font]],
 
     -- top (cpu): number
     template2 = [[
@@ -75,9 +75,9 @@ ${template9}${color1}${top_mem name \1}${template8}${top_mem mem_res \1}$color]]
     -- drives: name dir --
     template5 = [[
 ${if_mounted \2}
-${template9}${offset 1}${font Ubuntu:pixelsize=11:bold}${color0}· \1 ·
+${template9}${offset 1}${font Play:pixelsize=11:bold}${color0}· \1 ·
 ${voffset 8}#
-${template9}${color1}${font Ubuntu:pixelsize=10}${fs_used \2}  /  ${fs_size \2}#
+${template9}${color1}${font Play:pixelsize=10}${fs_used \2}  /  ${fs_size \2}#
 ${if_match ${fs_used_perc \2}>=85}${color b54}$else$color$endif#
 ${template8}${fs_used_perc \2}%$font$color
 $endif]],
