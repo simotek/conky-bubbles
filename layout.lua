@@ -88,6 +88,7 @@ function polycore.setup()
         border_sides = {"left"},
     })
     return widget.Renderer{root=root,
-                           width=conkyrc.config.minimum_width,
+                           -- width=conkyrc.config.minimum_width,
+                           width=200,
                            height=conkyrc.config.minimum_height}
 end

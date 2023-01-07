@@ -24,9 +24,9 @@ conkyrc.config = {
 
     alignment = 'top_left',
     gap_x = 0,
-    gap_y = 40,
-    minimum_width = 180,
-    maximum_width = 180,
+    gap_y = 0,
+    minimum_width = 260,
+    maximum_width = 260,
     minimum_height = 1440 - 80,
 
     draw_shades = false,
