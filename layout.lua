@@ -17,7 +17,13 @@ DEBUG = false
 -- @treturn widget.Renderer
 function polycore.setup()
 
+    local main_title_text_color = {.26, .86, .86, 1} -- ~4dd 
     local secondary_text_color = {.72, .72, .71, 1}  -- ~b9b9b7
+    
+    -- Title Text
+    local title_first = widget.StaticText("Poly", {align="right", font_family="TeXGyreChorus", font_weight="bold", font_size=28})
+    local title_second = widget.StaticText("core", {align="left", font_family="TeXGyreChorus", font_weight="bold", font_size=28, color=main_title_text_color})
+    local title_text = widget.Columns{widget.Filler{width=10}, title_first, title_second, widget.Filler{width=10}}
 
     -- Write fan speeds. This requires lm_sensors to be installed.
     -- Run `sensonrs` to see if any fans are reported. If not, remove
@@ -37,6 +43,8 @@ function polycore.setup()
     end
 
     local widgets = {
+        title_text,  -- see above
+        widget.Filler{height=3},
         fan_rpm_text,  -- see above
         cpu_temps_text,  -- see above
         widget.Filler{height=3},
@@ -77,7 +85,7 @@ function polycore.setup()
         padding={108, 9, 10, 10},
         border_color={0.8, 1, 1, 0.05},
         border_width = 1,
-        border_sides = {"right"},
+        border_sides = {"left"},
     })
     return widget.Renderer{root=root,
                            width=conkyrc.config.minimum_width,

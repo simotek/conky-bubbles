@@ -93,8 +93,7 @@ $endif]],
 -----------------
 
 conkyrc.text = [[
-${voffset 30}#
-${font TeXGyreChorus:pixelsize=20:bold}${alignc}Linux ${color 4dd}Mint$color$font
+
 
 $color1#
 ${alignc}${time %d.%m.%Y}
