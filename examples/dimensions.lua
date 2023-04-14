@@ -127,6 +127,10 @@ function polycore.setup()
     local secondary_text_color = {.72, .72, .71, 1}  -- ~b9b9b7
 
     local root = widget.Frame(widget.Columns{
+        -- widget.StaticText("Polycore",{align="center", font_family="Courier new", font_size=20, color={1.0,1.0,1.0,1.0}}),
+        widget.StaticText("Polycore",{align="center", font_family="Play", font_size=20, color={1.0,1.0,1.0,1.0}}),
+        widget.StaticText("Polycore"),
+        widget.TextLine("Pcore"),
         widget.Group{
             widget.Filler{},
             widget.Cpu{cores=12, inner_radius=28, gap=5, outer_radius=57},

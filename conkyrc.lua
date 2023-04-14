@@ -25,8 +25,8 @@ conkyrc.config = {
     alignment = 'top_left',
     gap_x = 0,
     gap_y = 0,
-    minimum_width = 260,
-    maximum_width = 260,
+    minimum_width = 500,
+    maximum_width = 500,
     minimum_height = 1440 - 80,
 
     draw_shades = false,
@@ -100,8 +100,14 @@ ${alignc}${time %d.%m.%Y}
 ${alignc}${time %H:%M}
 $color#
 #
+${voffset 120}
+${offset 3}${font Pinnacle:pixelsize=34:bold}Linux - Conky
+${voffset 60}
+${offset 3}${font Secret Code:pixelsize=48}22:39 - Conky
+${voffset -6}
+${offset 3}${font Play:pixelsize=12}This is a size 12 play test string, Conky
 ### cpu ###
-${voffset 200}
+${voffset 600}
 #
 ### top ###
 ${template1 top}${template8}cpu

@@ -20,6 +20,23 @@ function polycore.setup()
     local main_title_text_color = {.26, .86, .86, 1} -- ~4dd 
     local secondary_text_color = {.72, .72, .71, 1}  -- ~b9b9b7
     
+    
+    local test_text1 = widget.StaticText("Linux - Cairo", {align="left", font_family="Pinnacle", font_weight="bold", font_size=34})
+    local test_text1a = widget.StaticText2("Linux - Freetype", {align="left", font="Pinnacle:bold", font_size=34})
+    local test_text2 = widget.StaticText("22:39 - Cairo", {align="left", font_family="Secret Code", font_size=48})
+    local test_text2a = widget.StaticText2("22:39 - Freetype", {align="left", font="Secret Code", font_size=48})
+    local test_text3 = widget.StaticText("This is a size 12 play test string, cairo", {align="left", font_family="Play", font_size=12})
+    local test_text3a = widget.StaticText2("This is a size 12 play test string, Freetype", {align="left", font="Play", font_size=12})
+    local test_text3b = widget.StaticText2("This is a size 12 Bold test string, I wonder how it looks with play", {align="left", font="Play:Bold", font_size=12})
+    local test_text4a = widget.StaticText2("Left", {align="left", font="Play", font_size=12})
+    local test_text4b = widget.StaticText2("Center", {align="center", font="Play", font_size=12})
+    local test_text4c = widget.StaticText2("Right", {align="right", font="Play", font_size=12})
+
+    local test_framea = widget.Frame(test_text4a, {border_color={0.4, 0.2, 0.8, 0.7}, border_width = 1})
+    local test_frameb = widget.Frame(test_text4b, {border_color={0.4, 0.2, 0.8, 0.7}, border_width = 1})
+    local test_framec = widget.Frame(test_text4c, {border_color={0.4, 0.2, 0.8, 0.7}, border_width = 1})
+
+
     -- Title Text
     local title_first = widget.StaticText("Poly", {align="right", font_family="TeXGyreChorus", font_weight="bold", font_size=28})
     local title_second = widget.StaticText("core", {align="left", font_family="TeXGyreChorus", font_weight="bold", font_size=28, color=main_title_text_color})
@@ -43,6 +60,19 @@ function polycore.setup()
     end
 
     local widgets = {
+        widget.Filler{height=12},
+        test_text1,
+        widget.Filler{height=38},
+        test_text1a,
+        test_text2,
+        widget.Filler{height=42},
+        test_text2a,
+        test_text3,
+        widget.Filler{height=20},
+        test_text3a,
+        test_text3b,
+        widget.Columns{test_framea, test_frameb, test_framec},
+        widget.Filler{height=42},
         title_text,  -- see above
         widget.Filler{height=3},
         fan_rpm_text,  -- see above
@@ -82,13 +112,13 @@ function polycore.setup()
         widget.Filler(),
     }
     local root = widget.Frame(widget.Group(widgets), {
-        padding={108, 9, 10, 10},
+        padding={108, 9, 0, 0},
         border_color={0.8, 1, 1, 0.05},
         border_width = 1,
         border_sides = {"left"},
     })
     return widget.Renderer{root=root,
                            -- width=conkyrc.config.minimum_width,
-                           width=200,
+                           width=350,
                            height=conkyrc.config.minimum_height}
 end

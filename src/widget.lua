@@ -3,6 +3,8 @@
 -- @alias w
 
 pcall(function() require('cairo') end)
+pcall(function() require('cairo_text_helper') end)
+
 
 local data = require('src/data')
 local util = require('src/util')
@@ -17,7 +19,7 @@ local floor, ceil, clamp = math.floor, math.ceil, util.clamp
 local w = {
     --- Font used by widgets if no other is specified.
     -- @string default_font_family
-    default_font_family = "Ubuntu",
+    default_font_family = "Play",
 
     --- Font size used by widgets if no other is specified.
     -- @int default_font_size
@@ -95,14 +97,20 @@ function Renderer:layout()
     local background_widgets = {}
     self._update_widgets = {}
     self._render_widgets = {}
-    for widget, x, y in util.imap(unpack, widgets) do
-        local matrix = cairo_matrix_t:create()
-        cairo_matrix_init_translate(matrix, floor(x), floor(y))
+
+    for widget, x, y, _width, _height in util.imap(unpack, widgets) do
         if widget.render_background then
-            table.insert(background_widgets, {widget, matrix})
+            local wsr = cairo_surface_create_for_rectangle(self._background_surface,
+                            floor(x),floor(y),floor(_width),floor(_height))
+            local wcr = cairo_create(wsr)
+            table.insert(background_widgets, {widget, wcr})
         end
         if widget.render then
-            table.insert(self._render_widgets, {widget, matrix})
+
+            local wsr = cairo_surface_create_for_rectangle(self._background_surface,
+                           floor(x),floor(y),floor(_width),floor(_height))
+            local wcr = cairo_create(wsr)
+            table.insert(self._render_widgets, {widget, wcr})
         end
         if widget.update then
             table.insert(self._update_widgets, widget)
@@ -118,19 +126,47 @@ function Renderer:layout()
     cairo_restore(cr)
 
     cairo_save(cr)
-    for widget, matrix in util.imap(unpack, background_widgets) do
-        cairo_set_matrix(cr, matrix)
-        widget:render_background(cr)
+    for widget, wcr in util.imap(unpack, background_widgets) do
+        cairo_save(wcr)
+        cairo_set_source_rgba (wcr, 0, 0, 0, 0);
+        cairo_set_operator (wcr, CAIRO_OPERATOR_SOURCE);
+        cairo_paint(wcr)
+        cairo_restore(wcr)
+        widget:render_background(wcr)
     end
     cairo_restore(cr)
 
-    if DEBUG then
+    if true then
         local version_info = table.concat{"conky ", conky_version,
                                           "    ", _VERSION,
                                           "    cairo ", cairo_version_string()}
-        cairo_set_source_rgba(cr, 1, 0, 0, 1)
-        ch.set_font(cr, "Ubuntu", 8)
-        ch.write_left(cr, 0, 8, version_info)
+
+pattern = cairo_pattern_create_mesh ();
+
+cairo_mesh_pattern_begin_patch (pattern);
+cairo_mesh_pattern_move_to (pattern, 0, 0);
+cairo_mesh_pattern_curve_to (pattern, 30, -30,  60,  30, 200, 0);
+cairo_mesh_pattern_curve_to (pattern, 60,  30, 230,  60, 200, 200);
+cairo_mesh_pattern_curve_to (pattern, 60,  70,  30, 230,   0, 200);
+cairo_mesh_pattern_curve_to (pattern, 30,  70, -30,  30,   0, 0);
+cairo_mesh_pattern_set_corner_color_rgb (pattern, 0, 1, 0.2, 0.5);
+cairo_mesh_pattern_set_corner_color_rgb (pattern, 1, 0.5, 0.2, 1);
+cairo_mesh_pattern_set_corner_color_rgb (pattern, 2, 0, 0.2, 1);
+cairo_mesh_pattern_set_corner_color_rgb (pattern, 3, 1, 1, 0);
+cairo_mesh_pattern_end_patch (pattern);
+
+cairo_mesh_pattern_begin_patch (pattern)
+cairo_mesh_pattern_move_to (pattern, 200, 200);
+cairo_mesh_pattern_line_to (pattern, 230, 230);
+cairo_mesh_pattern_line_to (pattern, 130,  70);
+cairo_mesh_pattern_set_corner_color_rgb (pattern, 0, 1, 0, 0);
+cairo_mesh_pattern_set_corner_color_rgb (pattern, 1, 0, 1, 0);
+cairo_mesh_pattern_set_corner_color_rgb (pattern, 2, 0, 0, 1);
+cairo_mesh_pattern_end_patch (pattern)
+        cairo_set_source(cr, pattern)
+        --cairo_set_source_rgba(cr, 0.8, 0.1, 0.4, 0.9)
+        ch.set_font(cr, "Ubuntu", 24)
+        ch.write_left(cr, 0, 24, version_info)
         for _, x, y, width, height in util.imap(unpack, widgets) do
             if width * height ~= 0 then
                 cairo_rectangle(cr, x, y, width, height)
@@ -165,9 +201,13 @@ end
 --- Render to the given context
 -- @tparam cairo_t cr
 function Renderer:render(cr)
-    for widget, matrix in util.imap(unpack, self._render_widgets) do
-        cairo_set_matrix(cr, matrix)
-        widget:render(cr)
+    for widget, wcr in util.imap(unpack, self._render_widgets) do
+        cairo_save(wcr)
+        cairo_set_source_rgba (wcr, 0, 0, 0, 0);
+        cairo_set_operator (wcr, CAIRO_OPERATOR_SOURCE);
+        cairo_paint(wcr)
+        cairo_restore(wcr)
+        widget:render(wcr)
     end
 end
 
@@ -535,6 +575,42 @@ function StaticText:render_background(cr)
     end
 end
 
+--- Draw some unchangeable text.
+-- Use this widget for text that will never be updated.
+-- @type StaticText
+local StaticText2 = util.class(Text)
+w.StaticText2 = StaticText2
+
+--- @string text Text to be displayed.
+-- @tparam ?table args table of options, see `Text:init`
+function StaticText2:init(text, args)
+    Text.init(self, args or {})
+    self._font = cairo_text_hp_load_font(args.font, self._font_size)
+
+    self._lines = {}
+    local _, line_count = text:gsub("[^\n]*", function(line)
+        table.insert(self._lines, line)
+    end)
+    self.height = line_count * self._line_height
+    self._min_width = cairo_text_hp_simple_text_width(text, self._font)
+end
+
+function StaticText2:render_background(cr)
+    ch.set_font(cr, self._font_family, self._font_size, self._font_slant,
+                    self._font_weight)
+    cairo_set_source_rgba(cr, unpack(self._color))
+    for i, line in ipairs(self._lines) do
+        local y = self._baseline_offset + (i - 1) * self._line_height
+        if self._align == "right" then
+            cairo_text_hp_simple_show_right(cr, x, y, line, self._font)
+        elseif self._align == "center" then
+            cairo_text_hp_simple_show_center(cr, x, y, line, self._font)
+        else
+            cairo_text_hp_simple_show(cr, x, y, line, self._font)
+        end
+    end
+end
+
 
 --- Draw a single line of changeable text.
 -- Text line can be updated on each cycle via `set_text`.
@@ -545,6 +621,7 @@ w.TextLine = TextLine
 --- @tparam table args table of options, see `Text:init`
 function TextLine:init(args)
     Text.init(self, args)
+
     self.height = self._line_height
 end
 
@@ -559,6 +636,36 @@ function TextLine:render(cr)
                     self._font_weight)
     cairo_set_source_rgba(cr, unpack(self._color))
     self._write_fn(cr, self._x, self._baseline_offset, self._text)
+end
+
+
+--- Draw text substuting in Conky variables.
+-- Text line will be updated on each cycle as per Conky's text
+-- Section, some variables such as formatting and positioning 
+-- may not be honored.
+-- @type ConkyText
+local ConkyText = util.class(Text)
+w.ConkyText = ConkyText
+
+--- @tparam table args table of options, see `Text:init`
+function ConkyText:init(text, args)
+    Text.init(self, args)
+    
+    self._lines = {}
+    local _, line_count = text:gsub("[^\n]*", function(line)
+        table.insert(self._lines, line)
+    end)
+    self.height = line_count * self._line_height
+end
+
+function ConkyText:render(cr)
+    ch.set_font(cr, self._font_family, self._font_size, self._font_slant,
+                    self._font_weight)
+    cairo_set_source_rgba(cr, unpack(self._color))
+    for i, line in ipairs(self._lines) do
+        local y = self._baseline_offset + (i - 1) * self._line_height
+        self._write_fn(cr, self._x, y, conky_parse(line))
+    end
 end
 
 
