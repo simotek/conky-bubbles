@@ -298,15 +298,15 @@ end)
 -- @function data.device_temperatures
 -- @treturn table mapping devices to temperature values
 data.device_temperatures = util.memoize(5, function(device)
-    local temp_inputs = read_cmd("ls -1"
-        .. " /sys/block/*/device/hwmon/hwmon*/temp1_input"  -- sata
-        .. " /sys/block/*/device/hwmon*/temp1_input"  -- nvme
-    )
+    --local temp_inputs = read_cmd("ls -1"
+    --    .. " /sys/block/*/device/hwmon/hwmon*/temp1_input"  -- sata
+    --    .. " /sys/block/*/device/hwmon*/temp1_input"  -- nvme
+    --)
     local temps = {}
-    for device, hwmon_path in temp_inputs:gmatch("/sys/block/(%w+)/device/(%S+)") do
-        hwmon_path = "/sys/block/" .. device .. "/device/" .. hwmon_path
-        temps[device] = read_number_from_file(hwmon_path) / 1000
-    end
+    --for device, hwmon_path in temp_inputs:gmatch("/sys/block/(%w+)/device/(%S+)") do
+    --    hwmon_path = "/sys/block/" .. device .. "/device/" .. hwmon_path
+    --    temps[device] = read_number_from_file(hwmon_path) / 1000
+    --end
     return temps
 end)
 
