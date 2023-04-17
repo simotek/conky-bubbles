@@ -139,9 +139,9 @@ function polycore.setup()
         widget.Filler{width=30},
         widget.Rows{
             widget.Filler{height=5},
-            widget.Gpu(),
+            --widget.Gpu(),
             widget.Filler{height=5},
-            widget.GpuTop{lines=5, color=secondary_text_color},
+            --widget.GpuTop{lines=5, color=secondary_text_color},
         },
         widget.Filler{width=30},
         widget.Rows{
