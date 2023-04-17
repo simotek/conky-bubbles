@@ -123,11 +123,11 @@ ${template3 3}
 
 
 ### GPU ###
-${template1 gpu}  ${nvidia gpufreq} MHz#
-${template8}#
-${if_match 75 <= ${nvidia temp}}${color2}${font Ubuntu:pixelsize=10:bold}$endif#
-${nvidia temp}°C$color
-${voffset 78}
+#${template1 gpu}  ${nvidia gpufreq} MHz#
+#${template8}#
+#${if_match 75 <= ${nvidia temp}}${color2}${font Ubuntu:pixelsize=10:bold}$endif#
+#${nvidia temp}°C$color
+#${voffset 78}
 
 
 ### net ###

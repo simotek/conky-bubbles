@@ -62,12 +62,12 @@ function polycore.setup()
         widget.Filler{height=78},
 
         -- Requires `nvidia-smi` to be installed. Does not work for AMD GPUs.
-        gpu_power_text,  -- see above
-        widget.Filler{height=2},
-        widget.Gpu(),
-        widget.Filler{height=1},
-        widget.GpuTop{lines=5, color=secondary_text_color},
-        widget.Filler{height=66},
+        --gpu_power_text,  -- see above
+        --widget.Filler{height=2},
+        --widget.Gpu(),
+        --widget.Filler{height=1},
+        --widget.GpuTop{lines=5, color=secondary_text_color},
+        --widget.Filler{height=66},
 
         -- Adjust the interface name for your system. Run `ifconfig` to find
         -- out yours. Common names are "eth0" and "wlan0".
