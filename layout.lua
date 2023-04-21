@@ -71,7 +71,7 @@ function polycore.setup()
 
         -- Adjust the interface name for your system. Run `ifconfig` to find
         -- out yours. Common names are "eth0" and "wlan0".
-        widget.Network{interface="enp0s31f6", downspeed=5 * 1024, upspeed=1024,
+        widget.Network{interface="enp34s0u1u3u4", downspeed=5 * 1024, upspeed=1024,
                        graph_height=22},
         widget.Filler{height=34},
 

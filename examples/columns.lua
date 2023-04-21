@@ -146,7 +146,7 @@ function polycore.setup()
         widget.Filler{width=30},
         widget.Rows{
             widget.Filler{height=26},
-            widget.Network{interface="enp0s31f6", downspeed=5 * 1024, upspeed=1024},
+            widget.Network{interface="enp34s0u1u3u4", downspeed=5 * 1024, upspeed=1024},
         },
         widget.Filler{width=30},
         widget.Rows{
