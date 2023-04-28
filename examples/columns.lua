@@ -15,17 +15,20 @@ local conkyrc = conky or {}
 conkyrc.config = {
     lua_load = script_dir .. "columns.lua",
     lua_startup_hook = "conky_setup",
+    lua_draw_hook_pre = "conky_paint_background",
     lua_draw_hook_post = "conky_update",
 
     update_interval = 1,
 
-    -- awesome wm --
+    -- enlightenment wm --
     own_window = true,
     own_window_class = 'conky',
-    own_window_type = 'override',
-    own_window_hints = 'undecorated,sticky,skip_taskbar,skip_pager',
+    own_window_type = 'normal',
+    own_window_transparent = false,
+    own_window_hints = 'undecorated,sticky,below,skip_taskbar,skip_pager',
 
     double_buffer = true,
+    background = true,
 
     alignment = 'top_left',
     gap_x = 0,
@@ -52,15 +55,19 @@ conkyrc.config = {
     font = 'Ubuntu:pixelsize=10',
     override_utf8_locale = true,
     xftalpha = 0,  -- Alpha of Xft font. Must be a value at or between 1 and 0.
+    draw_shades = true,
+    default_shade_color = 'black',
+    draw_borders = false,
+    draw_outline = false,
 
     -- colors --
     own_window_colour = '131313',
     own_window_argb_visual = true,
-    own_window_argb_value = 180,
+    own_window_argb_value = 0,
     default_color = 'fafafa',
-    color0 = '448888',  -- titles
+    color0 = '337777',  -- titles
     color1 = 'b9b9b7',  -- secondary text color
-
+    color2 = 'bb5544',  -- high temperature warning color
 
     -- drives: name dir --
     template5 = [[
