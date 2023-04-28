@@ -144,8 +144,7 @@ ${template9}${color1}Total$color${template8}${totalup enp0s31f6}
 
 ### drives ###
 ${template5 root /}#
-${template5 blackstor /mnt/blackstor}#
-${template5 bluestor /mnt/bluestor}#
+${template5 home /home}#
 #
 ${image ~/.config/conky/polycore/9blocks.png -p 60,990 -s 16x16}#
 ]]

@@ -27,7 +27,7 @@ conkyrc.config = {
 
     double_buffer = true,
 
-    alignment = 'middle_middle',
+    alignment = 'top_left',
     gap_x = 0,
     gap_y = 0,
     minimum_width = 800,
@@ -113,7 +113,6 @@ ${template5 root /}#
 ${voffset 5}#
 ${template5 home /home}#
 ${voffset 5}#
-${template5 blackstor /mnt/blackstor}#
 ]]
 
 
@@ -150,11 +149,10 @@ function polycore.setup()
         },
         widget.Filler{width=30},
         widget.Rows{
-            widget.Drive("/"),
+            widget.Drive("/dev/system/root"),
             widget.Filler{height=-9},
-            widget.Drive("/home"),
+            widget.Drive("/dev/system/home"),
             widget.Filler{height=-9},
-            widget.Drive("/mnt/blackstor"),
         },
     }, {
         border_color={0.8, 1, 1, 0.05},
