@@ -20,7 +20,7 @@ conkyrc.config = {
     own_window_hints = 'undecorated,sticky,below,skip_taskbar,skip_pager',
 
     double_buffer = true,
-    background = true,
+    background = false,
 
     alignment = 'top_left',
     gap_x = 0,
