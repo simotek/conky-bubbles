@@ -14,6 +14,15 @@ local mem   = require('src/widgets/memory')
 local net   = require('src/widgets/network')
 local text  = require('src/widgets/text')
 
+local Frame, Filler, Rows, Columns = core.Frame, core.Filler,
+                                          core.Rows, core.Columns
+local Cpu, CpuFrequencies = cpu.Cpu, cpu.CpuFrequencies
+local Drive = drive.Drive
+local Gpu, GpuTop = gpu.Gpu, gpu.GpuTop
+local MemoryGrid = mem.MemoryGrid
+local Network = net.Network
+local TextLine = text.TextLine
+
 -- Draw debug information
 DEBUG = false
 
@@ -136,37 +145,37 @@ function polycore.setup()
 
     local secondary_text_color = {.72, .72, .71, 1}  -- ~b9b9b7
 
-    local root = core.Frame(core.Columns{
-        core.Rows{
-            core.Filler{},
-            cpu.Cpu{cores=6, inner_radius=28, gap=5, outer_radius=57},
-            core.Filler{},
+    local root = Frame(Columns{
+        Rows{
+            Filler{},
+            Cpu{cores=6, inner_radius=28, gap=5, outer_radius=57},
+            Filler{},
         },
-        core.Filler{width=10},
-        mem.MemoryGrid{columns=5},
-        core.Filler{width=20},
-        core.Rows{
-            cpu.CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
-            core.Filler{},
+        Filler{width=10},
+        MemoryGrid{columns=5},
+        Filler{width=20},
+        Rows{
+            CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
+            Filler{},
         },
-        core.Filler{width=30},
-        core.Rows{
-            core.Filler{height=5},
-            --gpu.Gpu(),
-            core.Filler{height=5},
-            --gpu.GpuTop{lines=5, color=secondary_text_color},
+        Filler{width=30},
+        Rows{
+            Filler{height=5},
+            --Gpu(),
+            Filler{height=5},
+            --GpuTop{lines=5, color=secondary_text_color},
         },
-        core.Filler{width=30},
-        core.Rows{
-            core.Filler{height=26},
-            net.Network{interface="enp34s0u1u3u4", downspeed=5 * 1024, upspeed=1024},
+        Filler{width=30},
+        Rows{
+            Filler{height=26},
+            Network{interface="enp34s0u1u3u4", downspeed=5 * 1024, upspeed=1024},
         },
-        core.Filler{width=30},
-        core.Rows{
-            drive.Drive("/dev/system/root"),
-            core.Filler{height=-9},
-            drive.Drive("/dev/system/home"),
-            core.Filler{height=-9},
+        Filler{width=30},
+        Rows{
+            Drive("/dev/system/root"),
+            Filler{height=-9},
+            Drive("/dev/system/home"),
+            Filler{height=-9},
         },
     }, {
         border_color={0.8, 1, 1, 0.05},
