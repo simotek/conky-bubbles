@@ -21,7 +21,7 @@ local Drive = drive.Drive
 local Gpu, GpuTop = gpu.Gpu, gpu.GpuTop
 local MemoryGrid = mem.MemoryGrid
 local Network = net.Network
-local TextLine = text.TextLine
+local ConkyText, TextLine = text.ConkyText, text.TextLine
 
 -- Draw debug information
 DEBUG = false
@@ -49,8 +49,8 @@ conkyrc.config = {
     alignment = 'top_left',
     gap_x = 0,
     gap_y = 0,
-    minimum_width = 800,
-    maximum_width = 800,
+    minimum_width = 1600,
+    maximum_width = 1600,
     minimum_height = 170,
 
     draw_shades = false,
@@ -156,13 +156,23 @@ function polycore.setup()
         Filler{width=20},
         Rows{
             CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
-            Filler{},
+            Filler{height=10},
+            Columns{ConkyText("${top name 1}", {}), Filler{width=10}, ConkyText("${top cpu 1} %", {align="right"})},
+            Columns{ConkyText("${top name 2}", {}), Filler{width=10}, ConkyText("${top cpu 2} %", {align="right"})},
+            Columns{ConkyText("${top name 3}", {}), Filler{width=10}, ConkyText("${top cpu 3} %", {align="right"})},
+            Columns{ConkyText("${top name 4}", {}), Filler{width=10}, ConkyText("${top cpu 4} %", {align="right"})},
+            Columns{ConkyText("${top name 5}", {}), Filler{width=10}, ConkyText("${top cpu 5} %", {align="right"})},
         },
         Filler{width=30},
         Rows{
             Filler{height=5},
             --Gpu(),
             Filler{height=5},
+            --Columns{Filler{width=10},ConkyText("${top cpu 1} %",{align="right"})}
+            
+            --Columns{ConkyText("${top name 1}"), Filler{width=10},ConkyText("${top cpu 1} %",{align="right"})}
+
+
             --GpuTop{lines=5, color=secondary_text_color},
         },
         Filler{width=30},
