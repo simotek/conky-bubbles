@@ -4,8 +4,12 @@
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
 
+-- load polycore theme as default
+current_theme = require('src/themes/polycore')
+
 local polycore = require('src/polycore')
 local data  = require('src/data')
+local ch = require('src/cairo_helpers')
 local core  = require('src/widgets/core')
 local cpu   = require('src/widgets/cpu')
 local drive = require('src/widgets/drive')
@@ -138,11 +142,9 @@ ${template5 home /home}#
 ${voffset 5}#
 ]]
 
-
 --- Called once on startup to initialize widgets.
 -- @treturn widget.Renderer
 function polycore.setup()
-
     local secondary_text_color = {.72, .72, .71, 1}  -- ~b9b9b7
 
     local root = Frame(Columns{
