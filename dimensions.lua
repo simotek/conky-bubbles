@@ -5,7 +5,7 @@ local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
 
 -- load polycore theme as default
-current_theme = require('src/themes/polycore')
+current_theme = require('src/themes/dimensions')
 
 local polycore = require('src/polycore')
 local data  = require('src/data')
@@ -34,6 +34,7 @@ DEBUG = false
 local conkyrc = conky or {}
 conkyrc.config = {
     lua_load = script_dir .. "dimensions.lua",
+
     lua_startup_hook = "conky_setup",
     lua_draw_hook_pre = "conky_paint_background",
     lua_draw_hook_post = "conky_update",
@@ -145,7 +146,6 @@ ${voffset 5}#
 --- Called once on startup to initialize widgets.
 -- @treturn widget.Renderer
 function polycore.setup()
-    local secondary_text_color = {.72, .72, .71, 1}  -- ~b9b9b7
 
     local root = Frame(Columns{
         Rows{
