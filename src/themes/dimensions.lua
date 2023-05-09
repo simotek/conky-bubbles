@@ -1,4 +1,4 @@
---- A collection of Widget classes
+--- The Dimensions Theme
 -- @module dimensions_theme
 -- @alias dt
 
