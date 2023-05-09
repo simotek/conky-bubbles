@@ -36,7 +36,6 @@ conkyrc.config = {
     lua_load = script_dir .. "dimensions.lua",
 
     lua_startup_hook = "conky_setup",
-    lua_draw_hook_pre = "conky_paint_background",
     lua_draw_hook_post = "conky_update",
 
     update_interval = 1,
