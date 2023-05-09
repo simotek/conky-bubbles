@@ -25,7 +25,7 @@ local Drive = drive.Drive
 local Gpu, GpuTop = gpu.Gpu, gpu.GpuTop
 local MemoryGrid = mem.MemoryGrid
 local Network = net.Network
-local ConkyText, TextLine = text.ConkyText, text.TextLine
+local ConkyText, TextLine = text.ConkyParse, text.TextLine
 
 -- Draw debug information
 DEBUG = false
