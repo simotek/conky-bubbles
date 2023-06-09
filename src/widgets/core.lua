@@ -143,7 +143,9 @@ end
 function Renderer:update(update_count)
     local reflow = false
     for _, widget in ipairs(self._update_widgets) do
-        reflow = widget:update(update_count) or reflow
+        if not widget.parent then
+            reflow = widget:update(update_count) or reflow
+        end
     end
     if reflow then
         self:layout()
@@ -193,6 +195,10 @@ w.Widget = Widget
 -- Omit (=nil) if height should be adjusted dynamically.
 -- @int Widget.height
 
+--- If a widget is inside another widget such as a frame or columns, rows
+-- Then this will contain that
+-- @type Widget Widget.parent
+
 --- Called at least once to inform the widget of the width and height
 -- it may occupy.
 -- @tparam int width
@@ -213,7 +219,7 @@ function Widget:layout(width, height) end  -- luacheck: no unused
 -- @treturn ?bool true(-ish) if a layout reflow should be triggered, causing
 --                all `Widget:layout` and `Widget:render_background` methods
 --                to be called again
-
+function Widget:update(update_count) end
 --- Called once per update to do draw dynamic content.
 -- @function Widget:render
 -- @tparam cairo_t cr
@@ -228,11 +234,15 @@ w.Rows = Rows
 
 --- @tparam {Widget,...} widgets
 function Rows:init(widgets)
-    self._widgets = widgets
+    self._children = widgets
+
     local width = 0
     self._min_height = 0
     self._fillers = 0
-    for _, widget in ipairs(widgets) do
+    for _, widget in ipairs(self._children) do
+
+        widget.parent = self
+
         if widget.width then
             if widget.width > width then width = widget.width end
         end
@@ -247,12 +257,44 @@ function Rows:init(widgets)
     end
 end
 
+function Rows:update(update_count)
+    local reflow = false
+
+    for _, widget in ipairs(self._children) do
+        reflow = widget:update(update_count) or reflow
+    end
+
+    if reflow then
+        local width = 0
+        self._min_height = 0
+        self._fillers = 0
+        for _, widget in ipairs(self._children) do
+
+            widget.parent = self
+
+            if widget.width then
+                if widget.width > width then width = widget.width end
+            end
+            if widget.height ~= nil then
+                self._min_height = self._min_height + widget.height
+            else
+                self._fillers = self._fillers + 1
+            end
+        end
+        if self._fillers == 0 then
+            self.height = self._min_height
+        end
+
+        return true
+    end
+end
+
 function Rows:layout(width, height)
     self._width = width  -- used to draw debug lines
     local y = 0
     local children = {}
     local filler_height = (height - self._min_height) / self._fillers
-    for _, widget in ipairs(self._widgets) do
+    for _, widget in ipairs(self._children) do
         local widget_height = widget.height or filler_height
         table.insert(children, {widget, 0, y, width, widget_height})
         local sub_children = widget:layout(width, widget_height) or {}
@@ -265,6 +307,27 @@ function Rows:layout(width, height)
     return children
 end
 
+function Rows:recalc_size()
+    local width = 0
+    self._min_height = 0
+    self._fillers = 0
+    for _, widget in ipairs(self._children) do
+
+        widget.parent = self
+
+        if widget.width then
+            if widget.width > width then width = widget.width end
+        end
+        if widget.height ~= nil then
+            self._min_height = self._min_height + widget.height
+        else
+            self._fillers = self._fillers + 1
+        end
+    end
+    if self._fillers == 0 then
+        self.height = self._min_height
+    end
+end
 
 --- Display Widgets side by side
 -- @type Columns
@@ -275,12 +338,15 @@ w.Columns = Columns
 
 --- @tparam {Widget,...} widgets
 function Columns:init(widgets)
-    self._widgets = widgets
+    self._children = widgets
+
     self._min_width = 0
     self._fillers = 0
     local height = 0
     local fix_height = false
-    for _, widget in ipairs(widgets) do
+    for _, widget in ipairs(self._children) do
+        widget.parent = self
+
         if widget.width ~= nil then
             self._min_width = self._min_width + widget.width
         else
@@ -299,13 +365,46 @@ function Columns:init(widgets)
     end
 end
 
+function Columns:update(update_count)
+    local reflow = false
+
+    for _, widget in ipairs(self._children) do
+        reflow = widget:update(update_count) or reflow
+    end
+
+    if reflow then
+        self._min_width = 0
+        self._fillers = 0
+        local height = 0
+        local fix_height = false
+        for _, widget in ipairs(self._children) do
+            if widget.width ~= nil then
+                self._min_width = self._min_width + widget.width
+            else
+                self._fillers = self._fillers + 1
+            end
+            if widget.height then
+                fix_height = true
+                if widget.height > height then height = widget.height end
+            end
+        end
+        if self._fillers == 0 then
+            self.width = self._min_width
+        end
+        if fix_height then
+            self.height = height
+        end
+
+        return true
+    end
+end
 
 function Columns:layout(width, height)
     self._height = height  -- used to draw debug lines
     local x = 0
     local children = {}
     local filler_width = (width - self._min_width) / self._fillers
-    for _, widget in ipairs(self._widgets) do
+    for _, widget in ipairs(self._children) do
         local widget_width = widget.width or filler_width
         table.insert(children, {widget, x, 0, widget_width, height})
         local sub_children = widget:layout(widget_width, height) or {}
@@ -318,6 +417,29 @@ function Columns:layout(width, height)
     return children
 end
 
+function Columns:recalc_size()
+    self._min_width = 0
+    self._fillers = 0
+    local height = 0
+    local fix_height = false
+    for _, widget in ipairs(self._children) do
+        if widget.width ~= nil then
+            self._min_width = self._min_width + widget.width
+        else
+            self._fillers = self._fillers + 1
+        end
+        if widget.height then
+            fix_height = true
+            if widget.height > height then height = widget.height end
+        end
+    end
+    if self._fillers == 0 then
+        self.width = self._min_width
+    end
+    if fix_height then
+        self.height = height
+    end
+end
 
 --- Leave space between widgets.
 -- If either height or width is not specified, the available space
@@ -386,6 +508,7 @@ w.Frame = Frame
 --                                         (default: all sides)
 function Frame:init(widget, args)
     self._widget = widget
+    widget.parent = self
     self._background_color = args.background_color or nil
     self._border_color = args.border_color or {0, 0, 0, 0}
     self._border_width = args.border_width or 0
@@ -412,6 +535,21 @@ function Frame:init(widget, args)
     end
     if widget.height then
         self.height = widget.height + self._y_top + self._y_bottom
+    end
+end
+
+function Frame:update(update_count)
+    local reflow = false
+    reflow = self._widget:update(update_count) or reflow
+
+    if reflow then
+        if self._widget.width then
+            self.width = self._widget.width + self._x_left + self._x_right
+        end
+        if self._widget.height then
+            self.height = self._widget.height + self._y_top + self._y_bottom
+        end
+        return true
     end
 end
 
