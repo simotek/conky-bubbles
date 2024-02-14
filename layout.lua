@@ -83,9 +83,9 @@ function polycore.setup()
 
         -- Mount paths. Devices that aren't mounted will not be rendered until
         -- they appear. That way external drives can be displayed automatically.
-        drive.Drive("/"),
-        drive.Drive("/mnt/blackstor"),
-        drive.Drive("/mnt/bluestor"),
+        --drive.Drive("/"),
+        --drive.Drive("/mnt/blackstor"),
+        --drive.Drive("/mnt/bluestor"),
         core.Filler(),
     }
     local root = core.Frame(core.Rows(widgets), {

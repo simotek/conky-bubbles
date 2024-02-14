@@ -10,12 +10,14 @@ local default_graph_color = "3498d8"
 theme = {
     --- Font used by widgets if no other is specified.
     -- @string default_font_family
-    default_font_family = "Ubuntu",
+    default_font_family = "Play",
 
     --- Font size used by widgets if no other is specified.
     -- @int default_font_size
-    default_font_size = 10,
-
+    default_font_size = 12,
+    default_font_direction = "LTR", 
+    default_font_script = "Zyyy", 
+    default_font_language = "en",
     --- Text color used by widgets if no other is specified.
     -- @string default_text_color a color hex string
     default_text_color = "fafafa",  -- ~fafafa

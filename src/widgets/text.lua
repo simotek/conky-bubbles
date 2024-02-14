@@ -3,6 +3,7 @@
 -- @alias wt
 
 pcall(function() require('cairo') end)
+pcall(function() require('cairo_text_helper') end)
 
 local data = require('src/data')
 local util = require('src/util')
@@ -20,29 +21,26 @@ local floor, ceil, clamp = math.floor, math.ceil, util.clamp
 local Text = util.class(Widget)
 w.Text = Text
 
-local write_aligned = {left = ch.write_left,
-                       center = ch.write_centered,
-                       right = ch.write_right}
-
 --- @tparam table args table of options
--- @tparam ?string args.align "left" (default), "center" or "right"
+-- @tparam ?cairo_text_alignment_t args.align "CAIRO_TEXT_ALIGN_LEFT" (default), "center" or "right"
 -- @tparam[opt=current_theme.default_font_family] ?string args.font_family
 -- @tparam[opt=current_theme.default_font_size] ?number args.font_size
--- @tparam[opt=CAIRO_FONT_SLANT_NORMAL] ?cairo_font_slant_t args.font_slant
--- @tparam[opt=CAIRO_FONT_WEIGHT_NORMAL] ?cairo_font_weight_t args.font_weight
+-- @tparam[opt=current_theme.default_font_direction] ?string
+-- @tparam[opt=current_theme.default_font_script] ?string
+-- @tparam[opt=current_theme.default_font_language] ?string
 -- @tparam ?string args.color a string containing a hex color code (default: `default_text_color`)
 function Text:init(args)
     assert(getmetatable(self) ~= Text, "Cannot instanciate class Text directly.")
-    self._align = args.align or "left"
+    self._align = args.align or CAIRO_TEXT_ALIGN_LEFT
     self._font_family = args.font_family or current_theme.default_font_family
     self._font_size = args.font_size or current_theme.default_font_size
-    self._font_slant = args.font_slant or CAIRO_FONT_SLANT_NORMAL
-    self._font_weight = args.font_weight or CAIRO_FONT_WEIGHT_NORMAL
+    self._font_direction = args.font_direction or current_theme.default_font_direction
+    self._font_script = args.font_script or current_theme.default_font_script
+    self._font_language = args.font_language or current_theme.default_font_language
     local tmp_color = args.color or current_theme.default_text_color
     self._color = ch.convert_string_to_rgba(tmp_color)
 
-    self._write_fn = write_aligned[self._align]
-
+    self._font_data = cairo_text_hp_load_font(self._font_family, self._font_size)
     -- try to match conky's line spacing:
     local font_extents = ch.font_extents(self._font_family, self._font_size,
                                          self._font_slant, self._font_weight)
@@ -50,16 +48,22 @@ function Text:init(args)
 
     local line_spacing = font_extents.height - (font_extents.ascent + font_extents.descent)
     self._baseline_offset = font_extents.ascent + 0.5 * line_spacing + 1
+
+    -- Set line_height
+    local w, h = cairo_text_hp_text_size("", self._font_data, 
+                             self._font_direction, self._font_script, self._font_language)
+    self._line_height = h
+
+    -- These will get updated with font but need to be a number to compare with
+    self._min_width = 1
+    self._min_height = 1
 end
 
 function Text:layout(width)
-    if self._align == "center" then
-        self._x = 0.5 * width
-    elseif self._align == "left" then
-        self._x = 0
-    else  -- self._align == "right"
-        self._x = width
-    end
+    -- Alignment handled by cairo api
+    -- Todo, Allow setting offsets at object creation
+    self._x = 0
+    self._y = 0
 end
 
 --- Draw text substuting in Conky variables.
@@ -76,19 +80,59 @@ function ConkyParse:init(text, args)
     Text.init(self, args)
 
     self._lines = {}
+    self._render_lines = {}
     local _, line_count = text:gsub("[^\n]*", function(line)
         table.insert(self._lines, line)
     end)
     self.height = line_count * self._line_height
 end
 
-function ConkyParse:render(cr)
-    ch.set_font(cr, self._font_family, self._font_size, self._font_slant,
-                    self._font_weight)
-    cairo_set_source_rgba(cr, unpack(self._color))
+function ConkyParse:update(update_count)
+    needs_rebuild = false
+    lw = self._min_width
+    lh = self._line_height
     for i, line in ipairs(self._lines) do
-        local y = self._baseline_offset + (i - 1) * self._line_height
-        self._write_fn(cr, self._x, y, conky_parse(line))
+        sub_text = conky_parse(line)
+        self._render_lines[i] = sub_text
+        local w, h = cairo_text_hp_text_size(sub_text, self._font_data, 
+                             self._font_direction, self._font_script, self._font_language)
+        if w > lw then
+            lw = w
+        end
+        if h > lh then
+            lh = h
+        end
+    end
+    if lw > self._min_width then
+        self._min_width = lw
+    end
+    if lh > self._line_height then
+        self._line_height = lh
+    end
+    new_height = lh*#self._lines
+    if new_height > self._min_height then
+        self._min_height = new_height
+        self.height = new_height
+        self._height = new_height
+        return true
+    end
+
+    -- Special handling for first run
+    if not self.width then
+        return true
+    end
+    -- if new min is bigger then current request reflow
+    if self._min_width > self.width or self._min_height > height then
+        return true
+    end
+end
+
+function ConkyParse:render(cr)
+    cairo_set_source_rgba(cr, unpack(self._color))
+    for i, line in ipairs(self._render_lines) do
+        local y = (i - 1) * self._line_height
+        cairo_text_hp_intl_show(cr, self._x, y, self._align, line, self._font_data,
+                             self._font_direction, self._font_script, self._font_language)
     end
 end
 
@@ -111,15 +155,23 @@ function StaticText:init(text, args)
     end
 
     self.height = #self._lines * self._line_height
+    local w, h = cairo_text_hp_text_size(text, self._font_data, 
+                             self._font_direction, self._font_script, self._font_language)
+    self._min_width = w
+    self.width = w
+    self._line_height = h
+    self._min_height = #self._lines * h
+    self.height = #self._lines * h
+--    print("text size B:", text, self._font_data, w, h, #self._lines * h)
+
 end
 
 function StaticText:render_background(cr)
-    ch.set_font(cr, self._font_family, self._font_size, self._font_slant,
-                    self._font_weight)
     cairo_set_source_rgba(cr, unpack(self._color))
     for i, line in ipairs(self._lines) do
-        local y = self._baseline_offset + (i - 1) * self._line_height
-        self._write_fn(cr, self._x, y, line)
+        local y = (i - 1) * self._line_height
+        cairo_text_hp_intl_show(cr, self._x, y, self._align, line, self._font_data,
+                             self._font_direction, self._font_script, self._font_language)
     end
 end
 
@@ -134,19 +186,42 @@ w.TextLine = TextLine
 function TextLine:init(args)
     Text.init(self, args)
     self.height = self._line_height
+    self.needs_rebuild = false
+    self.width = 0
 end
 
 --- Update the text line to be displayed.
 -- @string text
 function TextLine:set_text(text)
     self._text = text
+
+--    print("text size C:", text, self._font_data)
+    local w, h = cairo_text_hp_text_size(self._text, self._font_data, 
+                             self._font_direction, self._font_script, self._font_language)
+
+    if w > self._min_width then
+        self._min_width = w
+        if w > self.width then
+            self.needs_rebuild = true
+        end
+    end
+    if h > self._min_height then
+        self._min_height = h
+        self.needs_rebuild = true
+    end
+end
+
+function TextLine:update(update_count)
+    if self.needs_rebuild then
+        self.needs_rebuild = false
+        return true
+    end
 end
 
 function TextLine:render(cr)
-    ch.set_font(cr, self._font_family, self._font_size, self._font_slant,
-                    self._font_weight)
     cairo_set_source_rgba(cr, unpack(self._color))
-    self._write_fn(cr, self._x, self._baseline_offset, self._text)
+    cairo_text_hp_intl_show(cr, self._x, self._y, self._align, self._text, self._font_data,
+                             self._font_direction, self._font_script, self._font_language)
 end
 
 

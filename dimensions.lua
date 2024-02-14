@@ -139,11 +139,11 @@ function polycore.setup()
         Rows{
             CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
             Filler{height=10},
-            Columns{ConkyText("${top name 1}", {}), Filler{width=10}, ConkyText("${top cpu 1} %", {align="right"})},
-            Columns{ConkyText("${top name 2}", {}), Filler{width=10}, ConkyText("${top cpu 2} %", {align="right"})},
-            Columns{ConkyText("${top name 3}", {}), Filler{width=10}, ConkyText("${top cpu 3} %", {align="right"})},
-            Columns{ConkyText("${top name 4}", {}), Filler{width=10}, ConkyText("${top cpu 4} %", {align="right"})},
-            Columns{ConkyText("${top name 5}", {}), Filler{width=10}, ConkyText("${top cpu 5} %", {align="right"})},
+            Columns{ConkyText("${top name 1}", {}), Filler{width=10}, ConkyText("${top cpu 1} %", {align=CAIRO_TEXT_ALIGN_RIGHT})},
+            Columns{ConkyText("${top name 2}", {}), Filler{width=10}, ConkyText("${top cpu 2} %", {align=CAIRO_TEXT_ALIGN_RIGHT})},
+            Columns{ConkyText("${top name 3}", {}), Filler{width=10}, ConkyText("${top cpu 3} %", {align=CAIRO_TEXT_ALIGN_RIGHT})},
+            Columns{ConkyText("${top name 4}", {}), Filler{width=10}, ConkyText("${top cpu 4} %", {align=CAIRO_TEXT_ALIGN_RIGHT})},
+            Columns{ConkyText("${top name 5}", {}), Filler{width=10}, ConkyText("${top cpu 5} %", {align=CAIRO_TEXT_ALIGN_RIGHT})},
         },
         Filler{width=30},
         Rows{
