@@ -14,6 +14,7 @@ local ch = require('src/cairo_helpers')
 local core  = require('src/widgets/core')
 local cpu   = require('src/widgets/cpu')
 local drive = require('src/widgets/drive')
+local images = require('src/widgets/images')
 local gpu   = require('src/widgets/gpu')
 local mem   = require('src/widgets/memory')
 local net   = require('src/widgets/network')
@@ -24,6 +25,7 @@ local Frame, Filler, Rows, Columns = core.Frame, core.Filler,
 local Cpu, CpuFrequencies = cpu.Cpu, cpu.CpuFrequencies
 local Drive = drive.Drive
 local Gpu, GpuTop = gpu.Gpu, gpu.GpuTop
+local StaticImage = images.StaticImage
 local MemoryGrid = mem.MemoryGrid
 local Network = net.Network
 local ConkyText, TextLine = text.ConkyParse, text.TextLine
@@ -38,7 +40,7 @@ script_config = {
 
     alignment = 'top_left',
     gap_x = 0,
-    gap_y = 0,
+    gap_y = 100,
     minimum_width = 1600,
     maximum_width = 1600,
     minimum_height = 170,
@@ -163,6 +165,7 @@ function polycore.setup()
             Network{interface="enp34s0u1u3u4", downspeed=5 * 1024, upspeed=1024},
         },
         Filler{width=30},
+        StaticImage("/home/simon/Pictures/grav.png"),
         Rows{
             Drive("/dev/system/root"),
             Filler{height=-9},
