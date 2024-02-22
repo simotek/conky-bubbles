@@ -40,7 +40,6 @@ function Text:init(args)
     local tmp_color = args.color or current_theme.default_text_color
     self._color = ch.convert_string_to_rgba(tmp_color)
 
-    self._font_data = cairo_text_hp_load_font(self._font_family, self._font_size)
     -- try to match conky's line spacing:
     local font_extents = ch.font_extents(self._font_family, self._font_size,
                                          self._font_slant, self._font_weight)
@@ -50,7 +49,7 @@ function Text:init(args)
     self._baseline_offset = font_extents.ascent + 0.5 * line_spacing + 1
 
     -- Set line_height
-    local w, h = cairo_text_hp_text_size("", self._font_data, 
+    local w, h = cairo_text_hp_text_size("", self._font_family, self._font_size, 
                              self._font_direction, self._font_script, self._font_language)
     self._line_height = h
 
@@ -94,7 +93,7 @@ function ConkyParse:update(update_count)
     for i, line in ipairs(self._lines) do
         sub_text = conky_parse(line)
         self._render_lines[i] = sub_text
-        local w, h = cairo_text_hp_text_size(sub_text, self._font_data, 
+        local w, h = cairo_text_hp_text_size(sub_text, self._font_family, self._font_size, 
                              self._font_direction, self._font_script, self._font_language)
         if w > lw then
             lw = w
@@ -131,8 +130,8 @@ function ConkyParse:render(cr)
     cairo_set_source_rgba(cr, unpack(self._color))
     for i, line in ipairs(self._render_lines) do
         local y = (i - 1) * self._line_height
-        cairo_text_hp_intl_show(cr, self._x, y, self._align, line, self._font_data,
-                             self._font_direction, self._font_script, self._font_language)
+        cairo_text_hp_show(cr, self._x, y, line, self._font_family, self._font_size, self._align,
+                             self._font_language, self._font_script, self._font_direction)
     end
 end
 
@@ -155,7 +154,7 @@ function StaticText:init(text, args)
     end
 
     self.height = #self._lines * self._line_height
-    local w, h = cairo_text_hp_text_size(text, self._font_data, 
+    local w, h = cairo_text_hp_text_size(text, self._font_family, self._font_size, 
                              self._font_direction, self._font_script, self._font_language)
     self._min_width = w
     self.width = w
@@ -170,8 +169,8 @@ function StaticText:render_background(cr)
     cairo_set_source_rgba(cr, unpack(self._color))
     for i, line in ipairs(self._lines) do
         local y = (i - 1) * self._line_height
-        cairo_text_hp_intl_show(cr, self._x, y, self._align, line, self._font_data,
-                             self._font_direction, self._font_script, self._font_language)
+        cairo_text_hp_show(cr, self._x, y, line, self._font_family, self._font_size, self._align,
+                             self._font_language, self._font_script, self._font_direction)
     end
 end
 
@@ -196,7 +195,7 @@ function TextLine:set_text(text)
     self._text = text
 
 --    print("text size C:", text, self._font_data)
-    local w, h = cairo_text_hp_text_size(self._text, self._font_data, 
+    local w, h = cairo_text_hp_text_size(self._text, self._font_family, self._font_size, 
                              self._font_direction, self._font_script, self._font_language)
 
     if w > self._min_width then
@@ -220,8 +219,8 @@ end
 
 function TextLine:render(cr)
     cairo_set_source_rgba(cr, unpack(self._color))
-    cairo_text_hp_intl_show(cr, self._x, self._y, self._align, self._text, self._font_data,
-                             self._font_direction, self._font_script, self._font_language)
+    cairo_text_hp_show(cr, self._x, y, self._text, self._font_family, self._font_size, self._align,
+                             self._font_language, self._font_script, self._font_direction)
 end
 
 

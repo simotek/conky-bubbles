@@ -3,6 +3,7 @@
 -- @alias wcpu
 
 pcall(function() require('cairo') end)
+pcall(function() require('cairo_text_helper') end)
 
 local data = require('src/data')
 local util = require('src/util')
@@ -43,7 +44,9 @@ function Cpu:init(args)
     if not string.match(bold_font_fam, ":Bold") then
         bold_font_fam = bold_font_fam .. ":Bold"
     end
-    self._font_data = cairo_text_hp_load_font(bold_font_fam, 16)
+    self._bold_font_fam = bold_font_fam
+    local w, h = cairo_text_hp_text_size("1°", self._bold_font_fam, 16)
+    self._line_height = h
 end
 
 function Cpu:layout(width, height)
@@ -109,7 +112,7 @@ function Cpu:render(cr)
     cairo_fill(cr)
 
     cairo_set_source_rgba(cr, r, g, b, .4)
-    cairo_text_hp_simple_show_center(cr, self._mx + 1, self._my, string.format("%.0f°", avg_temperature), self._font_data)
+    cairo_text_hp_show(cr, 1, self._my-(self._line_height/2)+1, string.format("%.0f°", avg_temperature), self._bold_font_fam, 16, CAIRO_TEXT_ALIGN_CENTER)
 
     for core = 1, self._cores do
         ch.polygon(cr, self._segment_coordinates[core])
@@ -168,7 +171,9 @@ function CpuRound:init(args)
     if not string.match(bold_font_fam, ":Bold") then
         bold_font_fam = bold_font_fam .. ":Bold"
     end
-    self._font_data = cairo_text_hp_load_font(bold_font_fam, 16)
+    self._bold_font_fam = bold_font_fam
+    local w, h = cairo_text_hp_text_size("1°", self._bold_font_fam, 16)
+    self._line_height = h
 end
 
 function CpuRound:layout(width, height)
@@ -239,7 +244,7 @@ function CpuRound:render(cr)
 
     -- temperature text
     cairo_set_source_rgba(cr, r, g, b, 0.5)
-    cairo_text_hp_simple_show_center(cr, self._mx + 1, self._my, string.format("%.0f°", avg_temperature), self._font_data)
+    cairo_text_hp_show(cr, 1, my-(self._line_height/2)+1, string.format("%.0f°", avg_temperature), self._bold_font_fam, 16, CAIRO_TEXT_ALIGN_CENTER)
 
     -- inner fill
     cairo_new_path(cr)
@@ -303,7 +308,8 @@ function CpuFrequencies:init(args)
     self._height = args.height or 16
     self.height = self._height + 13
     self._text_color = ch.convert_string_to_rgba(current_theme.default_text_color)
-    self._font_data =  cairo_text_hp_load_font(current_theme.default_font_family, current_theme.default_font_size)
+    self._font_family =  current_theme.default_font_family 
+    self._font_size = current_theme.default_font_size
 
 end
 
@@ -333,7 +339,7 @@ end
 
 function CpuFrequencies:render_background(cr)
     cairo_set_source_rgba(cr, unpack(self._text_color))
-    cairo_text_hp_simple_show(cr, self._width + 5, 0.5 * self._height + 3, "GHz", self._font_data)
+    cairo_text_hp_show(cr, self._width + 5, 0.5 * self._height + 3, "GHz", self._font_family, self._font_size)
 
 
     -- shadow outline
