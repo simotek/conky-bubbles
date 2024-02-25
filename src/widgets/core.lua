@@ -3,6 +3,7 @@
 -- @alias wc
 
 pcall(function() require('cairo') end)
+pcall(function() require('imlib2') end)
 
 local data = require('src/data')
 local util = require('src/util')
@@ -48,7 +49,6 @@ function w.temperature_color(temperature, low, high)
            cool[3] + weight * (hot[3] - cool[3])
 end
 
-
 --- Root widget wrapper
 -- Takes care of managing layout reflows and background caching.
 -- @type Renderer
@@ -80,10 +80,70 @@ function Renderer:layout()
     local widgets = self._root:layout(self._width, self._height) or {}
     table.insert(widgets, 1, {self._root, 0, 0, self._width, self._height})
 
+    -- We need to order widgets so that parents are drawn before there children
+    -- otherwise frame backgrounds etc will draw on top of the things in frames
+    ordered_widgets = {}
+
+    -- There should be one widget with no parent, unfortunately it has
+    -- no children set, but other children should have it as the parent
+    root_widget = nil
+    for w, x, y, _width, _height in util.imap(unpack, widgets) do
+        if not w.parent then
+            table.insert(ordered_widgets, {w, x, y, _width, _height})
+            if root_widget == nil then
+                root_widget = w
+            else
+                print("Error: Multiple Roots")
+            end
+        end
+    end
+
+    -- Insert the first level of children into the list, they will have
+    -- the root widget as there parent
+    for w, x, y, _width, _height  in util.imap(unpack, widgets) do
+        if w.parent == root_widget then
+            if not util.in_table(w, ordered_widgets) then
+                table.insert(ordered_widgets, {w, x, y, _width, _height})
+            end
+        end
+    end
+
+    -- Go through list and keep adding children if they aren't in list
+    -- until there are no more to add or the list stops growing
+    last_list_size = -1
+    current_list_size = 0
+    found_all_widgets = false
+
+    while last_list_size ~= current_list_size and not found_all_widgets do
+        last_list_size = current_list_size
+        current_list_size = 0
+        for w in util.imap(unpack, widgets) do
+            current_list_size = current_list_size + 1
+            if w._children then
+                for _, c in pairs(w._children) do
+                    if not util.in_table(c, ordered_widgets) then
+                        for wt, x, y, _width, _height in util.imap(unpack, widgets) do
+                            if c == wt then
+                                table.insert(ordered_widgets, {wt, x, y, _width, _height})
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- This shouldn't happen but just in case
+    for w, x, y, _width, _height in util.imap(unpack, widgets) do
+        if not util.in_table(w, ordered_widgets) then
+            table.insert(ordered_widgets, {w, x, y, _width, _height})
+        end
+    end
+
     self._background_widgets = {}
     self._update_widgets = {}
     self._render_widgets = {}
-    for widget, x, y, _width, _height in util.imap(unpack, widgets) do
+    for widget, x, y, _width, _height in util.imap(unpack, ordered_widgets) do
         if widget.render_background then
             local wsr = cairo_surface_create_for_rectangle(self._background_surface,
                             floor(x),floor(y),floor(_width),floor(_height))
@@ -153,7 +213,7 @@ function Renderer:update(update_count)
 end
 
 function Renderer:paint_background(cr)
-    cairo_set_source_surface(cr, self._main_surface, 0, 0)
+    cairo_set_source_surface(cr, self._background_surface, 0, 0)
     cairo_paint(cr)
 end
 
@@ -173,6 +233,9 @@ function Renderer:render(cr)
     -- Overlay background surface
     cairo_set_operator(mcr, CAIRO_OPERATOR_OVER);
     cairo_set_source_surface(mcr, self._background_surface, 0, 0);
+    cairo_paint(mcr)
+    cairo_restore(mcr)
+
     -- render forground widgets
     for widget, wsr in util.imap(unpack, self._render_widgets) do
         local wcr = cairo_create(wsr)
@@ -501,6 +564,7 @@ w.Frame = Frame
 --  - table of four numbers: {top, right, bottom, left}
 -- @tparam ?number|{number,...} args.margin Like padding but outside the border.
 -- @tparam ?{number,number,number,number} args.background_color
+-- @tparam ?{string} args.background_image path to background image
 -- @tparam[opt=transparent] ?{number,number,number,number} args.border_color
 -- @tparam[opt=0] ?number args.border_width border line width
 -- @tparam ?{string,...} args.border_sides any combination of
@@ -510,6 +574,8 @@ function Frame:init(widget, args)
     self._widget = widget
     widget.parent = self
     self._background_color = args.background_color or nil
+    self._background_image = args.background_image or nil
+    self._background_image_alpha = args.background_image_alpha or 1.0
     self._border_color = args.border_color or {0, 0, 0, 0}
     self._border_width = args.border_width or 0
 
@@ -518,6 +584,7 @@ function Frame:init(widget, args)
     self._border_sides = util.set(args.border_sides or {"top", "right", "bottom", "left"})
 
     self._has_background = self._background_color and self._background_color[4] > 0
+    self._has_background_image = self._background_image
     self._has_border = self._border_width > 0
                        and (not args.border_sides or #args.border_sides > 0)
 
@@ -529,6 +596,21 @@ function Frame:init(widget, args)
                     + (self._border_sides.right and self._border_width or 0)
     self._y_bottom = self._margin.bottom + self._padding.bottom
                      + (self._border_sides.bottom and self._border_width or 0)
+
+    if self._has_background_image then
+        -- use imlib2 to calc background image size
+        imlib2img = imlib_load_image(self._background_image)
+        if self._background_image == nil then
+            self._has_background_image = false
+            print("Error: Bubbles Frame: Couldn't load background image"..self._background_image)
+        else
+            imlib_context_set_image(imlib2img)
+            self._background_image_width = imlib_image_get_width()
+            self._background_image_height = imlib_image_get_height()
+            imlib_free_image()
+        end
+    end
+
 
     if widget.width then
         self.width = widget.width + self._x_left + self._x_right
@@ -568,7 +650,9 @@ function Frame:layout(width, height)
 end
 
 function Frame:render_background(cr)
-    if self._has_background then
+    if self._has_background_image then
+        cairo_place_image(self._background_image, cr, 0, 0, self._width, self._height, self._background_image_alpha)
+    elseif self._has_background then
         cairo_rectangle(cr, self._margin.left, self._margin.top, self._width, self._height)
         cairo_set_source_rgba(cr, unpack(self._background_color))
         cairo_fill(cr)

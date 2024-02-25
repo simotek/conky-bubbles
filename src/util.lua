@@ -299,4 +299,17 @@ function util.merge_table(source, merge)
     return source
 end
 
+--- Checks for Item in table
+-- @tparam item item to search for
+-- @tab tbl table to search through
+-- @return boolian
+function util.in_table(item, tbl)
+    for _, i in pairs(tbl) do
+        if i == item then
+            return true
+        end
+    end
+    return false
+end
+
 return util
