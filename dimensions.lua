@@ -41,8 +41,8 @@ script_config = {
     alignment = 'top_left',
     gap_x = 0,
     gap_y = 100,
-    minimum_width = 1600,
-    maximum_width = 1600,
+    minimum_width = 1920,
+    maximum_width = 1920,
     minimum_height = 170,
 
     -- font --
@@ -53,7 +53,7 @@ script_config = {
     -- colors --
     own_window_colour = '131313',
     own_window_argb_visual = true,
-    own_window_argb_value = 180,
+    own_window_argb_value = 0,
     default_color = 'fafafa',
     color0 = '337777',  -- titles
     color1 = 'b9b9b7',  -- secondary text color
@@ -164,8 +164,6 @@ function polycore.setup()
             Filler{height=26},
             Network{interface="enp34s0u1u3u4", downspeed=5 * 1024, upspeed=1024},
         },
-        Filler{width=30},
-        StaticImage("/home/simon/Pictures/grav.png"),
         Rows{
             Drive("/dev/system/root"),
             Filler{height=-9},
@@ -173,6 +171,8 @@ function polycore.setup()
             Filler{height=-9},
         },
     }, {
+        background_image="assets/dimensions/bg_2650.png",
+        background_image_alpha=0.8,
         border_color={0.8, 1, 1, 0.05},
         border_width = 1,
         padding = {40, 20, 20, 10},
