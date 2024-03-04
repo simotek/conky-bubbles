@@ -28,7 +28,7 @@ local Gpu, GpuTop = gpu.Gpu, gpu.GpuTop
 local StaticImage = images.StaticImage
 local MemoryGrid, MemTop = mem.MemoryGrid, mem.MemTop
 local Network = net.Network
-local ConkyText, TextLine = text.ConkyParse, text.TextLine
+local ConkyText, TextLine = text.ConkyText, text.TextLine
 
 -- Draw debug information
 DEBUG = false

@@ -12,7 +12,7 @@ local core = require('src/widgets/core')
 local text  = require('src/widgets/text')
 local Widget = core.Widget
 
-local ConkyText = text.ConkyParse
+local ConkyText = text.ConkyText
 local Filler, Rows, Columns = core.Filler, core.Rows, core.Columns
 
 -- lua 5.1 to 5.3 compatibility
