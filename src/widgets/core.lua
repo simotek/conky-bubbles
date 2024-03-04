@@ -77,8 +77,6 @@ end
 -- Call this once to create the initial layout.
 -- Will be called again automatically each time the layout changes.
 function Renderer:layout()
-    print("Layout")
-
     local widgets = self._root:layout(self._width, self._height) or {}
     table.insert(widgets, 1, {self._root, 0, 0, self._width, self._height})
 
@@ -216,7 +214,6 @@ function Renderer:update(update_count)
 end
 
 function Renderer:paint_background(cr)
-    print("Background")
     --cairo_set_source_surface(cr, self._background_surface, 0, 0)
     --cairo_paint(cr)
     -- Layout was being called everytime
@@ -656,7 +653,6 @@ function Frame:layout(width, height)
 end
 
 function Frame:render_background(cr)
-    print("Frame render")
     if self._has_background_image then
         cairo_place_image(self._background_image, cr, 0, 0, self._width, self._height, self._background_image_alpha)
     elseif self._has_background then
