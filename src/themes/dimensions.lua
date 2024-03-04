@@ -31,6 +31,20 @@ theme = {
     -- @string default_graph_color a color hex string
     default_graph_color = default_graph_color,
 
+    --- A table of colors that are used for text in the "top" wigdets
+    -- ie CpuTop, MemTop, GpuTop
+    -- @table strings containing hex colors without the leading #
+    top_colors = {
+        default_graph_color,
+        "dddddd",
+        "aaaaaa",
+        "888888",
+        "666666",
+    },
+
+    --- A table of colors that are used for temperature graphs
+    -- in the CPU Widgets
+    -- @table strings containing hex colors without the leading #
     temperature_colors = {
         default_graph_color,
         "025286",
@@ -38,7 +52,7 @@ theme = {
         "8e44ad",
         "8d3733",
         "8d2f25",
-    }
+    },
 }
 
 return theme

@@ -9,7 +9,11 @@ local util = require('src/util')
 local ch = require('src/cairo_helpers')
 local core = require('src/widgets/core')
 local ind = require('src/widgets/indicator')
+local text  = require('src/widgets/text')
 local Widget = core.Widget
+
+local ConkyText = text.ConkyParse
+local Filler, Rows, Columns = core.Filler, core.Rows, core.Columns
 
 -- lua 5.1 to 5.3 compatibility
 local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
@@ -134,6 +138,41 @@ function MemoryGrid:render(cr)
     end
     cairo_set_source_rgba(cr, r, g, b, .1)
     cairo_fill(cr)
+end
+
+--- Table of processes sorted by CPU usage
+-- @type MemTop
+local MemTop = util.class(core.Rows)
+w.MemTop = MemTop
+
+--- @tparam table args table of options
+-- @tparam[opt=5] ?int args.lines how many processes to display
+-- @tparam ?string args.font_family
+-- @tparam ?number args.font_size
+-- @tparam ?string args.color a string containing a hex color code (default: `default_text_color`)
+function MemTop:init(args)
+    self._lines = args.lines or 5
+    self._font_family = args.font_family or current_theme.default_font_family
+    self._font_size = args.font_size or current_theme.default_font_size
+    local tmp_color = args.color or current_theme.default_text_color
+
+    self._rows = {}
+
+    for i=1,self._lines do
+        line_color = current_theme.default_text_color
+        if current_theme.top_colors then
+            if current_theme.top_colors[i] then
+                line_color = current_theme.top_colors[i]
+            else
+                line_color = current_theme.top_colors[#current_theme.top_colors]
+            end
+        end
+        self._rows[i] = Columns({ConkyText(" ${top_mem name "..i.."}", {color=line_color}), 
+                                 Filler{width=10}, 
+                                 ConkyText("${top_mem mem_res "..i.."} %", {align=CAIRO_TEXT_ALIGN_RIGHT, color=line_color})})
+    end
+
+    core.Rows.init(self, self._rows)
 end
 
 return w
