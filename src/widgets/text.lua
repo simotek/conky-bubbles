@@ -165,7 +165,7 @@ function StaticText:init(text, args)
 
 end
 
-function StaticText:render_background(cr)
+function StaticText:render(cr)
     cairo_set_source_rgba(cr, unpack(self._color))
     for i, line in ipairs(self._lines) do
         local y = (i - 1) * self._line_height
