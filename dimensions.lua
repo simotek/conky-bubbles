@@ -22,11 +22,11 @@ local text  = require('src/widgets/text')
 
 local Frame, Filler, Rows, Columns = core.Frame, core.Filler,
                                           core.Rows, core.Columns
-local Cpu, CpuFrequencies = cpu.Cpu, cpu.CpuFrequencies
+local Cpu, CpuFrequencies, CpuTop = cpu.Cpu, cpu.CpuFrequencies, cpu.CpuTop
 local Drive = drive.Drive
 local Gpu, GpuTop = gpu.Gpu, gpu.GpuTop
 local StaticImage = images.StaticImage
-local MemoryGrid = mem.MemoryGrid
+local MemoryGrid, MemTop = mem.MemoryGrid, mem.MemTop
 local Network = net.Network
 local ConkyText, TextLine = text.ConkyParse, text.TextLine
 
@@ -41,8 +41,8 @@ script_config = {
     alignment = 'top_left',
     gap_x = 0,
     gap_y = 100,
-    minimum_width = 1920,
-    maximum_width = 1920,
+    minimum_width = 2560,
+    maximum_width = 2550,
     minimum_height = 170,
 
     -- font --
@@ -135,23 +135,17 @@ function polycore.setup()
             Cpu{cores=6, inner_radius=28, gap=5, outer_radius=57},
             Filler{},
         },
-        Filler{width=10},
-        MemoryGrid{columns=5},
-        Filler{width=20},
+        Filler{width=30},
         Rows{
             CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
-            Filler{height=10},
-            Columns{ConkyText("${top name 1}", {}), Filler{width=10}, ConkyText("${top cpu 1} %", {align=CAIRO_TEXT_ALIGN_RIGHT})},
-            Columns{ConkyText("${top name 2}", {}), Filler{width=10}, ConkyText("${top cpu 2} %", {align=CAIRO_TEXT_ALIGN_RIGHT})},
-            Columns{ConkyText("${top name 3}", {}), Filler{width=10}, ConkyText("${top cpu 3} %", {align=CAIRO_TEXT_ALIGN_RIGHT})},
-            Columns{ConkyText("${top name 4}", {}), Filler{width=10}, ConkyText("${top cpu 4} %", {align=CAIRO_TEXT_ALIGN_RIGHT})},
-            Columns{ConkyText("${top name 5}", {}), Filler{width=10}, ConkyText("${top cpu 5} %", {align=CAIRO_TEXT_ALIGN_RIGHT})},
+            Filler{height=5},
+            CpuTop({}),
         },
         Filler{width=30},
         Rows{
-            Filler{height=5},
-            --Gpu(),
-            Filler{height=5},
+            MemoryGrid{rows=8},
+            Filler{height=11},
+            MemTop({}),
             --Columns{Filler{width=10},ConkyText("${top cpu 1} %",{align="right"})}
             
             --Columns{ConkyText("${top name 1}"), Filler{width=10},ConkyText("${top cpu 1} %",{align="right"})}
@@ -164,6 +158,12 @@ function polycore.setup()
             Filler{height=26},
             Network{interface="enp34s0u1u3u4", downspeed=5 * 1024, upspeed=1024},
         },
+        Rows({Gpu(),
+        GpuTop({})}),
+        Filler{width=30},
+        StaticImage("/home/simon/Pictures/grav.png"),
+        Filler{width=30},
+        StaticImage("/home/simon/Pictures/oslogo.png"),
         Rows{
             Drive("/dev/system/root"),
             Filler{height=-9},
@@ -172,10 +172,10 @@ function polycore.setup()
         },
     }, {
         background_image="assets/dimensions/bg_2650.png",
-        background_image_alpha=0.8,
+        background_image_alpha=0.7,
         border_color={0.8, 1, 1, 0.05},
         border_width = 1,
-        padding = {40, 20, 20, 10},
+        padding = {20, 20, 20, 10},
     })
     return core.Renderer{root=root,
                            width=conkyrc.config.minimum_width,
