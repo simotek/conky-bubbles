@@ -80,7 +80,6 @@ function StaticImage:render(cr)
         scale = 1.0
     end
     cairo_draw_image(self._path, cairo_get_target(cr), x, y, scale, scale)
-    
 end
 
 return w
