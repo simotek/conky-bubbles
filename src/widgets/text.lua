@@ -71,7 +71,7 @@ end
 -- may not be honored.
 -- @type ConkyText
 local ConkyText = util.class(Text)
-w.ConkyParse = ConkyParse
+w.ConkyText = ConkyText
 
 --- @string text Text to be displayed, can include conky variables.
 --- @tparam table args table of options, see `Text:init`

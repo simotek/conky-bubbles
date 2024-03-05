@@ -164,7 +164,7 @@ function CpuRound:init(args)
     self._inner_radius = args.inner_radius
     self._outer_radius = args.outer_radius
     self._grid = args.grid
-    self._graph_color = ch.convert_string_to_rgba(current_theme.default_graph_color)
+    self._graph_color = ch.convert_string_to_rgba(current_theme.highlight_color)
 
     if self._outer_radius then
         self.height = 2 * self._outer_radius

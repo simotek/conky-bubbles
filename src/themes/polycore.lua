@@ -5,7 +5,7 @@
 pcall(function() require('cairo') end)
 
 -- Specified here so it can be used in multiple places
-local default_graph_color = "66ffff"
+local highlight_color = "66ffff"
 
 theme = {
     --- Font used by widgets if no other is specified.
@@ -31,10 +31,18 @@ theme = {
 
     --- Color used to draw some widgets if no other is specified.
     -- @string default_graph_color a color hex string
-    default_graph_color = default_graph_color,
+    highlight_color = highlight_color,
+
+    --- Color used to draw graph widgets if no other is specified.
+    -- @string graph_color a color hex string
+    graph_color = highlight_color,
+
+    --- Color used to draw some widgets if no other is specified.
+    -- @string background_color a color hex string
+    background_color = "666666",
 
     temperature_colors = {
-        default_graph_color,
+        highlight_color,
         "7fffcc",
         "b2e599",
         "ffe566",

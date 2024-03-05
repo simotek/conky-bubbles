@@ -28,14 +28,14 @@ w.Bar = Bar
 -- @tparam ?string args.unit to be drawn behind the bar - 3 characters will fit
 -- @tparam ?{number,...} args.ticks relative offsets (between 0 and 1) of ticks
 -- @tparam ?int args.big_ticks multiple of ticks to be drawn longer
--- @tparam ?string args.color a string containing a hex color code (default: `default_graph_color`)
+-- @tparam ?string args.color a string containing a hex color code (default: `highlight_color`)
 function Bar:init(args)
     self._ticks = args.ticks
     self._big_ticks = args.big_ticks
     self._unit = args.unit
     self._thickness = (args.thickness or 4)
     self.height = self._thickness + 2
-    local tmp_color = args.color or current_theme.default_text_color
+    local tmp_color = args.color or current_theme.highlight_color
     self.color = ch.convert_string_to_rgba(tmp_color)
 
     if self._ticks then
@@ -134,13 +134,13 @@ w.Graph = Graph
 --                                  which may be slightly faster.
 -- @int[opt] args.width fix width in pixels
 -- @int[opt] args.height fixeheight in pixels
--- @tparam ?string args.color a string containing a hex color code (default: `default_graph_color`)
+-- @tparam ?string args.color a string containing a hex color code (default: `graph_color`)
 function Graph:init(args)
     self._max = args.max
     self._data = util.CycleQueue(args.data_points or 60)
     self._upside_down = args.upside_down or false
     self._smoothness = args.smoothness or 0.5
-    local tmp_color = args.color or current_theme.default_graph_color
+    local tmp_color = args.color or current_theme.graph_color
     self.color = ch.convert_string_to_rgba(tmp_color)
     self.width = args.width
     self.height = args.height
@@ -266,7 +266,7 @@ w.LED = LED
 --                                Can be changed later with `LED:set_brightness`
 -- @tparam ?string args.color color of the LED,
 --                                can be changed later with `LED:set_color`.
---                                (default: `default_graph_color`)
+--                                (default: `graph_color`)
 -- @tparam ?string args.background_color mostly visible
 --                                when the LED is off. This allows you to choose
 --                                a neutral background if you plan on changing
@@ -278,10 +278,10 @@ function LED:init(args)
     self.width = self._radius * 2
     self.height = self._radius * 2
     self._brightness = args.brightness or 0
-    local tmp_color = args.color or current_theme.default_text_color
+    local tmp_color = args.color or current_theme.graph_color
     self._color = ch.convert_string_to_rgba(tmp_color)
     if args.background_color then
-        self._background_color = convert_string_to_rgba(args.background_color)
+        self._background_color = convert_string_to_rgba(args.background_color) or current_theme.background_color
     else
         local r, g, b = unpack(self._color)
         self._background_color = {0.2 * r, 0.2 * g, 0.2 * b, 0.75}

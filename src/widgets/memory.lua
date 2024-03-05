@@ -76,14 +76,14 @@ w.MemoryGrid = MemoryGrid
 -- @tparam[opt=2] ?int args.point_size edge length of individual squares
 -- @tparam[opt=1] ?int args.gap space between squares
 -- @tparam[opt=true] ?bool args.shuffle randomize?
--- @tparam ?{number,number,number} args.color (default: `default_graph_color`)
+-- @tparam ?{number,number,number} args.color (default: `highlight_color`)
 function MemoryGrid:init(args)
     self._rows = args.rows
     self._columns = args.columns
     self._point_size = args.point_size or 2
     self._gap = args.gap or 1
     self._shuffle = args.shuffle == nil and true or args.shuffle
-    local tmp_color = args.color or current_theme.default_graph_color
+    local tmp_color = args.color or current_theme.highlight_color
     self._color = ch.convert_string_to_rgba(tmp_color)
     if self._rows then
         self.height = self._rows * self._point_size + (self._rows - 1) * self._gap

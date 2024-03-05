@@ -5,7 +5,7 @@
 pcall(function() require('cairo') end)
 
 -- Specified here so it can be used in multiple places
-local default_graph_color = "3498d8"
+local highlight_color = "3498d8"
 
 theme = {
     --- Font used by widgets if no other is specified.
@@ -28,14 +28,22 @@ theme = {
     secondary_text_color = "b9b9b7",  -- ~b9b9b7
 
     --- Color used to draw some widgets if no other is specified.
-    -- @string default_graph_color a color hex string
-    default_graph_color = default_graph_color,
+    -- @string highlight_color a color hex string
+    highlight_color = highlight_color,
+
+    --- Color used to draw graph widgets if no other is specified.
+    -- @string graph_color a color hex string
+    graph_color = highlight_color,
+
+    --- Color used to draw some widgets if no other is specified.
+    -- @string background_color a color hex string
+    background_color = "666666",
 
     --- A table of colors that are used for text in the "top" wigdets
     -- ie CpuTop, MemTop, GpuTop
     -- @table strings containing hex colors without the leading #
     top_colors = {
-        default_graph_color,
+        highlight_color,
         "dddddd",
         "aaaaaa",
         "888888",
@@ -46,7 +54,7 @@ theme = {
     -- in the CPU Widgets
     -- @table strings containing hex colors without the leading #
     temperature_colors = {
-        default_graph_color,
+        highlight_color,
         "025286",
         "484b9a",
         "8e44ad",
