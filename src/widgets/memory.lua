@@ -169,7 +169,7 @@ function MemTop:init(args)
         end
         self._rows[i] = Columns({ConkyText(" ${top_mem name "..i.."}", {color=line_color}), 
                                  Filler{width=10}, 
-                                 ConkyText("${top_mem mem_res "..i.."} %", {align=CAIRO_TEXT_ALIGN_RIGHT, color=line_color})})
+                                 ConkyText("${top_mem mem_res "..i.."}", {align=CAIRO_TEXT_ALIGN_RIGHT, color=line_color})})
     end
 
     core.Rows.init(self, self._rows)

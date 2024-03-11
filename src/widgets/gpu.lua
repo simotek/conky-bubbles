@@ -89,7 +89,7 @@ function GpuTop:update(update_count)
 
     for i=1,self._lines do
         self._process_names[i]:set_text(self._processes[i][1] or "")
-        self._process_mem[i]:set_text(self._processes[i][2] or "")
+        self._process_mem[i]:set_text(self._processes[i][2].."MiB" or "")
 
         if self._process_names[i].needs_rebuild or self._process_mem[i].needs_rebuild then
             rebuild = true
