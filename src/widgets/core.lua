@@ -245,7 +245,7 @@ function Renderer:render(cr)
     -- render forground widgets
     for widget, wsr, _width, _height in util.imap(unpack, self._render_widgets) do
         local wcr = cairo_create(wsr)
-        DEBUG = true
+        DEBUG = false
         if DEBUG then
             cairo_set_source_rgba(wcr, 1, 0, 0, 1)
             if _width * _height ~= 0 then
