@@ -9,7 +9,11 @@ local util = require('src/util')
 local ch = require('src/cairo_helpers')
 local core = require('src/widgets/core')
 local mem = require('src/widgets/memory')
+local text  = require('src/widgets/text')
 local Widget = core.Widget
+
+local TextLine = text.TextLine
+local Filler, Rows, Columns = core.Filler, core.Rows, core.Columns
 
 -- lua 5.1 to 5.3 compatibility
 local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
@@ -44,7 +48,7 @@ end
 
 --- Table of processes for the GPU, sorted by VRAM usage
 -- @type GpuTop
-local GpuTop = util.class(Widget)
+local GpuTop = util.class(core.Rows)
 w.GpuTop = GpuTop
 
 --- @tparam table args table of options
@@ -57,36 +61,48 @@ function GpuTop:init(args)
     self._font_family = args.font_family or current_theme.default_font_family
     self._font_size = args.font_size or current_theme.default_font_size
     local tmp_color = args.color or current_theme.default_text_color
-    self._color = ch.convert_string_to_rgba(tmp_color)
+    self._rows = {}
+    self._process_names = {}
+    self._process_mem = {}
 
-    local extents = ch.font_extents(self._font_family, self._font_size)
-    self._line_height = extents.height
-    self.height = self._lines * self._line_height
-    local line_spacing = extents.height - (extents.ascent + extents.descent)
-    -- try to match conky's line spacing:
-    self._baseline_offset = extents.ascent + 0.5 * line_spacing + 1
-end
-
-function GpuTop:layout(width)
-    self._width = width
-end
-
-function GpuTop:update()
-    self._processes = data.gpu_top()
-end
-
-function GpuTop:render(cr)
-    ch.set_font(cr, self._font_family, self._font_size)
-    cairo_set_source_rgba(cr, unpack(self._color))
-    cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE)
-
-    local lines = math.min(self._lines, #self._processes)
-    local y = self._baseline_offset
-    for i = 1, lines do
-        ch.write_left(cr, 0, y, self._processes[i][1])
-        ch.write_right(cr, self._width, y, self._processes[i][2] .. " MiB")
-        y = y + self._line_height
+    for i=1,self._lines do
+        line_color = current_theme.default_text_color
+        if current_theme.top_colors then
+            if current_theme.top_colors[i] then
+                line_color = current_theme.top_colors[i]
+            else
+                line_color = current_theme.top_colors[#current_theme.top_colors]
+            end
+        end
+        self._process_names[i] = TextLine({color=line_color})
+        self._process_mem[i] = TextLine({align=CAIRO_TEXT_ALIGN_RIGHT, color=line_color})
+        self._rows[i] = Columns({self._process_names[i], Filler{width=10}, self._process_mem[i]})
     end
+
+    core.Rows.init(self, self._rows)
+end
+
+function GpuTop:update(update_count)
+    self._processes = data.gpu_top()
+
+    rebuild = false
+
+    for i=1,self._lines do
+        self._process_names[i]:set_text(self._processes[i][1] or "")
+        self._process_mem[i]:set_text(self._processes[i][2] or "")
+
+        if self._process_names[i].needs_rebuild or self._process_mem[i].needs_rebuild then
+            rebuild = true
+        end
+    end
+
+    res = core.Rows.update(self, update_count)
+
+    if rebuild == false then
+        return res
+    end
+
+    return rebuild
 end
 
 return w
