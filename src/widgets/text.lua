@@ -58,12 +58,6 @@ function Text:init(args)
     self._min_height = 1
 end
 
-function Text:layout(width)
-    -- Alignment handled by cairo api
-    -- Todo, Allow setting offsets at object creation
-    self._x = 0
-    self._y = 0
-end
 
 --- Draw text substuting in Conky variables.
 -- Text line will be updated on each cycle as per Conky's text
@@ -83,11 +77,11 @@ function ConkyText:init(text, args)
     local _, line_count = text:gsub("[^\n]*", function(line)
         table.insert(self._lines, line)
     end)
-    self.height = line_count * self._line_height
 end
 
 function ConkyText:update(update_count)
     needs_rebuild = false
+    local new_height = 0
     lw = self._min_width
     lh = self._line_height
     for i, line in ipairs(self._lines) do
@@ -104,6 +98,7 @@ function ConkyText:update(update_count)
     end
     if lw > self._min_width then
         self._min_width = lw
+        needs_rebuild = true
     end
     if lh > self._line_height then
         self._line_height = lh
@@ -111,19 +106,10 @@ function ConkyText:update(update_count)
     new_height = lh*#self._lines
     if new_height > self._min_height then
         self._min_height = new_height
-        self.height = new_height
-        self._height = new_height
-        return true
+        needs_rebuild = true
     end
 
-    -- Special handling for first run
-    if not self.width then
-        return true
-    end
-    -- if new min is bigger then current request reflow
-    if self._min_width > self.width or self._min_height > height then
-        return true
-    end
+    return needs_rebuild
 end
 
 function ConkyText:render(cr)
@@ -161,7 +147,6 @@ function StaticText:init(text, args)
     self._line_height = h
     self._min_height = #self._lines * h
     self.height = #self._lines * h
---    print("text size B:", text, self._font_data, w, h, #self._lines * h)
 
 end
 
@@ -184,9 +169,9 @@ w.TextLine = TextLine
 --- @tparam table args table of options, see `Text:init`
 function TextLine:init(args)
     Text.init(self, args)
-    self.height = self._line_height
     self.needs_rebuild = false
-    self.width = 0
+
+    self._text = ""
 end
 
 --- Update the text line to be displayed.
@@ -194,21 +179,19 @@ end
 function TextLine:set_text(text)
     self._text = text
 
---    print("text size C:", text, self._font_data)
     local w, h = cairo_text_hp_text_size(self._text, self._font_family, self._font_size, 
                              self._font_direction, self._font_script, self._font_language)
-
     if w > self._min_width then
         self._min_width = w
-        if w > self.width then
-            self.needs_rebuild = true
-        end
+        self.needs_rebuild = true
     end
     if h > self._min_height then
         self._min_height = h
         self.needs_rebuild = true
     end
+
 end
+
 
 function TextLine:update(update_count)
     if self.needs_rebuild then
@@ -219,7 +202,7 @@ end
 
 function TextLine:render(cr)
     cairo_set_source_rgba(cr, unpack(self._color))
-    cairo_text_hp_show(cr, self._x, y, self._text, self._font_family, self._font_size, self._align,
+    cairo_text_hp_show(cr, 0, 0, self._text, self._font_family, self._font_size, self._align,
                              self._font_language, self._font_script, self._font_direction)
 end
 
