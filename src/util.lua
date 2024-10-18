@@ -312,4 +312,18 @@ function util.in_table(item, tbl)
     return false
 end
 
+--- Returns all files in a directory
+-- @string path full path to search
+function util.files_in_dir(path)
+    ret_list = {}
+    for file in lfs.dir(path) do
+        full_file = path..file
+        if lfs.attributes(full_file,"mode") == "file" then 
+            table.insert(ret_list, full_file)
+        end
+    end
+
+    return ret_list
+end
+
 return util
