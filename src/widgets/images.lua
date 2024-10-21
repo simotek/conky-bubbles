@@ -133,13 +133,15 @@ function RandomImage:init(path, args)
             --self._min_height = self._image_height
         end
     end
-
 end
 
 function RandomImage:update(update_count)
     if self._tick > 30 then
         self._tick = 0
         if #self._image_list > 0 then
+            -- free old image
+            imlib_context_set_image(self._image)
+            imlib_free_image_and_decache()
             next_index = math.random(1, #self._image_list)
             -- use imlib to find image size
             self._current_path = self._image_list[next_index]
