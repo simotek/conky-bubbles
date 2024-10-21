@@ -3,6 +3,7 @@
 -- @alias ch
 
 pcall(function() require('cairo') end)
+pcall(function() require('cairo_xlib') end)
 
 local util = require('src/util')
 
@@ -37,6 +38,31 @@ function ch.polygon(cr, coordinates)
     for i = 3, #coordinates, 2 do
         cairo_line_to(cr, floor(coordinates[i]) + .5,
                           floor(coordinates[i + 1]) + .5)
+    end
+    cairo_close_path(cr)
+end
+
+--- Draw a curved polygon with the given vertices.
+-- @tparam cairo_t cr
+-- @tparam {number,...} coordinates of vertices (x1, y1, x2, y2, ...)
+function ch.curved_polygon(cr, coordinates, bezier_coordinates)
+    -- +.5 for sharp lines, see https://cairographics.org/FAQ/#sharp_lines
+    local floor = math.floor
+    cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT)
+    cairo_move_to(cr, floor(coordinates[1]) + .5, floor(coordinates[2]) + .5)
+    for i = 3, #coordinates, 2 do
+        if i == 5 then
+            cairo_curve_to(cr, bezier_coordinates[5], bezier_coordinates[6],
+                               bezier_coordinates[7], bezier_coordinates[8],
+                               floor(coordinates[i]) + .5, floor(coordinates[i + 1]) + .5)
+        --elseif i == 3 then
+        --    cairo_curve_to(cr, bezier_coordinates[5], bezier_coordinates[6],
+        --                       bezier_coordinates[7], bezier_coordinates[8],
+        --                       floor(coordinates[i]) + .5, floor(coordinates[i + 1]) + .5)
+        else
+            cairo_line_to(cr, floor(coordinates[i]) + .5,
+                      floor(coordinates[i + 1]) + .5)
+        end
     end
     cairo_close_path(cr)
 end
