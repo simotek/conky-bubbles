@@ -13,8 +13,8 @@ local polycore = require('src/polycore')
 local core  = require('src/widgets/core')
 local cpu   = require('src/widgets/cpu')
 
-local width = 500
-local height = 540
+local width = 1000
+local height = 640
 
 --- Called once on startup to initialize widgets.
 -- @treturn widget.Renderer
@@ -47,7 +47,7 @@ function polycore.setup()
                 cpu.Cpu{cores=12, outer_radius=52, inner_radius=36, gap=5},
             },
             core.Filler{width=20},
-            cpu.Cpu{cores=6, gap=7, outer_radius=100},
+            cpu.Cpu{cores=6, gap=7, outer_radius=100, rounded=true},
         },
         core.Filler{},
         core.Columns{
@@ -63,6 +63,11 @@ function polycore.setup()
             },
             core.Filler{width=20},
             cpu.CpuRound{cores=64, outer_radius=100, grid=5},
+            core.Rows{
+                cpu.CpuCombo{cores=6, outer_radius=52, mid_radius=36, inner_radius=26},
+                core.Filler{height=20},
+                cpu.CpuCombo{cores=16, outer_radius=52, mid_radius=40, inner_radius=30, grid=5},
+            },
         },
 
     }, {padding=20})
