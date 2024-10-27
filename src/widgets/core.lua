@@ -147,6 +147,7 @@ function Renderer:layout()
     DEBUG = false
 
     for widget, x, y, _width, _height in util.imap(unpack, ordered_widgets) do
+
         if widget.render_background then
             local wsr = cairo_surface_create_for_rectangle(self._background_surface,
                             floor(x),floor(y),floor(_width),floor(_height))
@@ -169,6 +170,7 @@ function Renderer:layout()
     cairo_set_operator(bcr, CAIRO_OPERATOR_SOURCE)
     cairo_paint(bcr)
     cairo_restore(bcr)
+    cairo_destroy(bcr)
 
     -- render to backgrounds to surface
     for widget, wsr in util.imap(unpack, self._background_widgets) do
@@ -259,7 +261,8 @@ function Renderer:render(cr)
         widget:render(wcr)
         cairo_destroy(wcr)
     end
-    cairo_paint(mcr);
+    cairo_paint(mcr)
+    cairo_destroy(mcr)
 end
 
 --- Base Widget class.
@@ -585,6 +588,269 @@ function Columns:layout(width, height)
             table.insert(children, child)
         end
         x = x + widget_width
+    end
+    return children
+end
+
+--- Display Widgets on top of each other
+-- @type Stack
+local Stack = util.class(Widget)
+w.Stack = Stack
+
+-- reuse an identical function
+
+--- @tparam {Widget,...} widgets
+function Stack:init(widgets)
+    self._children = widgets
+
+    self._min_width = 0
+    self._min_height = 0
+
+    for _, widget in ipairs(self._children) do
+        widget.parent = self
+
+        if widget.width ~= nil then
+            if widget.width > self._min_width then
+                self._min_width = widget.width
+            end
+        elseif widget._min_width then
+            if widget._min_width > self._min_width then
+                self._min_width = widget._min_width
+            end
+        end
+        if widget.height then
+            if widget.height > self._min_height then self._min_height = widget.height end
+        elseif widget._min_height then
+            if widget._min_height > self._min_height then self._min_height = widget._min_height end
+        end
+    end
+end
+
+function Stack:update(update_count)
+    local reflow = false
+
+    for _, widget in ipairs(self._children) do
+        reflow = widget:update(update_count) or reflow
+    end
+
+    if reflow then
+        self._fillers = 0
+        self._fixed_width = 0
+        local new_min_width = 0
+        local new_min_height = 0
+        for _, widget in ipairs(self._children) do
+            widget.parent = self
+
+            if widget.width ~= nil then
+                if widget.width > new_min_width then
+                    new_min_width = widget.width
+                end
+            elseif widget._min_width then
+                if widget._min_width > new_min_width then
+                    new_min_width = widget._min_width
+                end
+            end
+            if widget.height then
+                if widget.height > new_min_height then new_min_height = widget.height end
+            elseif widget._min_height then
+                if widget._min_height > new_min_height then new_min_height = widget._min_height end
+            end
+        end
+
+        -- Design Decision, never shrink because it can look strange
+        -- with dynamic content
+        if new_min_width > self._min_width then
+            self._min_width = new_min_width
+        end
+        if new_min_height > self._min_height then
+            self._min_height = new_min_height
+        end
+
+        return true
+    end
+end
+
+function Stack:layout(width, height)
+    self._height = height  -- used to draw debug lines
+    self._width = width
+    local children = {}
+
+    for _, widget in ipairs(self._children) do
+        local x = 0
+        local y = 0
+        local width = self._width
+        local height = self._height
+        if widget.width then
+            x = (self._width - widget.width) / 2
+            width = widget.width
+        elseif widget._min_width then
+            -- If min_width then widget can expand to full size
+            x = 0
+            width = self._width
+        end
+        if widget.height then
+            y = (self._height - widget.height) / 2
+            height = widget.height
+        elseif widget._min_height then
+            -- If min_width then widget can expand to full size
+            y = 0
+            height = self._height
+        end
+        table.insert(children, {widget, x, y, width, height})
+        local sub_children = widget:layout(width, height) or {}
+        for _, child in ipairs(sub_children) do
+            table.insert(children, child)
+        end
+    end
+    return children
+end
+
+--- Hardcode a widget's location
+-- @type Float
+local Float = util.class(Widget)
+w.Float = Float
+
+-- reuse an identical function
+
+--- @widget Inner widget, note that this object can only have one inner widget
+--- @tparam table args table of options
+-- @int args.x x offset
+-- @int args.y y offset
+-- @int args.width width of inner widget
+-- @int args.height height of inner widget
+function Float:init(widget, args)
+    self._child = widget
+    self._children = {self._child}
+    widget.parent = self
+
+    self._inner_x = args.x or 0
+    self._inner_y = args.y or 0
+    self._inner_width = args.width
+    self._inner_height = args.height
+
+    -- If the inner height / width is set we should hard code them.
+    if self._inner_width ~= nil then
+        self._width = self._inner_x + self._inner_width
+    else
+        if self._child.width ~= nil then
+            if self._inner_width ~= nil then
+                self._width = self._inner_x + self._inner_width + self._child.width
+            else
+                self._width = self._inner_x + self._child.width
+            end
+        elseif self._child._min_width then
+            if self._inner_width ~= nil then
+                self._min_width = self._inner_x + self._inner_width + self._child._min_width
+            else
+                self._min_width = self._inner_x + self._child._min_width
+            end
+        else
+            if self._inner_width ~= nil then
+                self._min_width = self._inner_x + self._inner_width
+            end
+        end
+    end
+    if self._inner_height ~= nil then
+        self._height = self._inner_y + self._inner_height
+    else
+        if self._child.height ~= nil then
+            if self._inner_height ~= nil then
+                self.height = self._inner_y + self._inner_height + self._child.height
+            else
+                self.height = self._inner_y + self._child.height
+            end
+        elseif self._child._min_width then
+            if self._inner_height ~= nil then
+                self._min_height = self._inner_y + self._inner_height + self._child._min_height
+            else
+                self._min_height = self._inner_y + self._child._min_height
+            end
+        else
+            if self._inner_height ~= nil then
+                self._min_height = self._inner_y + self._inner_height
+            end
+        end
+    end
+end
+
+function Float:update(update_count)
+    local reflow = self._child:update(update_count)
+
+    local new_min_width = nil
+    local new_min_height = nil
+
+    if reflow then
+        if self._inner_width ~= nil then
+            self._width = self._inner_x + self._inner_width
+        else
+            if self._child.width ~= nil then
+                self._width = self._inner_x + self._child.width
+            elseif self._child._min_width then
+                new_min_width = self._inner_x  + self._child._min_width
+            else
+                if self._inner_width ~= nil then
+                    new_min_width = self._inner_x + self._inner_width
+                end
+            end
+            -- Design Decision, never shrink because it can look strange
+            -- with dynamic content
+            if new_min_width ~= nil then
+                if new_min_width > self._min_width then
+                    self._min_width = new_min_width
+                end
+            end
+        end
+        if self._inner_height ~= nil then
+            self._height = self._inner_y + self._inner_height
+        else
+            if self._child.height ~= nil then
+                self.height = self._inner_y + self._child.height
+            elseif self._child._min_width then
+                new_min_height = self._inner_y + self._child._min_height
+            else
+                if self._inner_height ~= nil then
+                    new_min_height = self._inner_y + self._inner_height
+                end
+            end
+
+
+            if self._min_height ~= nil then
+                if new_min_height > self._min_height then
+                    self._min_height = new_min_height
+                end
+            end
+        end
+
+        return true
+    end
+end
+
+function Float:layout(width, height)
+    self._height = height  -- used to draw debug lines
+    self._width = width
+    local children = {}
+
+    local w = 0
+    local h = 0
+
+    if self._inner_width ~= nil then
+        w = self._inner_width - self._inner_x
+    else
+        w = width - self._inner_x
+    end
+
+    if self._inner_height ~= nil then
+        h = self._inner_height - self._inner_y
+    else
+        h = height - self._inner_y
+    end
+
+    table.insert(children, {self._child, self._inner_x, self._inner_y, w, h})
+    local sub_children = self._child:layout(w, h) or {}
+    for _, child in ipairs(sub_children) do
+        child[2] = child[2] + self._inner_x
+        child[3] = child[3] + self._inner_y
+        table.insert(children, child)
     end
     return children
 end
