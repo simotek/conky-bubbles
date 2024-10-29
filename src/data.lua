@@ -1,6 +1,8 @@
 --- Data gathering facilities for conky widgets
 -- @module data
 
+local lfs = require('lfs')
+
 local util = require('src/util')
 
 -- lua 5.1 to 5.3 compatibility
@@ -284,6 +286,7 @@ data.find_devices = util.memoize(10, function()
     local mounts = {}
     local physical_device
     for device, type, mount in rows do
+        print("find_devices:"..device..":"..type..":"..mount)
         if type == "disk" then physical_device = device end
         if mount ~= "" then
             mounts[mount] = {device, physical_device}
@@ -298,15 +301,15 @@ end)
 -- @function data.device_temperatures
 -- @treturn table mapping devices to temperature values
 data.device_temperatures = util.memoize(5, function(device)
-    --local temp_inputs = read_cmd("ls -1"
-    --    .. " /sys/block/*/device/hwmon/hwmon*/temp1_input"  -- sata
-    --    .. " /sys/block/*/device/hwmon*/temp1_input"  -- nvme
-    --)
+    local temp_inputs = read_cmd("ls -1"
+        --.. " /sys/block/*/device/hwmon/hwmon*/temp1_input"  -- sata
+        .. " /sys/block/*/device/hwmon*/temp1_input"  -- nvme
+    )
     local temps = {}
-    --for device, hwmon_path in temp_inputs:gmatch("/sys/block/(%w+)/device/(%S+)") do
-    --    hwmon_path = "/sys/block/" .. device .. "/device/" .. hwmon_path
-    --    temps[device] = read_number_from_file(hwmon_path) / 1000
-    --end
+    for device, hwmon_path in temp_inputs:gmatch("/sys/block/(%w+)/device/(%S+)") do
+        hwmon_path = "/sys/block/" .. device .. "/device/" .. hwmon_path
+        temps[device] = read_number_from_file(hwmon_path) / 1000
+    end
     return temps
 end)
 

@@ -9,8 +9,9 @@ local util = require('src/util')
 local ch = require('src/cairo_helpers')
 local core = require('src/widgets/core')
 local ind = require('src/widgets/indicator')
-local Widget = core.Widget
-
+local text  = require('src/widgets/text')
+local Widget, Columns, Filler = core.Widget, core.Columns, core.Filler
+local ConkyText, StaticText = text.ConkyText, text.StaticText
 -- lua 5.1 to 5.3 compatibility
 local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
 
@@ -32,13 +33,27 @@ function Network:init(args)
     self.interface = args.interface
     self._downspeed_graph = ind.Graph{height=args.graph_height, max=args.downspeed or 1024}
     self._upspeed_graph = ind.Graph{height=args.graph_height, max=args.upspeed or 1024}
-    core.Rows.init(self, {self._downspeed_graph, core.Filler{height=31}, self._upspeed_graph})
+
+    local status_font = {color=current_theme.secondary_text_color,font_family=current_theme.default_font_family, font_size=current_theme.default_font_size, align=CAIRO_TEXT_ALIGN_RIGHT}
+
+    self._rows = {}
+    self._rows[1] = Columns({StaticText("Down",{}), Filler{width=10}, ConkyText("${downspeed "..self.interface.."}", status_font)})
+    self._rows[2] = Columns({StaticText("Total",{}), Filler{width=10}, ConkyText("${totaldown "..self.interface.."}", status_font)})
+    self._rows[3] = self._downspeed_graph
+    self._rows[4] = Columns({StaticText("Up",{}), Filler{width=10}, ConkyText("${upspeed "..self.interface.."}", status_font)})
+    self._rows[5] = Columns({StaticText("Total",{}), Filler{width=10}, ConkyText("${totalup "..self.interface.."}", status_font)})
+    self._rows[6] = self._upspeed_graph
+
+
+    core.Rows.init(self, self._rows)
 end
 
 function Network:update()
     local down, up = data.network_speed(self.interface)
     self._downspeed_graph:add_value(down)
     self._upspeed_graph:add_value(up)
+
+    core.Rows.update(self)
 end
 
 return w

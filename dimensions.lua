@@ -14,36 +14,41 @@ local ch = require('src/cairo_helpers')
 local core  = require('src/widgets/core')
 local cpu   = require('src/widgets/cpu')
 local drive = require('src/widgets/drive')
-local images = require('src/widgets/images')
 local gpu   = require('src/widgets/gpu')
+local images = require('src/widgets/images')
 local mem   = require('src/widgets/memory')
 local net   = require('src/widgets/network')
 local text  = require('src/widgets/text')
 
-local Frame, Filler, Rows, Columns = core.Frame, core.Filler,
-                                          core.Rows, core.Columns
-local Cpu, CpuFrequencies, CpuTop = cpu.Cpu, cpu.CpuFrequencies, cpu.CpuTop
+local Frame, Filler, Rows, Columns, Float, Stack = core.Frame, core.Filler,
+                                          core.Rows, core.Columns, core.Float, core.Stack
+local CpuCombo, CpuFrequencies, CpuTop = cpu.CpuCombo, cpu.CpuFrequencies, cpu.CpuTop
 local Drive = drive.Drive
 local Gpu, GpuTop = gpu.Gpu, gpu.GpuTop
-local StaticImage = images.StaticImage
+local StaticImage, RandomImage = images.StaticImage, images.RandomImage
 local MemoryGrid, MemTop = mem.MemoryGrid, mem.MemTop
 local Network = net.Network
-local ConkyText, TextLine = text.ConkyText, text.TextLine
+local ConkyText, StaticText, TextLine = text.ConkyText, text.StaticText, text.TextLine
 
 -- Draw debug information
 DEBUG = false
 
 
 local conkyrc = conky or {}
+
+-- Todo auto detect this.
+local screen_width = 2560
+
 script_config = {
     lua_load = script_dir .. "dimensions.lua",
 
     alignment = 'top_left',
     gap_x = 0,
     gap_y = 100,
-    minimum_width = 2560,
-    maximum_width = 2550,
-    minimum_height = 170,
+    minimum_width = screen_width,
+    maximum_width = screen_width,
+    minimum_height = 350,
+    xinerama_head = 3,
 
     -- font --
     font = 'Ubuntu:pixelsize=10',
@@ -129,54 +134,64 @@ ${voffset 5}#
 -- @treturn widget.Renderer
 function polycore.setup()
 
-    local root = Frame(Columns{
-        Rows{
-            Filler{},
-            Cpu{cores=6, inner_radius=28, gap=5, outer_radius=57},
-            Filler{},
-        },
-        Filler{width=30},
-        Rows{
-            CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
-            Filler{height=5},
-            CpuTop({}),
-        },
-        Filler{width=30},
-        Rows{
-            MemoryGrid{rows=8},
-            Filler{height=11},
-            MemTop({}),
-            --Columns{Filler{width=10},ConkyText("${top cpu 1} %",{align="right"})}
-            
-            --Columns{ConkyText("${top name 1}"), Filler{width=10},ConkyText("${top cpu 1} %",{align="right"})}
+    local root = 
+    Stack{
+        Float(StaticText("openSUSE",{color=current_theme.highlight_color,font_family="SUSE", font_size=34}), {x=200, y=5}),
+        Float(StaticText("Linux",{font_family="SUSE", font_size=34}), {x=360, y=5}),
+        Float(StaticText("Have alot of fun.",{font_family="SUSE Light", font_size=14}), {x=450, y=25}),
+        Float(Frame(Columns{
+            Columns({
+                StaticImage("assets/dimensions/system-icon.png", {fixed_size=true})
+            }),
+            Rows{
+                Filler{},
+                CpuCombo{cores=16, inner_radius=25, mid_radius=45, outer_radius=62, gap=6, grid=5},
+                Filler{},
+            },
+            Filler{width=30},
+            Rows{
+                CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
+                Filler{height=5},
+                CpuTop({}),
+            },
+            Filler{width=30},
+            Rows{
+                MemoryGrid{rows=8},
+                Filler{height=11},
+                MemTop({}),
+            },
+            Filler{width=30},
+            Rows{
+                Filler{height=26},
+                Network{interface="enp0s13f0u1u4u4", downspeed=5 * 1024, upspeed=1024},
+            },
+            Filler{width=30},
+            Rows({Gpu(),
+            GpuTop({})}),
+            Filler{width=30},
+            --StaticImage("/home/simon/Pictures/grav.png", {}),
+            --Filler{width=30},
+            RandomImage("/home/simon/Pictures/PhotoFrame/", {}),
+            Rows{
+                Drive("system-root"),
+                Filler{height=-9},
+                Drive("system-home"),
+                Filler{height=-9},
+            },
+            }, {
+                background_image="assets/dimensions/bg_2650.png",
+                background_image_alpha=0.5,
+                border_color={0.8, 1, 1, 0.05},
+                border_width = 1,
+                padding = {20, 20, 20, 10},
+            }),
+        {x=0, y=50, width=screen_width, height=230}),
+        Float(ConkyText("${time %H:%M:%S}",{font_family="SUSE Thin", font_size=120}), {x=1600, y=210}),
+        Float(ConkyText("${time %d}",{color=current_theme.highlight_color, font_family="SUSE Light", font_size=42}), {x=2100, y=231}),
+        Float(ConkyText("${time  %B} ${time %Y}",{font_family="SUSE Thin", font_size=32}), {x=2160, y=237}),
+        Float(ConkyText("${time %A}",{font_family="SUSE Thin", font_size=48}), {x=2100, y=280}),
+    }
 
-
-            --GpuTop{lines=5, color=secondary_text_color},
-        },
-        Filler{width=30},
-        Rows{
-            Filler{height=26},
-            Network{interface="enp34s0u1u3u4", downspeed=5 * 1024, upspeed=1024},
-        },
-        Rows({Gpu(),
-        GpuTop({})}),
-        Filler{width=30},
-        StaticImage("/home/simon/Pictures/grav.png"),
-        Filler{width=30},
-        StaticImage("/home/simon/Pictures/oslogo.png"),
-        Rows{
-            Drive("/dev/system/root"),
-            Filler{height=-9},
-            Drive("/dev/system/home"),
-            Filler{height=-9},
-        },
-    }, {
-        background_image="assets/dimensions/bg_2650.png",
-        background_image_alpha=0.7,
-        border_color={0.8, 1, 1, 0.05},
-        border_width = 1,
-        padding = {20, 20, 20, 10},
-    })
     return core.Renderer{root=root,
                            width=conkyrc.config.minimum_width,
                            height=conkyrc.config.minimum_height}

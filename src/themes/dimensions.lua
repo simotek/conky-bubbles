@@ -10,11 +10,20 @@ local highlight_color = "3498d8"
 theme = {
     --- Font used by widgets if no other is specified.
     -- @string default_font_family
-    default_font_family = "Play",
+    default_font_family = "SUSE",
+
+    --- Bold Font used by widgets if no other is specified.
+    -- @string default_bold_font_family
+    default_bold_font_family = "SUSE:Bold",
 
     --- Font size used by widgets if no other is specified.
     -- @int default_font_size
     default_font_size = 12,
+
+    --- Font size used by widgets if no other is specified.
+    -- @int default_font_size
+    header_font_size = 14,
+
     default_font_direction = "LTR", 
     default_font_script = "Zyyy", 
     default_font_language = "en",
@@ -30,6 +39,10 @@ theme = {
     --- Color used to draw some widgets if no other is specified.
     -- @string highlight_color a color hex string
     highlight_color = highlight_color,
+
+    --- Color used for drawing titles / headers (not used by widgets)
+    -- @string header_color a color hex string
+    header_color = "025286",
 
     --- Color used to draw graph widgets if no other is specified.
     -- @string graph_color a color hex string
@@ -61,6 +74,14 @@ theme = {
         "8d3733",
         "8d2f25",
     },
+
+    --- Color for Green LED's.
+    -- @string green_led_color a color hex string
+    green_led_color = "489a4b",
+
+    --- Color for Red LED's.
+    -- @string red_led_color a color hex string
+    red_led_color = "8d2f25"
 }
 
 return theme

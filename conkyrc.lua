@@ -13,9 +13,10 @@ script_config = {
     alignment = 'top_left',
     gap_x = 0,
     gap_y = 28,
-    minimum_width = 140,
-    maximum_width = 140,
+    minimum_width = 160,
+    maximum_width = 160,
     minimum_height = 1080 - 28,
+    xinerama_head = 3,
 
     -- font --
     font = 'Ubuntu:pixelsize=10',
@@ -81,59 +82,10 @@ conkyrc.config = config
 -----------------
 
 conkyrc.text = [[
-${voffset 30}#
-${font TeXGyreChorus:pixelsize=20:bold}${alignc}Linux ${color 44dddd}Mint$color$font
-
-$color1#
-${alignc}${time %d.%m.%Y}
-${alignc}${time %H:%M}
-$color#
-#
-### cpu ###
-${voffset 200}
-#
-### top ###
-${template1 top}${template8}cpu
-${voffset 3}#
-${template2 1}
-${template2 2}
-${template2 3}
-${template2 4}
-${template2 5}
-
-
-### mem ###
-${template1 mem} ${template8}$memperc %
-${voffset 12}
-### memtop ###
-${template3 1}
-${template3 2}
-${template3 3}
-
-
-### GPU ###
-#${template1 gpu}  ${nvidia gpufreq} MHz#
-#${template8}#
-#${if_match 75 <= ${nvidia temp}}${color2}${font Ubuntu:pixelsize=10:bold}$endif#
-#${nvidia temp}°C$color
-#${voffset 78}
-
-
-### net ###
-${template1 net}
-${voffset 3}#
-${template9}${color1}Down$color${template8}${downspeed enp0s31f6}
-${template9}${color1}Total$color${template8}${totaldown enp0s31f6}
-${voffset 29}#
-${template9}${color1}Up$color${template8}${upspeed enp0s31f6}
-${template9}${color1}Total$color${template8}${totalup enp0s31f6}
-
-
-
-
 ### drives ###
 ${template5 root /}#
 ${template5 home /home}#
+
 #
 ${image 9blocks.png -p 60,990 -s 16x16}#
 ]]

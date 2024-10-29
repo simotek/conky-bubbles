@@ -77,6 +77,31 @@ end
 -- Call this once to create the initial layout.
 -- Will be called again automatically each time the layout changes.
 function Renderer:layout()
+    local size_changed = false
+    if (conky_window.width > 0 and
+        conky_window.width ~= self._width) then
+        self._width = conky_window.width
+        size_changed = true
+    end
+
+    if (conky_window.height > 0 and 
+        conky_window.height ~= self._height) then
+        self._height = conky_window.height
+        size_changed = true
+    end
+
+    if size_changed then
+        print("Window: "..self._width..","..self._height)
+        cairo_surface_destroy(self._background_surface)
+        self._background_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+                                                              self._width,
+                                                              self._height)
+        cairo_surface_destroy(self._main_surface)
+        self._main_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+                                                              self._width,
+                                                              self._height)
+    end
+
     local widgets = self._root:layout(self._width, self._height) or {}
     table.insert(widgets, 1, {self._root, 0, 0, self._width, self._height})
 
@@ -875,6 +900,10 @@ function Filler:init(args)
         self.height = args.height or (self._widget and self._widget.height)
         self.width = args.width or (self._widget and self._widget.width)
     end
+
+    if self._widget then
+        self._widget.parent = self
+    end
 end
 
 function Filler:layout(width, height)
@@ -999,11 +1028,13 @@ function Frame:update(update_count)
 end
 
 function Frame:layout(width, height)
+
     self._width = width - self._margin.left - self._margin.right
     self._height = height - self._margin.top - self._margin.bottom
     local inner_width = width - self._x_left - self._x_right
     local inner_height = height - self._y_top - self._y_bottom
     local children = self._widget:layout(inner_width, inner_height) or {}
+
     for _, child in ipairs(children) do
         child[2] = child[2] + self._x_left
         child[3] = child[3] + self._y_top

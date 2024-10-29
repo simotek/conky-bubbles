@@ -12,8 +12,8 @@ local mem = require('src/widgets/memory')
 local text  = require('src/widgets/text')
 local Widget = core.Widget
 
-local TextLine = text.TextLine
-local Filler, Rows, Columns = core.Filler, core.Rows, core.Columns
+local StaticText, TextLine = text.StaticText, text.TextLine
+local Filler, Float, Rows, Columns = core.Filler, core.Float, core.Rows, core.Columns
 
 -- lua 5.1 to 5.3 compatibility
 local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
@@ -35,7 +35,11 @@ function Gpu:init()
     self._membar.update = function()
         self._membar:set_used(data.gpu_memory() / 1024)
     end
-    core.Rows.init(self, {self._usebar, core.Filler{height=4}, self._membar})
+    self._rows = {}
+    self._rows[1] = Columns({Float(self._usebar, {y=3}),StaticText("%  ",{align=CAIRO_TEXT_ALIGN_RIGHT})})
+    self._rows[2] = Filler{height=4}
+    self._rows[3] = Columns({Float(self._membar, {y=3}),StaticText("GiB",{align=CAIRO_TEXT_ALIGN_RIGHT})})
+    core.Rows.init(self, self._rows)
 end
 
 function Gpu:update()
