@@ -69,8 +69,19 @@ w.ConkyText = ConkyText
 
 --- @string text Text to be displayed, can include conky variables.
 --- @tparam table args table of options, see `Text:init`
+-- @tparam args.pattern a cairo mesh to use as the fill
+-- @float  args.border_width Width of the border
+-- @string args.border_color a border color to use.
 function ConkyText:init(text, args)
     Text.init(self, args)
+
+    self._pattern = args.pattern
+    self._border_width = args.border_width
+    if args.border_color then
+        self._border_color = ch.convert_string_to_rgba(args.border_color)
+    else
+        self._border_color = nil
+    end
 
     self._lines = {}
     self._render_lines = {}
@@ -80,12 +91,12 @@ function ConkyText:init(text, args)
 end
 
 function ConkyText:update(update_count)
-    needs_rebuild = false
+    local needs_rebuild = false
     local new_height = 0
-    lw = self._min_width
-    lh = self._line_height
+    local lw = self._min_width
+    local lh = self._line_height
     for i, line in ipairs(self._lines) do
-        sub_text = conky_parse(line)
+        local sub_text = conky_parse(line)
         self._render_lines[i] = sub_text
         local w, h = cairo_text_hp_text_size(sub_text, self._font_family, self._font_size, 
                              self._font_direction, self._font_script, self._font_language)
@@ -118,6 +129,11 @@ function ConkyText:render(cr)
         local y = (i - 1) * self._line_height
         cairo_text_hp_show(cr, self._x, y, line, self._font_family, self._font_size, self._align,
                              self._font_language, self._font_script, self._font_direction)
+        if self._border_width then
+            cairo_set_line_width(cr, self._border_width)
+            cairo_set_source_rgba(cr, unpack(self._border_color))
+            cairo_stroke(cr)
+        end
     end
 end
 
@@ -129,11 +145,22 @@ w.StaticText = StaticText
 
 --- @string text Text to be displayed.
 -- @tparam ?table args table of options, see `Text:init`
+-- @tparam args.pattern a cairo pattern to use as the fill
+-- @float  args.border_width Width of the border
+-- @string args.border_color a border color to use.
 function StaticText:init(text, args)
     Text.init(self, args or {})
 
+    self._pattern = args.pattern
+    self._border_width = args.border_width
+    if args.border_color then
+        self._border_color = ch.convert_string_to_rgba(args.border_color)
+    else
+        self._border_color = nil
+    end
+
     self._lines = {}
-    text = text .. "\n"
+    local text = text .. "\n"
 
     for line in text:gmatch("(.-)\n") do
         table.insert(self._lines, line)
@@ -151,11 +178,20 @@ function StaticText:init(text, args)
 end
 
 function StaticText:render(cr)
-    cairo_set_source_rgba(cr, unpack(self._color))
+    if self._pattern then
+        cairo_set_source(cr, self._pattern)
+    else
+        cairo_set_source_rgba(cr, unpack(self._color))
+    end
     for i, line in ipairs(self._lines) do
         local y = (i - 1) * self._line_height
         cairo_text_hp_show(cr, self._x, y, line, self._font_family, self._font_size, self._align,
                              self._font_language, self._font_script, self._font_direction)
+        if self._border_width then
+            cairo_set_line_width(cr, self._border_width)
+            cairo_set_source_rgba(cr, unpack(self._border_color))
+            cairo_stroke(cr)
+        end
     end
 end
 
