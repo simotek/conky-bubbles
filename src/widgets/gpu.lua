@@ -70,7 +70,7 @@ function GpuTop:init(args)
     self._process_mem = {}
 
     for i=1,self._lines do
-        line_color = current_theme.default_text_color
+        local line_color = current_theme.default_text_color
         if current_theme.top_colors then
             if current_theme.top_colors[i] then
                 line_color = current_theme.top_colors[i]
@@ -89,7 +89,7 @@ end
 function GpuTop:update(update_count)
     self._processes = data.gpu_top()
 
-    rebuild = false
+    local rebuild = false
 
     for i=1,self._lines do
         if #self._processes >= i then
@@ -102,7 +102,7 @@ function GpuTop:update(update_count)
         end
     end
 
-    res = core.Rows.update(self, update_count)
+    local res = core.Rows.update(self, update_count)
 
     if rebuild == false then
         return res

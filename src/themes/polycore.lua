@@ -7,7 +7,7 @@ pcall(function() require('cairo') end)
 -- Specified here so it can be used in multiple places
 local highlight_color = "66ffff"
 
-theme = {
+local theme = {
     --- Font used by widgets if no other is specified.
     -- @string default_font_family
     default_font_family = "Play",

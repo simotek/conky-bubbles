@@ -4,7 +4,7 @@
 
 pcall(function() require('cairo') end)
 
-config = {
+local config = {
     -- awesome wm --
     own_window = true,
     own_window_class = 'conky',

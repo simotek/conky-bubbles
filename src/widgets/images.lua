@@ -67,11 +67,11 @@ end
 function StaticImage:render(cr)
     if self._image == nil then return end
 
-    scale_width = self.width/self._image_width
-    scale_height = self.height/self._image_height
+    local scale_width = self.width/self._image_width
+    local scale_height = self.height/self._image_height
 
     -- Scale by the larger ammount (smaller number) to maintain aspect ratio
-    scale = 1.0
+    local scale = 1.0
     if scale_width < scale_height then
         scale = scale_width
     else
@@ -79,8 +79,8 @@ function StaticImage:render(cr)
     end
     -- If scale is greater then 1 center rather then expand, in the future
     -- this could be an option
-    x=0
-    y=0
+    local x=0
+    local y=0
     if scale > 1.0 then
         x = (self.width-self._image_width)/2
         y = (self.height-self._image_height)/2
@@ -97,11 +97,8 @@ w.RandomImage = RandomImage
 
 --- @string path image to be displayed.
 -- @tparam ?table args table of options, see `Image:init`
--- @tparam ?boolean args.fixed_size if true the image won't be scaled.
 function RandomImage:init(path, args)
     Image.init(self, args)
-
-    self._fixed_size = args.fixed_size or false
 
     self._image_list = util.files_in_dir(path)
 
@@ -115,7 +112,7 @@ function RandomImage:init(path, args)
 
     if #self._image_list > 0 then
         math.randomseed(os.time())
-        next_index = math.random(1, #self._image_list)
+        local next_index = math.random(1, #self._image_list)
 
         -- use imlib to find image size
         self._current_path = self._image_list[next_index]
@@ -125,13 +122,8 @@ function RandomImage:init(path, args)
         self._image_width = imlib_image_get_width()
         self._image_height = imlib_image_get_height()
 
-        if self._fixed_size then
-            self.width = self._image_width
-            self.height = self._image_height
-        else
-            --self._min_width = self._image_width
-            --self._min_height = self._image_height
-        end
+        self.width = self._image_width
+        self.height = self._image_height
     end
 end
 
@@ -142,7 +134,7 @@ function RandomImage:update(update_count)
             -- free old image
             imlib_context_set_image(self._image)
             imlib_free_image_and_decache()
-            next_index = math.random(1, #self._image_list)
+            local next_index = math.random(1, #self._image_list)
             -- use imlib to find image size
             self._current_path = self._image_list[next_index]
             print("Image: "..self._current_path)
@@ -151,13 +143,8 @@ function RandomImage:update(update_count)
             self._image_width = imlib_image_get_width()
             self._image_height = imlib_image_get_height()
 
-            if self._fixed_size then
-                self.width = self._image_width
-                self.height = self._image_height
-            else
-                --self._min_width = self._image_width
-                --self._min_height = self._image_height
-            end
+            self.width = self._image_width
+            self.height = self._image_height
         end
         return true
     end
@@ -166,18 +153,19 @@ function RandomImage:update(update_count)
 end
 
 function RandomImage:layout(width, height)
-    self.width = width
-    self.height = height
+    self._width = width
+    self._height = height
 end
 
 function RandomImage:render(cr)
+
     if self._image == nil then return end
 
-    scale_width = self.width/self._image_width
-    scale_height = self.height/self._image_height
+    local scale_width = self._width/self._image_width
+    local scale_height = self._height/self._image_height
 
     -- Scale by the larger ammount (smaller number) to maintain aspect ratio
-    scale = 1.0
+    local scale = 1.0
     if scale_width < scale_height then
         scale = scale_width
     else
@@ -185,14 +173,15 @@ function RandomImage:render(cr)
     end
     -- If scale is greater then 1 center rather then expand, in the future
     -- this could be an option
-    x=0
-    y=0
+    local x=0
+    local y=0
     if scale > 1.0 then
-        x = (self.width-self._image_width)/2
-        y = (self.height-self._image_height)/2
+        x = (self._width-self._image_width)/2
+        y = (self._height-self._image_height)/2
         scale = 1.0
     else
-        x = (self.width-(self._image_width*scale))/2
+        x = (self._width-(self._image_width*scale))/2
+        y = (self._height-(self._image_height*scale))/2
     end
 
     cairo_draw_image(self._current_path, cairo_get_target(cr), x, y, scale, scale)

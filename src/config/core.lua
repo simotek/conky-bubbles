@@ -4,7 +4,7 @@
 
 pcall(function() require('cairo') end)
 
-config = {
+local config = {
     lua_startup_hook = "conky_setup",
     lua_draw_hook_pre = "conky_paint_background",
     lua_draw_hook_post = "conky_update",

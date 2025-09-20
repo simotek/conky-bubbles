@@ -269,7 +269,7 @@ end
 -- @string[opt] unit like "B", "MiB", "kB", ...; no conversion if nil
 -- @treturn number,string activity, unit
 function data.diskio(device, mode, unit)
-    mode = mode and "_" .. mode or ""
+    local mode = mode and "_" .. mode or ""
     local result = conky_loader:get("${diskio%s /dev/%s}", mode, device)
     local value, parsed_unit = result:match("(%d+%p?%d*) ?(%w+)")
     return convert_unit(parsed_unit, unit, tonumber(value)), unit or parsed_unit
@@ -308,7 +308,10 @@ data.device_temperatures = util.memoize(5, function(device)
     local temps = {}
     for device, hwmon_path in temp_inputs:gmatch("/sys/block/(%w+)/device/(%S+)") do
         hwmon_path = "/sys/block/" .. device .. "/device/" .. hwmon_path
-        temps[device] = read_number_from_file(hwmon_path) / 1000
+        local r = read_number_from_file(hwmon_path)
+        if r then
+            temps[device] = read_number_from_file(hwmon_path) / 1000
+        end
     end
     return temps
 end)

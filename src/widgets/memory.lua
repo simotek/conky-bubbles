@@ -159,7 +159,7 @@ function MemTop:init(args)
     self._rows = {}
 
     for i=1,self._lines do
-        line_color = current_theme.default_text_color
+        local line_color = current_theme.default_text_color
         if current_theme.top_colors then
             if current_theme.top_colors[i] then
                 line_color = current_theme.top_colors[i]
