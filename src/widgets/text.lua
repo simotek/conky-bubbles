@@ -40,14 +40,6 @@ function Text:init(args)
     local tmp_color = args.color or current_theme.default_text_color
     self._color = ch.convert_string_to_rgba(tmp_color)
 
-    -- try to match conky's line spacing:
-    local font_extents = ch.font_extents(self._font_family, self._font_size,
-                                         self._font_slant, self._font_weight)
-    self._line_height = font_extents.height + 1
-
-    local line_spacing = font_extents.height - (font_extents.ascent + font_extents.descent)
-    self._baseline_offset = font_extents.ascent + 0.5 * line_spacing + 1
-
     -- Set line_height
     local w, h = cairo_text_hp_text_size("", self._font_family, self._font_size, 
                              self._font_direction, self._font_script, self._font_language)
