@@ -590,16 +590,22 @@ function Filler:init(args)
 end
 
 function Filler:layout(width, height)
+    local children = {}
+
     if self._widget then
-        local children = self._widget:layout(width, height) or {}
         table.insert(children, 1, {self._widget, 0, 0, width, height})
+
+        local sub_children = self._widget:layout(width, height) or {}
+        for _, child in ipairs(sub_children) do
+            table.insert(children, child)
+        end
         return children
     end
 end
 
 
 local function side_widths(arg)
-    arg = arg or 0
+    local arg = arg or 0
     if type(arg) == "number" then
         return {top=arg, right=arg, bottom=arg, left=arg}
     elseif #arg == 2 then
@@ -634,20 +640,28 @@ w.Frame = Frame
 -- @tparam ?{string,...} args.border_sides any combination of
 --                                         "top", "right", "bottom" and/or "left"
 --                                         (default: all sides)
+-- @tparam[opt=false] ?bool args.expand if true the frame will expand to the full space provided rather then just the space of the widget
 function Frame:init(widget, args)
-    self._widget = widget
+    self._child = widget
     widget.parent = self
-    self._background_color = args.background_color or nil
+    self._children = {widget}
+
+    self._background_color = nil
+    if args.background_color then
+        self._background_color = ch.convert_string_to_rgba(args.background_color)
+    end
     self._background_image = args.background_image or nil
     self._background_image_alpha = args.background_image_alpha or 1.0
     self._border_color = args.border_color or {0, 0, 0, 0}
     self._border_width = args.border_width or 0
 
+    self._expand = args.expand or false
+
     self._padding = side_widths(args.padding)
     self._margin = side_widths(args.margin)
     self._border_sides = util.set(args.border_sides or {"top", "right", "bottom", "left"})
 
-    self._has_background = self._background_color and self._background_color[4] > 0
+    self._has_background = self._background_color
     self._has_background_image = self._background_image
     self._has_border = self._border_width > 0
                        and (not args.border_sides or #args.border_sides > 0)
@@ -663,7 +677,7 @@ function Frame:init(widget, args)
 
     if self._has_background_image then
         -- use imlib2 to calc background image size
-        imlib2img = imlib_load_image(self._background_image)
+        local imlib2img = imlib_load_image(self._background_image)
         if self._background_image == nil then
             self._has_background_image = false
             print("Error: Bubbles Frame: Couldn't load background image"..self._background_image)
@@ -675,36 +689,35 @@ function Frame:init(widget, args)
         end
     end
 
-
-    if widget.width then
+    if widget.width and self._expand ~= true then
         self.width = widget.width + self._x_left + self._x_right
     else
-        widget_min_w = self._widget._min_width or 0
+        local widget_min_w = self._child._min_width or 0
         self._min_width = widget_min_w + self._x_left + self._x_right
     end
-    if widget.height then
+    if widget.height and self._expand ~= true then
         self.height = widget.height + self._y_top + self._y_bottom
     else
-        widget_min_h = self._widget._min_height or 0
+        local widget_min_h = self._child._min_height or 0
         self._min_height = widget_min_h + self._y_top + self._y_bottom
     end
 end
 
 function Frame:update(update_count)
     local reflow = false
-    reflow = self._widget:update(update_count) or reflow
+    reflow = self._child:update(update_count) or reflow
 
     if reflow then
-        if self._widget.width then
-            self.width = self._widget.width + self._x_left + self._x_right
+        if self._child.width and self._expand ~= true then
+            self.width = self._child.width + self._x_left + self._x_right
         else
-            widget_min_w = self._widget._min_width or 0
+            local widget_min_w = self._child._min_width or 0
             self._min_width = widget_min_w + self._x_left + self._x_right
         end
-        if self._widget.height then
-            self.height = self._widget.height + self._y_top + self._y_bottom
+        if self._child.height and self._expand ~= true then
+            self.height = self._child.height + self._y_top + self._y_bottom
         else
-            widget_min_h = self._widget._min_height or 0
+            local widget_min_h = self._child._min_height or 0
             self._min_height = widget_min_h + self._y_top + self._y_bottom
         end
         return true
@@ -712,26 +725,32 @@ function Frame:update(update_count)
 end
 
 function Frame:layout(width, height)
+    local children = {}
 
     self._width = width - self._margin.left - self._margin.right
     self._height = height - self._margin.top - self._margin.bottom
     local inner_width = width - self._x_left - self._x_right
     local inner_height = height - self._y_top - self._y_bottom
-    local children = self._widget:layout(inner_width, inner_height) or {}
+    table.insert(children, {self._child, self._x_left, self._y_top, inner_width, inner_height})
+    local sub_children = self._child:layout(inner_width, inner_height) or {}
 
-    for _, child in ipairs(children) do
+    for _, child in ipairs(sub_children) do
         child[2] = child[2] + self._x_left
         child[3] = child[3] + self._y_top
+        table.insert(children, child)
     end
-    table.insert(children, 1, {self._widget, self._x_left, self._y_top, inner_width, inner_height})
     return children
 end
 
 function Frame:render_background(cr)
+    
+    local w = self._width - self._margin.left - self._margin.right
+    local h = self._height - self._margin.top - self._margin.bottom
+
     if self._has_background_image then
-        cairo_place_image(self._background_image, cr, 0, 0, self._width, self._height, self._background_image_alpha)
+        cairo_place_image(self._background_image, cr, self._margin.left, self._margin.top, w, h, self._background_image_alpha)
     elseif self._has_background then
-        cairo_rectangle(cr, self._margin.left, self._margin.top, self._width, self._height)
+        cairo_rectangle(cr, self._margin.left, self._margin.top, w, h)
         cairo_set_source_rgba(cr, unpack(self._background_color))
         cairo_fill(cr)
     end
@@ -743,8 +762,8 @@ function Frame:render_background(cr)
         cairo_set_line_width(cr, self._border_width)
         local x_min = self._margin.left + 0.5 * self._border_width
         local y_min = self._margin.top + 0.5 * self._border_width
-        local x_max = self._margin.left + self._width - 0.5 * self._border_width
-        local y_max = self._margin.top + self._height - 0.5 * self._border_width
+        local x_max = self._margin.left + w - 0.5 * self._border_width
+        local y_max = self._margin.top + h - 0.5 * self._border_width
         local side, line, move = self._border_sides, cairo_line_to, cairo_move_to
         cairo_move_to(cr, x_min, y_min);
         (side.top and line or move)(cr, x_max, y_min);
@@ -783,15 +802,17 @@ w.Block = Block
 function Block:init(header_text, secondary_text, widgets, args)
     self._spacing = args.spacing or 0
 
-    top_row = nil
+    local top_row = nil
 
-    if secondary_text ~= "" then        
-        top_row = Columns{StaticText(header_text, current_theme.header_font), ConkyText(secondary_text, current_theme.status_font)}
+    if secondary_text ~= "" then
+        local stat_font = {align=CAIRO_TEXT_ALIGN_RIGHT}
+        stat_font = util.merge_table(stat_font, current_theme.status_font)
+        top_row = Columns{StaticText(header_text, current_theme.header_font), Filler{}, ConkyText(secondary_text, stat_font)}
     else
-        top_row = StaticText(header_text, header_font)
+        top_row = StaticText(header_text, current_theme.header_font)
     end
 
-    main_widget = Rows{top_row, Filler{height=self._spacing}, unpack(widgets)}
+    local main_widget = Rows{top_row, Filler{height=self._spacing}, unpack(widgets)}
 
     Frame.init(self, main_widget, args)
 
