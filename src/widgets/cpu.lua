@@ -56,7 +56,7 @@ function Cpu:init(args)
     end
 
     -- Try and use bold version of default font
-    bold_font_fam = current_theme.default_font_family
+    local bold_font_fam = current_theme.default_font_family
     if not string.match(bold_font_fam, ":Bold") then
         bold_font_fam = bold_font_fam .. ":Bold"
     end
@@ -112,8 +112,8 @@ function Cpu:layout(width, height)
     -- Skip the extra math for rounded
     if self._rounded then
         for core = 1, self._cores do
-            prev_coords = {}
-            next_coords = {}
+            local prev_coords = {}
+            local next_coords = {}
 
             if core == 1 then
                 prev_coords = self._segment_coordinates[self._cores]
@@ -139,15 +139,15 @@ function Cpu:layout(width, height)
             --dy = self._segment_coordinates[core][8] + ((prev_coords[8] - self._segment_coordinates[core][8])*-1)
 
                         -- draw bezier curve point as opposite direction to the point on the next polygon
-            bx = self._segment_coordinates[core][1] + ((prev_coords[3] - self._segment_coordinates[core][1])*-1) 
-            by = self._segment_coordinates[core][2] + ((prev_coords[4] - self._segment_coordinates[core][2])*-1)
-            cx = self._segment_coordinates[core][3] + ((next_coords[1] - self._segment_coordinates[core][3])*-1)
-            cy = self._segment_coordinates[core][4] + ((next_coords[2] - self._segment_coordinates[core][4])*-1)
+            local bx = self._segment_coordinates[core][1] + ((prev_coords[3] - self._segment_coordinates[core][1])*-1) 
+            local by = self._segment_coordinates[core][2] + ((prev_coords[4] - self._segment_coordinates[core][2])*-1)
+            local cx = self._segment_coordinates[core][3] + ((next_coords[1] - self._segment_coordinates[core][3])*-1)
+            local cy = self._segment_coordinates[core][4] + ((next_coords[2] - self._segment_coordinates[core][4])*-1)
             -- Inner line is drawn the other way
-            ax = self._segment_coordinates[core][5] + ((next_coords[5] - self._segment_coordinates[core][5])*-1)
-            ay = self._segment_coordinates[core][6] + ((next_coords[6] - self._segment_coordinates[core][6])*-1)
-            dx = self._segment_coordinates[core][7] + ((prev_coords[7] - self._segment_coordinates[core][7])*-1)
-            dy = self._segment_coordinates[core][8] + ((prev_coords[8] - self._segment_coordinates[core][8])*-1)
+            local ax = self._segment_coordinates[core][5] + ((next_coords[5] - self._segment_coordinates[core][5])*-1)
+            local ay = self._segment_coordinates[core][6] + ((next_coords[6] - self._segment_coordinates[core][6])*-1)
+            local dx = self._segment_coordinates[core][7] + ((prev_coords[7] - self._segment_coordinates[core][7])*-1)
+            local dy = self._segment_coordinates[core][8] + ((prev_coords[8] - self._segment_coordinates[core][8])*-1)
             self._bezier_coordinates[core] = {ax,ay,bx,by,cx,cy,dx,dy}
         end
     end
@@ -256,7 +256,7 @@ function CpuRound:init(args)
         self.width = self.height
     end
     -- Try and use bold version of default font
-    bold_font_fam = current_theme.default_font_family
+    local bold_font_fam = current_theme.default_font_family
     if not string.match(bold_font_fam, ":Bold") then
         bold_font_fam = bold_font_fam .. ":Bold"
     end
@@ -409,7 +409,7 @@ function CpuCombo:init(args)
         self.width = self.height
     end
     -- Try and use bold version of default font
-    bold_font_fam = current_theme.default_font_family
+    local bold_font_fam = current_theme.default_font_family
     if not string.match(bold_font_fam, ":Bold") then
         bold_font_fam = bold_font_fam .. ":Bold"
     end
@@ -472,18 +472,20 @@ function CpuCombo:layout(width, height)
         self._center_coordinates[2 * core] = self._my + center_scale * dy_left
 
         -- segment corners
-        local dx_gap, dy_gap = self._gap * dx_center, self._gap * dy_center
-        local x1 = self._mx + min * dx_left + dx_gap
-        local y1 = self._my + min * dy_left + dy_gap
-        local x2 = self._mx + max * dx_left + dx_gap
-        local y2 = self._my + max * dy_left + dy_gap
-        local x3 = self._mx + max * dx_right + dx_gap
-        local y3 = self._my + max * dy_right + dy_gap
-        local x4 = self._mx + min * dx_right + dx_gap
-        local y4 = self._my + min * dy_right + dy_gap
+        local slice = 2 * PI / self._cores
+        local offset = slice/2
+                          
+        local x1 = self._mx + cos(slice*(core-1)+offset)*self._outer_radius
+        local y1 = self._my + sin(slice*(core-1)+offset)*self._outer_radius
+        local x2 = self._mx + cos(slice*(core)+offset)*self._outer_radius
+        local y2 = self._my + sin(slice*(core)+offset)*self._outer_radius
+        local x3 = self._mx + cos(slice*(core)+offset)*self._mid_radius
+        local y3 = self._my + sin(slice*(core)+offset)*self._mid_radius
+        local x4 = self._mx + cos(slice*(core-1)+offset)*self._mid_radius
+        local y4 = self._my + sin(slice*(core-1)+offset)*self._mid_radius
         self._segment_coordinates[core] = {x1, y1, x2, y2, x3, y3, x4, y4}
-        self._gradient_coordinates[core] = {(x1 + x4) / 2, (y1 + y4) / 2,
-                                            (x2 + x3) / 2, (y2 + y3) / 2}
+        self._gradient_coordinates[core] = {(x3 + x4) / 2, (y3 + y4) / 2,
+                                            (x2 + x1) / 2, (y2 + y1) / 2}
     end
 end
 
@@ -573,15 +575,20 @@ function CpuCombo:render(cr)
     cairo_stroke(cr)
 
     --polygons
+    local slice = 2 * PI / self._cores
+    local offset = slice/2
     for core = 1, self._cores do
-        if self._rounded then
-            ch.curved_polygon(cr, self._segment_coordinates[core], self._bezier_coordinates[core])
-        else
-            ch.polygon(cr, self._segment_coordinates[core])
-        end
-        local gradient = cairo_pattern_create_linear(unpack(self._gradient_coordinates[core]))
-        r, g, b = w.temperature_color(self._temperatures[core%#self._temperatures+1], 40, 100)
-        cairo_set_source_rgba(cr, 0, 0, 0, .4)
+        -- Draw the gradient on the op side to the inner graph
+        local use_core = ((core+6) % self._cores)+1
+        -- I used this guide here https://gtkdcoding.com/2019/08/09/0060-cairo-iv-fill-arc-cartoon-mouth.html
+        cairo_move_to(cr, self._segment_coordinates[use_core][1], self._segment_coordinates[use_core][2])
+        cairo_arc(cr, mx, my, self._outer_radius, slice*(use_core-1)+offset, slice*use_core+offset)
+        cairo_line_to(cr, self._segment_coordinates[use_core][5], self._segment_coordinates[use_core][6])
+        cairo_arc_negative(cr, mx, my, self._mid_radius, slice*use_core+offset, slice*(use_core-1)+offset)
+
+        local gradient = cairo_pattern_create_linear(unpack(self._gradient_coordinates[use_core]))
+        r, g, b = w.temperature_color(self._temperatures[use_core%#self._temperatures+1], 40, 100)
+        cairo_set_source_rgba(cr, 0, 0, 0, .7)
         cairo_set_line_width(cr, 1.5)
         cairo_stroke_preserve(cr)
         cairo_set_source_rgba(cr, r, g, b, .4)
@@ -594,9 +601,9 @@ function CpuCombo:render(cr)
         cairo_pattern_add_color_stop_rgba(gradient, h_rel,
                                           r * 1.2, g * 1.2, b * 1.2, 1)
         if h_rel < .95 then  -- prevent pixelated edge
-            cairo_pattern_add_color_stop_rgba(gradient, h_rel + .045, r, g, b, .33)
-            cairo_pattern_add_color_stop_rgba(gradient, h_rel + .33,  r, g, b, .15)
-            cairo_pattern_add_color_stop_rgba(gradient, 1,            r, g, b, .15)
+            cairo_pattern_add_color_stop_rgba(gradient, h_rel + .045, r, g, b, .53)
+            cairo_pattern_add_color_stop_rgba(gradient, h_rel + .33,  r, g, b, .27)
+            cairo_pattern_add_color_stop_rgba(gradient, 1,            r, g, b, .25)
         end
         cairo_set_source(cr, gradient)
         cairo_pattern_destroy(gradient)
@@ -736,7 +743,7 @@ function CpuTop:init(args)
     self._rows = {}
 
     for i=1,self._lines do
-        line_color = current_theme.default_text_color
+        local line_color = current_theme.default_text_color
         if current_theme.top_colors then
             if current_theme.top_colors[i] then
                 line_color = current_theme.top_colors[i]
