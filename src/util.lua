@@ -128,6 +128,16 @@ end
 --- General utility functions
 -- @section general
 
+local read_cmd = util.memoize(1, function(cmd)
+    local pipe = io.popen(cmd)
+    local result = pipe:read("*a")
+    local success, exit_or_signal, n = pipe:close()
+    if not success then
+        print("\027[31mCommand '" .. cmd .. "' failed.\027[0m")
+    end
+    return result
+end)
+
 local log = math.log
 local log2, log10 = log(2), log(10)
 
@@ -315,15 +325,33 @@ end
 --- Returns all files in a directory
 -- @string path full path to search
 function util.files_in_dir(path)
-    ret_list = {}
+    local ret_list = {}
     for file in lfs.dir(path) do
-        full_file = path..file
+        local full_file = path..file
         if lfs.attributes(full_file,"mode") == "file" then 
             table.insert(ret_list, full_file)
         end
     end
 
     return ret_list
+end
+
+--- Returns the screen resolution
+-- @return string
+function util.screen_resolution()
+    return read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+")
+end
+
+--- Returns the screen resolution
+-- @return int screen width
+function util.screen_width()
+    return tonumber(read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+ | cut -f 1 -dx"))
+end
+
+--- Returns the screen resolution
+-- @return int screen height
+function util.screen_height()
+    return tonumber(read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+ | cut -f 2 -dx"))
 end
 
 return util
