@@ -55,10 +55,6 @@ function ch.curved_polygon(cr, coordinates, bezier_coordinates)
             cairo_curve_to(cr, bezier_coordinates[5], bezier_coordinates[6],
                                bezier_coordinates[7], bezier_coordinates[8],
                                floor(coordinates[i]) + .5, floor(coordinates[i + 1]) + .5)
-        --elseif i == 3 then
-        --    cairo_curve_to(cr, bezier_coordinates[5], bezier_coordinates[6],
-        --                       bezier_coordinates[7], bezier_coordinates[8],
-        --                       floor(coordinates[i]) + .5, floor(coordinates[i + 1]) + .5)
         else
             cairo_line_to(cr, floor(coordinates[i]) + .5,
                       floor(coordinates[i + 1]) + .5)
@@ -78,7 +74,7 @@ end
 -- @number[opt=0] b blue color component
 -- @number[opt=0.7] a alpha color compnent (transparency)
 function ch.show_point(cr, x, y, size, r, g, b, a)
-    size = 0.5 * (size or 4)
+    local size = 0.5 * (size or 4)
     cairo_move_to(cr, x - size, y - size)
     cairo_line_to(cr, x + size, y + size)
     cairo_move_to(cr, x + size, y - size)
@@ -154,53 +150,6 @@ function ch.alpha_gradient_radial(cr, x1, y1, inner_radius, x2, y2, outer_radius
     cairo_pattern_destroy(gradient)
 end
 
---- Select font settings for given cairo drawing context
--- @tparam cairo_t cr
--- @tparam string font_family
--- @tparam int font_size
--- @tparam[opt] ?cairo_font_slant_t font_slant (default: CAIRO_FONT_SLANT_NORMAL)
--- @tparam[opt] ?cairo_font_weight_t font_weight (default: CAIRO_FONT_WEIGHT_NORMAL)
-function ch.set_font(cr, font_family, font_size, font_slant, font_weight)
-    cairo_select_font_face(cr, font_family,
-                               font_slant or CAIRO_FONT_SLANT_NORMAL,
-                               font_weight or CAIRO_FONT_WEIGHT_NORMAL)
-    cairo_set_font_size(cr, font_size)
-end
-
---- Get cairo_font_extents_t for a given font with size.
--- Use this, for example, to determine line-height.
--- see https://cairographics.org/manual/cairo-cairo-scaled-font-t.html#cairo-font-extents-t
--- @function ch.font_extents
--- @tparam string font_family
--- @tparam int font_size
--- @tparam[opt] ?cairo_font_slant_t font_slant (default: CAIRO_FONT_SLANT_NORMAL)
--- @tparam[opt] ?cairo_font_weight_t font_weight (default: CAIRO_FONT_WEIGHT_NORMAL)
--- @treturn cairo_font_extents_t
-ch.font_extents = util.memoize(function(font_family, font_size, font_slant, font_weight)
-    local tmp_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 100, 100)
-    local tmp_cr = cairo_create(tmp_surface)
-    cairo_surface_destroy(tmp_surface)
-    ch.set_font(tmp_cr, font_family, font_size, font_slant, font_weight)
-    local extents = cairo_font_extents_t:create()
-    tolua.takeownership(extents)
-    cairo_font_extents(tmp_cr, extents)
-    cairo_destroy(tmp_cr)
-    return extents
-end)
-
---- Get cairo_text_extents_t for given text on given cairo drawing surface
--- with its currently set font.
--- See https://cairographics.org/manual/cairo-cairo-scaled-font-t.html#cairo-text-extents-t
--- @tparam cairo_t cr
--- @string text
--- @treturn cairo_text_extents_t
-local function text_extents(cr, text)
-    local extents = cairo_text_extents_t:create()
-    tolua.takeownership(extents)
-    cairo_text_extents(cr, text, extents)
-    return extents
-end
-
 --- Round coordinates to even pixel values
 -- See https://www.cairographics.org/FAQ/#sharp_lines
 -- See https://scriptinghelpers.org/questions/4850/how-do-i-round-numbers-in-lua-answered
@@ -208,57 +157,9 @@ end
 -- @number x horizontal pixel coord value
 -- @number y vertical pixel coord value
 local function round_coords(cr, x, y)
-    x, y = cairo_user_to_device(cr, x, y)
+    local x, y = cairo_user_to_device(cr, x, y)
     return cairo_device_to_user(cr, math.floor(x + 0.5), math.floor(y + 0.5))
 end
-
---- Write text left-aligned (to the right of given x).
--- @tparam cairo_t cr
--- @number x start of the written text
--- @number y coordinate of the baseline on top of which the text will be written
--- @string text
-function ch.write_left(cr, x, y, text)
-    x, y = round_coords(cr, x, y)
-    cairo_move_to(cr, x, y)
-    cairo_show_text(cr, text)
-end
-
---- Write text right-aligned (to the left of given x).
--- @tparam cairo_t cr
--- @number x end of the written text
--- @number y coordinate of the baseline on top of which the text will be written
--- @string text
-function ch.write_right(cr, x, y, text)
-    x, y = round_coords(cr, x, y)
-    cairo_move_to(cr, x - text_extents(cr, text).width, y)
-    cairo_show_text(cr, text)
-end
-
---- Write text centered (spread evenly towards both sides of mx).
--- @tparam cairo_t cr
--- @number mx horizontal center of the written text
--- @number y coordinate of the baseline on top of which the text will be written
--- @string text
-function ch.write_centered(cr, mx, y, text)
-    local extents = text_extents(cr, text)
-    local x = mx - (extents.width / 2 + extents.x_bearing)
-    cairo_move_to(cr, x, y)
-    cairo_show_text(cr, text)
-end
-
---- Write text centered horizontally and vertically on the given point mx, my.
--- @tparam cairo_t cr
--- @number mx horizontal center of the written text
--- @number my vertical center of the written text
--- @string text
-function ch.write_middle(cr, mx, my, text)
-    local extents = text_extents(cr, text)
-    local x = mx - (extents.width / 2 + extents.x_bearing)
-    local y = my - (extents.height / 2 + extents.y_bearing)
-    cairo_move_to(cr, x, y)
-    cairo_show_text(cr, text)
-end
-
 
 --- Converts a string color representation to numbers for cairo.
 -- Supports 3 and 6 character hex representations without an alpha value
@@ -268,11 +169,11 @@ end
 -- @string str hex number to convert
 -- @treturn r,g,b,a
 function ch.convert_string_to_rgba(str)
-    r,g,b,a=1.0,1.0,1.0,1.0
+    local r,g,b,a=1.0,1.0,1.0,1.0
 
     -- If the string starts with a hash has_hash will be 1
-    has_hash = string.find(str, "#")
-    str_to_split = str
+    local has_hash = string.find(str, "#")
+    local str_to_split = str
     if has_hash == 1 then
         str_to_split = string.sub(str_to_split, 2)
     end
