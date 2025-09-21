@@ -71,8 +71,7 @@ end
 function Bar:render_background(cr)
     if self._unit then
         cairo_set_source_rgba(cr, unpack(current_theme.default_text_color))
-        ch.set_font(cr, current_theme.default_font_family, current_theme.default_font_size)
-        ch.write_left(cr, self._width + 5, 6, self._unit)
+        cairo_text_hp_show(cr, self._width + 5, 6, self._unit, current_theme.default_font_family, current_theme.default_font_size)
     end
     -- fake shadow border
     cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE)

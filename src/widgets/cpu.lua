@@ -629,6 +629,7 @@ function CpuFrequencies:init(args)
     self.height = self._height + 13
     self._text_color = ch.convert_string_to_rgba(current_theme.default_text_color)
     self._font_family =  current_theme.default_font_family 
+    self._bold_font_family =  current_theme.default_bold_font_family 
     self._font_size = current_theme.default_font_size
 
 end
@@ -690,12 +691,11 @@ function CpuFrequencies:render(cr)
         cairo_rel_line_to(cr, 0, tick[3])
     end
     cairo_stroke(cr)
-    ch.set_font(cr, current_theme.default_font_family, current_theme.default_font_size)
     -- these need to be lighter
     cairo_set_source_rgba(cr, r+0.3, g+0.3, b+0.3, 0.8)
     cairo_text_hp_show(cr, self._width + 5, 0.5 * self._height + 3, "GHz", self._font_family, self._font_size)
     for _, label in ipairs(self._tick_labels) do
-        ch.write_centered(cr, label[1], label[2], label[3])
+        cairo_text_hp_show(cr, label[1], label[2], label[3], self._bold_font_family, 16, CAIRO_TEXT_ALIGN_CENTER)
     end
     cairo_set_source_rgba(cr, r, g, b, 66)
 
