@@ -10,7 +10,7 @@ local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
 -- load a theme as default
 current_theme = require('src/themes/dimensions')
 
-local polycore = require('src/polycore')
+local bubbles = require('src/bubbles')
 local data  = require('src/data')
 local util = require('src/util')
 local ch = require('src/cairo_helpers')
@@ -99,7 +99,7 @@ local block_args = {padding = {13, 7, 15}, spacing=1}
 
 --- Called once on startup to initialize widgets.
 -- @treturn widget.Renderer
-function polycore.setup()
+function bubbles.setup()
 
     local title_gradient = cairo_pattern_create_mesh()
     cairo_mesh_pattern_begin_patch(title_gradient)

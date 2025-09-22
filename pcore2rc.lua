@@ -10,8 +10,7 @@ local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
 -- load polycore theme as default
 current_theme = require('src/themes/pcore2')
 
-local conkyrc = require('conkyrc')
-local polycore = require('src/polycore')
+local bubbles = require('src/bubbles')
 local ch = require('src/cairo_helpers')
 local data = require('src/data')
 local core  = require('src/widgets/core')
@@ -94,7 +93,7 @@ conkyrc.text = [[ ]]
 
 --- Called once on startup to initialize widgets.
 -- @treturn core.Renderer
-function polycore.setup()
+function bubbles.setup()
     -- Write fan speeds. This requires lm_sensors to be installed.
     -- Run `sensonrs` to see if any fans are reported. If not, remove
     -- this section and the corresponding line below.
