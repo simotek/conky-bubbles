@@ -4,14 +4,15 @@
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
 
--- load polycore theme as default
+local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
+
 current_theme = require('src/themes/dimensions')
 
+local util = require('src/util')
+local bubbles = require('src/bubbles')
 local core = require('src/widgets/core')
 local containers = require('src/widgets/containers')
 local text = require('src/widgets/text')
-local polycore = require('src/polycore')
-local util = require('src/util')
 
 local width = 1000
 local height = 500
@@ -26,7 +27,7 @@ laborum.]]
 
 --- Called once on startup to initialize widgets.
 -- @treturn core.Renderer
-function polycore.setup()
+function bubbles.setup()
     -- news ticker style text line
     local ticker = text.TextLine{align=CAIRO_TEXT_ALIGN_CENTER}
     local line_width = 80  -- arbitrary estiamte
@@ -60,7 +61,7 @@ function polycore.setup()
             containers.Rows{
                 -- simple text
                 text.StaticText("Hello World!", {}),
-                core.Filler{height=10},
+                containers.Filler{height=10},
                 
                 text.StaticText(" 0 1 2 3 4 5 6 7 8 9 0 : ", status_font),
                 text.StaticText(" AM PM ", status_font_sm),
@@ -89,7 +90,7 @@ function polycore.setup()
                 text.StaticText("جمعة السبت", {font_family="Cortoba", font_size=20, align=CAIRO_TEXT_ALIGN_LEFT, font_direction="RTL", font_script="HB_SCRIPT_ARABIC", font_language="ar"}),
                 text.StaticText("السبت", {font_family="Cortoba", font_size=24, align=CAIRO_TEXT_ALIGN_LEFT, font_direction="RTL", font_script="HB_SCRIPT_ARABIC", font_language="ar"}),
                 text.StaticText("الأحد السبت", {font_family="Cortoba", font_size=48, align=CAIRO_TEXT_ALIGN_LEFT, font_direction="RTL", font_script="HB_SCRIPT_ARABIC", font_language="ar"}),
-                core.Filler{height=10},
+                containers.Filler{height=10},
 
                 -- paragraph with newlines
                 text.StaticText(LOREM_IPSUM, {
@@ -97,17 +98,17 @@ function polycore.setup()
                     align=CAIRO_TEXT_ALIGN_CENTER,
                 }),
             },
-            core.Filler{width=10},
+            containers.Filler{width=10},
             text.StaticText("這是一些中文", {font_family="Source Han Sans TW", font_size=16,font_direction="TTB",font_script="HB_SCRIPT_HAN",font_language="ch"});
-            core.Filler{width=10},
-            core.Rows{
+            containers.Filler{width=10},
+            containers.Rows{
                 -- simple text
                 text.StaticText("Hello World!",{}),
-                core.Filler{height=10},
+                containers.Filler{height=10},
                 text.StaticText("How are you doing?", {align=CAIRO_TEXT_ALIGN_RIGHT}),
 
 
-                core.Filler{height=10},
+                containers.Filler{height=10},
 
                 -- paragraph with newlines
                 text.StaticText(LOREM_IPSUM, {
@@ -116,21 +117,21 @@ function polycore.setup()
                 }),
             },
         --},
-        core.Filler{height=10},
-        core.Frame(ticker, {
+        containers.Filler{height=10},
+        containers.Frame(ticker, {
         border_sides={"top"},
         border_width=1,
         border_color={1, 1, 1, .5},}),
     }
 
-    local root = core.Frame(core.Rows(widgets), {margin=10})
+    local root = containers.Frame(containers.Rows(widgets), {margin=10})
     return core.Renderer{root=root, width=width, height=height}
 end
 
 
 local conkyrc = conky or {}
 local script_config = {
-    lua_load = script_dir .. "text.lua",
+    lua_load = script_dir .. rc_path,
 
     alignment = 'top_left',
     gap_x = 0,

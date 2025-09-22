@@ -4,21 +4,29 @@
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
 
+-- We need to know the current file so that we can tell conky to load itlo
+local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
+
 -- load polycore theme as default
-current_theme = require('src/themes/polycore')
+current_theme = require('src/themes/pcore2')
 
 local util = require('src/util')
 local data = require('src/data')
-local polycore = require('src/polycore')
+local bubbles = require('src/bubbles')
 local core  = require('src/widgets/core')
+local containers  = require('src/widgets/containers')
 local cpu   = require('src/widgets/cpu')
+
+local Frame, Filler, Rows, Columns, Float, Stack, Block = containers.Frame, containers.Filler,
+                                          containers.Rows, containers.Columns, containers.Float, containers.Stack, containers.Block
+
 
 local width = 1000
 local height = 640
 
 --- Called once on startup to initialize widgets.
 -- @treturn widget.Renderer
-function polycore.setup()
+function bubbles.setup()
 
     -- dirty hack to pretend I have more cores than I actually do
     local real_cores = 6
@@ -34,36 +42,36 @@ function polycore.setup()
         end
     end
 
-    local root = core.Frame(core.Rows{
-        core.Columns{
-            core.Rows{
+    local root = Frame(Rows{
+        Columns{
+            Rows{
                 cpu.Cpu{cores=6, outer_radius=52, inner_radius=26, gap=5},
-                core.Filler{height=20},
+                Filler{height=20},
                 cpu.Cpu{cores=10, outer_radius=52, inner_radius=30, gap=3},
             },
-            core.Rows{
+            Rows{
                 cpu.Cpu{cores=8, outer_radius=52, inner_radius=24, gap=7},
-                core.Filler{height=20},
+                Filler{height=20},
                 cpu.Cpu{cores=12, outer_radius=52, inner_radius=36, gap=5},
             },
-            core.Filler{width=20},
+            Filler{width=20},
             cpu.Cpu{cores=6, gap=7, outer_radius=100, rounded=true},
         },
-        core.Filler{},
-        core.Columns{
-            core.Rows{
+        Filler{},
+        Columns{
+            Rows{
                 cpu.CpuRound{cores=6, outer_radius=52, inner_radius=26},
-                core.Filler{height=20},
+                Filler{height=20},
                 cpu.CpuRound{cores=16, outer_radius=52, inner_radius=30},
             },
-            core.Rows{
+            Rows{
                 cpu.CpuRound{cores=6, outer_radius=52, inner_radius=24, grid=5},
-                core.Filler{height=20},
+                Filler{height=20},
                 cpu.CpuRound{cores=32, outer_radius=52, inner_radius=36, grid=4},
             },
-            core.Filler{width=20},
+            Filler{width=20},
             cpu.CpuRound{cores=64, outer_radius=100, grid=5},
-            core.Rows{
+            Rows{
                 cpu.CpuCombo{cores=6, outer_radius=52, mid_radius=36, inner_radius=26},
                 core.Filler{height=20},
                 cpu.CpuCombo{cores=16, outer_radius=52, mid_radius=40, inner_radius=30, grid=5},
@@ -77,7 +85,7 @@ end
 
 local conkyrc = conky or {}
 script_config = {
-    lua_load = script_dir .. "cpu.lua",
+    lua_load = script_dir .. rc_path,
 
     alignment = 'middle_middle',
     gap_x = 0,

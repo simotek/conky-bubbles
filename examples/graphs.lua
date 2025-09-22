@@ -4,16 +4,18 @@
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
 
+local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
+
 -- load polycore theme as default
-current_theme = require('src/themes/polycore')
+current_theme = require('src/themes/pcore2')
 
 local data = require('src/data')
-local polycore = require('src/polycore')
+local bubbles = require('src/bubbles')
 local util = require('src/util')
 local core  = require('src/widgets/core')
+local containers  = require('src/widgets/containers')
 local ind = require('src/widgets/indicator')
 local text  = require('src/widgets/text')
-
 
 
 local GRAPH_SMOOTHINGS = {0, 0.2, 0.5, 0.7, 1.0}
@@ -23,7 +25,7 @@ local height = (60 + 20) * #GRAPH_SMOOTHINGS + 2 * 10
 
 --- Called once on startup to initialize widgets.
 -- @treturn widget.Renderer
-function polycore.setup()
+function bubbles.setup()
     local graphs = {}
     local widgets = {}
     for _, smoothness in ipairs(GRAPH_SMOOTHINGS) do
@@ -42,7 +44,7 @@ function polycore.setup()
         table.insert(widgets, graph)
     end
 
-    local root = core.Frame(core.Rows(widgets), {padding={5, 10, 10}})
+    local root = containers.Frame(containers.Rows(widgets), {padding={5, 10, 10}})
 
     function root.update()
         local downspeed, _ = data.network_speed("enp0s31f6")
@@ -57,7 +59,7 @@ end
 
 local conkyrc = conky or {}
 script_config = {
-    lua_load = script_dir .. "graphs.lua",
+    lua_load = script_dir .. rc_path,
 
     alignment = 'middle_middle',
     gap_x = 0,

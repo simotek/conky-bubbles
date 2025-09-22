@@ -4,13 +4,17 @@
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
 
--- load polycore theme as default
-current_theme = require('src/themes/polycore')
+-- We need to know the current file so that we can tell conky to load itlo
+local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
 
-local polycore = require('src/polycore')
+-- load polycore theme as default
+current_theme = require('src/themes/pcore2')
+
+local bubbles = require('src/bubbles')
 local data  = require('src/data')
 local util = require('src/util')
 local core = require('src/widgets/core')
+local containers = require('src/widgets/containers')
 local cpu = require('src/widgets/cpu')
 local drive = require('src/widgets/drive')
 local gpu = require('src/widgets/gpu')
@@ -18,13 +22,17 @@ local mem = require('src/widgets/memory')
 local net = require('src/widgets/network')
 local text = require('src/widgets/text')
 
+local Frame, Filler, Rows, Columns, Float, Stack, Block = containers.Frame, containers.Filler,
+                                          containers.Rows, containers.Columns, containers.Float, containers.Stack, containers.Block
+
+
 -- Draw debug information
 DEBUG = false
 
 
 local conkyrc = conky or {}
 script_config = {
-    lua_load = script_dir .. "columns.lua",
+    lua_load = script_dir .. rc_path,
 
     alignment = 'top_left',
     gap_x = 0,
@@ -114,32 +122,31 @@ ${template5 home /home}#
 ${voffset 5}#
 ]]
 
-
 --- Called once on startup to initialize widgets.
 -- @treturn widget.Renderer
-function polycore.setup()
+function bubbles.setup()
 
     local secondary_text_color = {.72, .72, .71, 1}  -- ~b9b9b7
 
-    local root = core.Frame(core.Columns{
-        core.Rows{
-            core.Filler{},
+    local root = Frame(core.Columns{
+        Rows{
+            Filler{},
             cpu.Cpu{cores=6, inner_radius=28, gap=5, outer_radius=57},
-            core.Filler{},
+            Filler{},
         },
-        core.Filler{width=10},
+        Filler{width=10},
         mem.MemoryGrid{columns=5},
-        core.Filler{width=20},
-        core.Rows{
+        Filler{width=20},
+        Rows{
             cpu.CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
-            core.Filler{},
+            Filler{},
         },
         core.Filler{width=30},
         core.Rows{
             core.Filler{height=5},
-            --gpu.Gpu(),
+            gpu.Gpu(),
             core.Filler{height=5},
-            --gpu.GpuTop{lines=5, color=secondary_text_color},
+            gpu.GpuTop{lines=5, color=secondary_text_color},
         },
         core.Filler{width=30},
         core.Rows{

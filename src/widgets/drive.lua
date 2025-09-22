@@ -32,8 +32,13 @@ w.Drive = Drive
 -- @string args.physical_device this code can't detect lvm's etc so hardcode
 function Drive:init(path, args)
     self._path = path
-    self._device = args.physical_device or nil
-    self._physical_device = args.physical_device or nil
+    if args then
+        self._device = args.physical_device or nil
+        self._physical_device = args.physical_device or nil
+    else
+        self._device = nil
+        self._physical_device = nil
+    end
 
     self._manual_mode = false
 
