@@ -4,7 +4,10 @@
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
 
--- load polycore theme as default
+-- We need to know the current file so that we can tell conky to load itlo
+local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
+
+-- load a theme as default
 current_theme = require('src/themes/dimensions')
 
 local polycore = require('src/polycore')
@@ -12,6 +15,7 @@ local data  = require('src/data')
 local util = require('src/util')
 local ch = require('src/cairo_helpers')
 local core  = require('src/widgets/core')
+local containers  = require('src/widgets/containers')
 local cpu   = require('src/widgets/cpu')
 local drive = require('src/widgets/drive')
 local gpu   = require('src/widgets/gpu')
@@ -20,8 +24,8 @@ local mem   = require('src/widgets/memory')
 local net   = require('src/widgets/network')
 local text  = require('src/widgets/text')
 
-local Frame, Filler, Rows, Columns, Float, Stack = core.Frame, core.Filler,
-                                          core.Rows, core.Columns, core.Float, core.Stack
+local Frame, Filler, Rows, Columns, Float, Stack, Block = containers.Frame, containers.Filler,
+                                          containers.Rows, containers.Columns, containers.Float, containers.Stack, containers.Block
 local CpuCombo, CpuFrequencies, CpuTop = cpu.CpuCombo, cpu.CpuFrequencies, cpu.CpuTop
 local Drive = drive.Drive
 local Gpu, GpuTop = gpu.Gpu, gpu.GpuTop
@@ -30,17 +34,20 @@ local MemoryGrid, MemTop = mem.MemoryGrid, mem.MemTop
 local Network = net.Network
 local ConkyText, StaticText, TextLine = text.ConkyText, text.StaticText, text.TextLine
 
+-- lua 5.1 to 5.3 compatibility
+local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
+
 -- Draw debug information
-DEBUG = false
+local DEBUG = false
 
 
 local conkyrc = conky or {}
 
 -- Todo auto detect this.
-local screen_width = 2560
+local screen_width = util.screen_width()
 
 script_config = {
-    lua_load = script_dir .. "dimensions.lua",
+    lua_load = script_dir .. rc_path,
 
     alignment = 'top_left',
     gap_x = 0,
@@ -63,18 +70,10 @@ script_config = {
     color0 = '337777',  -- titles
     color1 = 'b9b9b7',  -- secondary text color
     color2 = 'bb5544',  -- high temperature warning color
-
-    -- drives: name dir --
-    template5 = [[
-${if_mounted \2}
-${goto 652}${font Ubuntu:pixelsize=11:bold}${color0}· \1 ·#
-${voffset 20}#
-${goto 652}${color1}${font Ubuntu:pixelsize=10}${fs_used \2}  /  ${fs_size \2}#
-${alignr 20}${fs_used_perc \2}%$font$color#
-$endif]],
 }
 
-core_config = require('src/config/core')
+local core_config = require('src/config/core')
+local wm_config = {}
 
 if os.getenv("DESKTOP") == "Enlightenment" then
     wm_config = require('src/config/enlightenment')
@@ -82,8 +81,8 @@ else
     wm_config = require('src/config/awesome')
 end
 
-tmp_config = util.merge_table(core_config, wm_config)
-config = util.merge_table(tmp_config, script_config)
+local tmp_config = util.merge_table(core_config, wm_config)
+local config = util.merge_table(tmp_config, script_config)
 
 conkyrc.config = config
 
@@ -91,105 +90,126 @@ conkyrc.config = config
 ----- START -----
 -----------------
 
-conkyrc.text = [[
-${voffset 10}#
-${alignc 312}${font TeXGyreChorus:pixelsize=20:bold}#
-${color ffffff}P${color ddffff}o${color bbeeee}l${color 99eeee}y#
-${color 77eeee}c${color 55eeee}o${color 44eeee}r${color 33eeee}e#
-$color$font
-#${alignc 320}${font Courier new:pixelsize=20}${color ccffff}Polycore${color}$font
-${font Ubuntu:pixelsize=11:bold}${color0}#
-${voffset -14}${alignc  247}[ mem ]
-${voffset -14}${alignc  160}[ cpu ]
-${voffset -14}${alignc    0}[ gpu ]
-${voffset -14}${alignc -160}[ net ]
-${voffset -14}${alignc -310}[ dev ]
-$color$font${voffset 26}#
-#
-### top ###
-${color1}
-${goto 180}${top name 1}${alignr 490}${top cpu 1} %
-${goto 180}${top name 2}${alignr 490}${top cpu 2} %
-${goto 180}${top name 3}${alignr 490}${top cpu 3} %
-${goto 180}${top name 4}${alignr 490}${top cpu 4} %
-${goto 180}${top name 5}${alignr 490}${top cpu 5} %
-${voffset -92}#
-#
-### net ###
-${goto 495}${color1}Down$color${alignr 180}${downspeed enp0s31f6}
-${goto 495}${color1}Total$color${alignr 180}${totaldown enp0s31f6}
-${voffset 29}#
-${goto 495}${color1}Up$color${alignr 180}${upspeed enp0s31f6}
-${goto 495}${color1}Total$color${alignr 180}${totalup enp0s31f6}
-${voffset -88}#
-#
-### drives ###
-${template5 root /}#
-${voffset 5}#
-${template5 home /home}#
-${voffset 5}#
-]]
+conkyrc.text = [[ ]]
+
+local block_space = 15
+local main_height = 250
+
+local block_args = {padding = {13, 7, 15}, spacing=1}
 
 --- Called once on startup to initialize widgets.
 -- @treturn widget.Renderer
 function polycore.setup()
 
+    local title_gradient = cairo_pattern_create_mesh()
+    cairo_mesh_pattern_begin_patch(title_gradient)
+    cairo_mesh_pattern_line_to(title_gradient, 00, 10)
+    cairo_mesh_pattern_line_to(title_gradient, 160, 5)
+    cairo_mesh_pattern_line_to(title_gradient, 150, 55)
+    cairo_mesh_pattern_line_to(title_gradient, -10, 65)
+    cairo_mesh_pattern_line_to(title_gradient, 00, 10)
+
+    cairo_mesh_pattern_set_corner_color_rgba(title_gradient, 0, unpack(ch.convert_string_to_rgba(current_theme.temperature_colors[1])))
+    cairo_mesh_pattern_set_corner_color_rgba(title_gradient, 1, unpack(ch.convert_string_to_rgba(current_theme.temperature_colors[4])))
+    cairo_mesh_pattern_set_corner_color_rgba(title_gradient, 2, unpack(ch.convert_string_to_rgba(current_theme.temperature_colors[1])))
+    cairo_mesh_pattern_set_corner_color_rgba(title_gradient, 3, unpack(ch.convert_string_to_rgba(current_theme.temperature_colors[6])))
+    cairo_mesh_pattern_end_patch(title_gradient)
+
+
     local root = 
     Stack{
-        Float(StaticText("openSUSE",{color=current_theme.highlight_color,font_family="SUSE", font_size=34}), {x=200, y=5}),
-        Float(StaticText("Linux",{font_family="SUSE", font_size=34}), {x=360, y=5}),
-        Float(StaticText("Have alot of fun.",{font_family="SUSE Light", font_size=14}), {x=450, y=25}),
-        Float(Frame(Columns{
-            Columns({
-                StaticImage("assets/dimensions/system-icon.png", {fixed_size=true})
-            }),
-            Rows{
-                Filler{},
-                CpuCombo{cores=16, inner_radius=25, mid_radius=45, outer_radius=62, gap=6, grid=5},
-                Filler{},
-            },
-            Filler{width=30},
-            Rows{
-                CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
-                Filler{height=5},
-                CpuTop({}),
-            },
-            Filler{width=30},
-            Rows{
-                MemoryGrid{rows=8},
-                Filler{height=11},
-                MemTop({}),
-            },
-            Filler{width=30},
-            Rows{
-                Filler{height=26},
-                Network{interface="enp0s13f0u1u4u4", downspeed=5 * 1024, upspeed=1024},
-            },
-            Filler{width=30},
-            Rows({Gpu(),
-            GpuTop({})}),
-            Filler{width=30},
-            --StaticImage("/home/simon/Pictures/grav.png", {}),
-            --Filler{width=30},
-            RandomImage("/home/simon/Pictures/PhotoFrame/", {}),
-            Rows{
-                Drive("system-root"),
-                Filler{height=-9},
-                Drive("system-home"),
-                Filler{height=-9},
-            },
-            }, {
-                background_image="assets/dimensions/bg_2650.png",
-                background_image_alpha=0.5,
+        -- Background
+        Float(Frame(Filler{}, {
+                background_image="assets/dimensions/bg_2650_inner.png",
+                background_image_alpha=0.7,
                 border_color={0.8, 1, 1, 0.05},
                 border_width = 1,
-                padding = {20, 20, 20, 10},
+                -- T R B L
+                padding = {0, 20, 0, 20},
             }),
-        {x=0, y=50, width=screen_width, height=230}),
-        Float(ConkyText("${time %H:%M:%S}",{font_family="SUSE Thin", font_size=120}), {x=1600, y=210}),
-        Float(ConkyText("${time %d}",{color=current_theme.highlight_color, font_family="SUSE Light", font_size=42}), {x=2100, y=231}),
-        Float(ConkyText("${time  %B} ${time %Y}",{font_family="SUSE Thin", font_size=32}), {x=2160, y=237}),
-        Float(ConkyText("${time %A}",{font_family="SUSE Thin", font_size=48}), {x=2100, y=280}),
+        {x=0, y=50, width=screen_width, height=main_height}),
+        Float(Frame(Filler{},{
+                background_image="assets/dimensions/bg_2650_frame.png",
+                background_image_alpha=1.0,
+                border_color={0.8, 1, 1, 0.05},
+                border_width = 1,
+                padding = {10, 10, 25, 25},
+            }),
+        {x=0, y=50, width=screen_width, height=main_height}),
+        Float(StaticText("openSUSE",{pattern=title_gradient,font_family="SUSE", font_size=34, border_width=0.9, border_color=current_theme.temperature_colors[2]}), {x=200, y=5}),
+        Float(StaticText("Linux",{font_family="SUSE", font_size=34, border_width=0.8, border_color="55555588"}), {x=360, y=5}),
+        Float(StaticText("たくさん楽しんでください",{font_family="Noto Sans CJK JP", font_size=16, border_width=0.8, border_color="55555588"}), {x=450, y=20}), -- {x=450, y=25}
+        Float(Frame(Columns{
+            Block("[ SYSTEM ]", "${uptime_short}",
+                {ConkyText("Processes :  ${processes}  ( ${running_processes} running )",{}),
+                 ConkyText("Threads :  ${running_threads}",{}),
+                 ConkyText("Connections :  ${tcp_portmon 1 65535 count}",{}),
+                 Filler{},Filler{},Filler{}},
+            block_args),
+            Frame(Filler{width=block_space},{
+                background_image="assets/dimensions/div.png",
+                background_image_alpha=1.0,
+            }),
+            Block("[ CPU ]", "${cpu 0}%",
+                {CpuCombo{cores=16, inner_radius=25, mid_radius=57, outer_radius=68, gap=6, grid=5},
+                Filler{}},
+            block_args),
+            Frame(Filler{width=block_space},{
+                background_image="assets/dimensions/div.png",
+                background_image_alpha=1.0,
+            }),
+            Block("[ FREQ ]", "${freq_g 0}GHz",
+                { CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
+                Filler{height=6},
+                CpuTop({})}, 
+            block_args),
+            Frame(Filler{width=block_space},{
+                background_image="assets/dimensions/div.png",
+                background_image_alpha=1.0,
+            }),
+            Block("[ MEM ]", "${memperc}%",
+                {MemoryGrid{rows=9},
+                Filler{height=12},
+                MemTop({})},
+            block_args),
+            Frame(Filler{width=block_space},{
+                background_image="assets/dimensions/div.png",
+                background_image_alpha=1.0,
+            }),
+            Block("[ GPU ]", "${nvidia gpufreq} MHz", 
+                {Gpu(),
+                GpuTop({})},
+            block_args),
+            Frame(Filler{width=block_space},{
+                background_image="assets/dimensions/div.png",
+                background_image_alpha=1.0,
+            }),
+            Block("[ NET ]", "",
+                {Network{interface="enp0s13f0u1u4u4", downspeed=5 * 1024, upspeed=1024}},
+            block_args),
+            Frame(Filler{width=block_space},{
+                background_image="assets/dimensions/div_left.png",
+                background_image_alpha=1.0,
+            }),
+            Frame(RandomImage("/home/simon/Pictures/PhotoFrame/", {}),
+                {background_color="1b1b1b", expand=true, margin={12,0,12}, padding=8}),
+            Frame(Filler{width=block_space},{
+                background_image="assets/dimensions/div_right.png",
+                background_image_alpha=1.0,
+            }),
+            Block("[ DISK ]", "",
+                {drive.Drive("/", {device="nvme0n1p1", physical_device="nvme0n1"}),
+                drive.Drive("/home", {device="nvme0n1p2", physical_device="nvme0n1"})},
+            block_args),
+            }, {
+                -- T R B L
+                padding = {0, 20, 0, 20},
+            }),
+        {x=0, y=50, width=screen_width, height=main_height}),
+        Float(ConkyText("${time %H:%M:%S}",{font_family="SUSE Thin", font_size=120, border_width=0.8, border_color="55555588"}), {x=screen_width-960, y=main_height-25}),
+        Float(ConkyText("${time %d}",{color=current_theme.highlight_color, font_family="SUSE Light", font_size=42, border_width=0.8, border_color="55555588"}), {x=screen_width-460, y=main_height-25+21}),
+        Float(ConkyText("${time  %B} ${time %Y}",{font_family="SUSE Thin", font_size=32, border_width=0.8, border_color="55555588"}), {x=screen_width-400, y=main_height-25+27}),
+        Float(ConkyText("${time %A}",{font_family="SUSE Thin", font_size=48, border_width=0.8, border_color="55555588"}), {x=screen_width-460, y=main_height-25+70}),
     }
 
     return core.Renderer{root=root,
