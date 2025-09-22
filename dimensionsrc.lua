@@ -46,7 +46,7 @@ local conkyrc = conky or {}
 -- Todo auto detect this.
 local screen_width = util.screen_width()
 
-script_config = {
+local script_config = {
     lua_load = script_dir .. rc_path,
 
     alignment = 'top_left',

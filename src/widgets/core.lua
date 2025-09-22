@@ -208,6 +208,7 @@ function Renderer:layout()
 
     DEBUG = false
     if DEBUG then
+        local cr = cairo_create(wsr)
         --local version_info = table.concat{"conky ", conky_version,
         --                                  "    ", _VERSION,
         --                                  "    cairo ", cairo_version_string()}
@@ -223,9 +224,8 @@ function Renderer:layout()
         cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE)
         cairo_set_source_rgba(cr, 1, 0, 0, 0.33)
         cairo_stroke(cr)
+        cairo_destroy(cr)
     end
-
-    cairo_destroy(cr)
 end
 
 --- Update all Widgets

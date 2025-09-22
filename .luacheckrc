@@ -17,8 +17,9 @@ stds.polycore = {
     globals = {
         "DEBUG",
         "conky_setup",
-        "conky_update_background"
         "conky_update",
+        "conky_update_background",
+        "current_theme"
     },
 }
 
