@@ -420,12 +420,12 @@ w.Float = Float
 
 -- reuse an identical function
 
---- @widget Inner widget, note that this object can only have one inner widget
---- @tparam table args table of options
--- @int args.x x offset
--- @int args.y y offset
--- @int args.width width of inner widget
--- @int args.height height of inner widget
+--- @tparam ?Widget widget Inner widget, note that this object can only have one inner widget
+--- @tparam ?table args table of options
+-- @tparam @int args.x x offset
+-- @tparam @int args.y y offset
+-- @tparam @int args.width width of inner widget
+-- @tparam @int args.height height of inner widget
 function Float:init(widget, args)
     self._child = widget
     self._children = {self._child}
@@ -623,7 +623,7 @@ end
 local Frame = util.class(Widget)
 w.Frame = Frame
 
---- @tparam Widget widget Widget to be wrapped
+-- @tparam Widget widget Widget to be wrapped
 -- @tparam table args table of options
 -- @tparam ?number|{number,...} args.padding Leave some space around the inside
 --  of the frame.<br>
@@ -779,9 +779,9 @@ end
 -- @type Block
 local Block = util.class(Frame)
 w.Block = Block
---- @string header_text text for the heading
---- @string secondary_text text for right hand side, supports conky variables
---- @tparam {Widget,...} widgets for block body
+-- @string header_text text for the heading
+-- @string secondary_text text for right hand side, supports conky variables
+-- @tparam {Widget,...} widgets for block body
 -- @tparam table args table of options
 -- @tparam ?number args.spacing the space between header and main content
 -- @tparam ?number|{number,...} args.padding Leave some space around the inside

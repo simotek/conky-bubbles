@@ -45,6 +45,7 @@ end
 --- Draw a curved polygon with the given vertices.
 -- @tparam cairo_t cr
 -- @tparam {number,...} coordinates of vertices (x1, y1, x2, y2, ...)
+-- @tparam {number,...} bezier_coordinates extra coords
 function ch.curved_polygon(cr, coordinates, bezier_coordinates)
     -- +.5 for sharp lines, see https://cairographics.org/FAQ/#sharp_lines
     local floor = math.floor

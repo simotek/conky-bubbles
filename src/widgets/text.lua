@@ -21,14 +21,14 @@ local floor, ceil, clamp = math.floor, math.ceil, util.clamp
 local Text = util.class(Widget)
 w.Text = Text
 
---- @tparam table args table of options
--- @tparam ?cairo_text_alignment_t args.align "CAIRO_TEXT_ALIGN_LEFT" (default), "center" or "right"
+-- @tparam tab args table of options
+-- @tparam[opt=CAIRO_TEXT_ALIGN_LEFT] ?cairo_text_alignment_t args.align "CAIRO_TEXT_ALIGN_LEFT" (default), "center" or "right"
 -- @tparam[opt=current_theme.default_font_family] ?string args.font_family
 -- @tparam[opt=current_theme.default_font_size] ?number args.font_size
 -- @tparam[opt=current_theme.default_font_direction] ?string
 -- @tparam[opt=current_theme.default_font_script] ?string
 -- @tparam[opt=current_theme.default_font_language] ?string
--- @tparam ?string args.color a string containing a hex color code (default: `default_text_color`)
+-- @tparam[opt=current_theme.default_text_color] ?string args.color a string containing a hex color code (default: `default_text_color`)
 function Text:init(args)
     assert(getmetatable(self) ~= Text, "Cannot instanciate class Text directly.")
     self._align = args.align or CAIRO_TEXT_ALIGN_LEFT
@@ -59,10 +59,10 @@ end
 local ConkyText = util.class(Text)
 w.ConkyText = ConkyText
 
---- @string text Text to be displayed, can include conky variables.
---- @tparam table args table of options, see `Text:init`
+-- @string text Text to be displayed, can include conky variables.
+-- @tparam table args table of options, see `Text:init`
 -- @tparam args.pattern a cairo mesh to use as the fill
--- @float  args.border_width Width of the border
+-- @number args.border_width Width of the border
 -- @string args.border_color a border color to use.
 function ConkyText:init(text, args)
     Text.init(self, args)
@@ -135,10 +135,10 @@ end
 local StaticText = util.class(Text)
 w.StaticText = StaticText
 
---- @string text Text to be displayed.
+-- @string text Text to be displayed.
 -- @tparam ?table args table of options, see `Text:init`
 -- @tparam args.pattern a cairo pattern to use as the fill
--- @float  args.border_width Width of the border
+-- @number  args.border_width Width of the border
 -- @string args.border_color a border color to use.
 function StaticText:init(text, args)
     Text.init(self, args or {})

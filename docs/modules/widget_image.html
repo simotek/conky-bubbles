@@ -33,7 +33,7 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Class_TextLine">Class TextLine </a></li>
+<li><a href="#Class_Image">Class Image </a></li>
 </ul>
 
 
@@ -53,31 +53,31 @@
   <li><a href="../modules/widget_cpu.html">widget_cpu</a></li>
   <li><a href="../modules/widget_drive.html">widget_drive</a></li>
   <li><a href="../modules/widget_gpu.html">widget_gpu</a></li>
-  <li><a href="../modules/widget_image.html">widget_image</a></li>
+  <li><strong>widget_image</strong></li>
   <li><a href="../modules/widget_indicator.html">widget_indicator</a></li>
   <li><a href="../modules/widget_memory.html">widget_memory</a></li>
   <li><a href="../modules/widget_network.html">widget_network</a></li>
-  <li><strong>widget_text</strong></li>
+  <li><a href="../modules/widget_text.html">widget_text</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Module <code>widget_text</code></h1>
-<p>A collection of Widget classes</p>
+<h1>Module <code>widget_image</code></h1>
+<p>A collection of Image classes</p>
 <p></p>
 
 
-<h2><a href="#Class_TextLine">Class TextLine </a></h2>
+<h2><a href="#Class_Image">Class Image </a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#TextLine:init">TextLine:init(args)</a></td>
+	<td class="name" nowrap><a href="#StaticImage:init">StaticImage:init(path, args)</a></td>
 	<td class="summary"></td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#TextLine:set_text">TextLine:set_text(text)</a></td>
-	<td class="summary">Update the text line to be displayed.</td>
+	<td class="name" nowrap><a href="#RandomImage:init">RandomImage:init(path, args)</a></td>
+	<td class="summary"></td>
 	</tr>
 </table>
 
@@ -85,16 +85,15 @@
 <br/>
 
 
-    <h2 class="section-header has-description"><a name="Class_TextLine"></a>Class TextLine </h2>
+    <h2 class="section-header has-description"><a name="Class_Image"></a>Class Image </h2>
 
           <div class="section-description">
-          Draw a single line of changeable text.
- Text line can be updated on each cycle via <a href="../modules/widget_text.html#TextLine:set_text">set_text</a>.
+          Common (abstract) base class for <code>StaticImage</code> and <code>Whatever Else</code>.
           </div>
     <dl class="function">
     <dt>
-    <a name = "TextLine:init"></a>
-    <strong>TextLine:init(args)</strong>
+    <a name = "StaticImage:init"></a>
+    <strong>StaticImage:init(path, args)</strong>
     </dt>
     <dd>
 
@@ -102,10 +101,17 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">args</span>
-            <span class="types"><span class="type">table</span></span>
-         table of options, see <code>Text:init</code>
+        <li><span class="parameter">path</span>
+            <span class="types"><span class="type">string</span></span>
+         image to be displayed.
         </li>
+        <li><span class="parameter">args</span> table of options, see <code>Image:init</code>
+        <ul>
+        <li><span class="parameter">fixed_size</span>
+            <span class="types">optional <span class="type">boolean</span></span>
+         if true the image won't be scaled.
+        </li>
+        </li></ul>
     </ul>
 
 
@@ -114,18 +120,22 @@
 
 </dd>
     <dt>
-    <a name = "TextLine:set_text"></a>
-    <strong>TextLine:set_text(text)</strong>
+    <a name = "RandomImage:init"></a>
+    <strong>RandomImage:init(path, args)</strong>
     </dt>
     <dd>
-    Update the text line to be displayed.
+
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">text</span>
+        <li><span class="parameter">path</span>
             <span class="types"><span class="type">string</span></span>
-
+         image to be displayed.
+        </li>
+        <li><span class="parameter">args</span>
+            <span class="types">optional <span class="type">table</span></span>
+         table of options, see <code>Image:init</code>
         </li>
     </ul>
 

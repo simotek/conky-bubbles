@@ -33,7 +33,6 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Tables">Tables</a></li>
 <li><a href="#Fields">Fields</a></li>
 </ul>
 
@@ -46,8 +45,8 @@
   <li><a href="../modules/config_core.html">config_core</a></li>
   <li><a href="../modules/config_enlightenment.html">config_enlightenment</a></li>
   <li><a href="../modules/data.html">data</a></li>
-  <li><strong>dimensions_theme</strong></li>
-  <li><a href="../modules/pcore2_theme.html">pcore2_theme</a></li>
+  <li><a href="../modules/dimensions_theme.html">dimensions_theme</a></li>
+  <li><strong>pcore2_theme</strong></li>
   <li><a href="../modules/util.html">util</a></li>
   <li><a href="../modules/widget_container.html">widget_container</a></li>
   <li><a href="../modules/widget_core.html">widget_core</a></li>
@@ -65,30 +64,11 @@
 
 <div id="content">
 
-<h1>Module <code>dimensions_theme</code></h1>
-<p>The Dimensions Theme</p>
+<h1>Module <code>pcore2_theme</code></h1>
+<p>A remake of the polycore theme</p>
 <p></p>
 
 
-<h2><a href="#Tables">Tables</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#top_colors">top_colors</a></td>
-	<td class="summary">A table of colors that are used for text in the "top" wigdets
- ie CpuTop, MemTop, GpuTop
- a table of 5 strings containing hex colors without the leading #</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#header_font">header_font</a></td>
-	<td class="summary">Font used in block widget for header
- A table of args that can be passed to Static or Conky text</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#status_font">status_font</a></td>
-	<td class="summary">Font used in block widget for status text
- A table of args that can be passed to Static or Conky text</td>
-	</tr>
-</table>
 <h2><a href="#Fields">Fields</a></h2>
 <table class="function_list">
 	<tr>
@@ -133,12 +113,6 @@
 	<td class="summary">Color used to draw some widgets if no other is specified.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#temperature_colors">temperature_colors</a></td>
-	<td class="summary">A table of colors that are used for temperature graphs
- in the CPU Widgets
- a table temperature_colors strings containing hex colors without the leading #</td>
-	</tr>
-	<tr>
 	<td class="name" nowrap><a href="#green_led_color">green_led_color</a></td>
 	<td class="summary">Color for Green LED's.</td>
 	</tr>
@@ -152,110 +126,6 @@
 <br/>
 
 
-    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "top_colors"></a>
-    <strong>top_colors</strong>
-    </dt>
-    <dd>
-    A table of colors that are used for text in the "top" wigdets
- ie CpuTop, MemTop, GpuTop
- a table of 5 strings containing hex colors without the leading #
-
-
-    <h3>Fields:</h3>
-    <ul>
-        <li><span class="parameter">highlight_color</span>
-
-        </li>
-        <li><span class="parameter">dddddd</span>
-
-        </li>
-        <li><span class="parameter">aaaaaa</span>
-
-        </li>
-        <li><span class="parameter">888888</span>
-
-        </li>
-        <li><span class="parameter">666666</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "header_font"></a>
-    <strong>header_font</strong>
-    </dt>
-    <dd>
-    Font used in block widget for header
- A table of args that can be passed to Static or Conky text
-
-
-    <h3>Fields:</h3>
-    <ul>
-        <li><span class="parameter">color</span>
-
-        </li>
-        <li><span class="parameter">font_family</span>
-
-        </li>
-        <li><span class="parameter">font_size</span>
-
-        </li>
-        <li><span class="parameter">border_width</span>
-
-        </li>
-        <li><span class="parameter">border_color</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "status_font"></a>
-    <strong>status_font</strong>
-    </dt>
-    <dd>
-    Font used in block widget for status text
- A table of args that can be passed to Static or Conky text
-
-
-    <h3>Fields:</h3>
-    <ul>
-        <li><span class="parameter">color</span>
-
-        </li>
-        <li><span class="parameter">font_family</span>
-
-        </li>
-        <li><span class="parameter">font_size</span>
-
-        </li>
-        <li><span class="parameter">border_width</span>
-
-        </li>
-        <li><span class="parameter">border_color</span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-</dl>
     <h2 class="section-header "><a name="Fields"></a>Fields</h2>
 
     <dl class="function">
@@ -389,7 +259,7 @@
 
 
     <ul>
-        <li><span class="parameter">highlight_color</span>
+        <li><span class="parameter">default_graph_color</span>
             <span class="types"><span class="type">string</span></span>
          a color hex string
         </li>
@@ -454,22 +324,6 @@
          a color hex string
         </li>
     </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "temperature_colors"></a>
-    <strong>temperature_colors</strong>
-    </dt>
-    <dd>
-    A table of colors that are used for temperature graphs
- in the CPU Widgets
- a table temperature_colors strings containing hex colors without the leading #
-
-
 
 
 

@@ -306,10 +306,9 @@ w.Widget = Widget
 
 --- If a widget is inside another widget such as a frame or columns, rows
 -- Then this will contain that
--- @type Widget Widget.parent
+-- @tparam Widget Widget.parent
 
---- Called at least once to inform the widget of the width and height
--- it may occupy.
+--- Called at least once to inform the widget of the width and height it may occupy.
 -- @tparam int width
 -- @tparam int height
 function Widget:layout(width, height) end  -- luacheck: no unused

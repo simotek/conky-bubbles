@@ -24,7 +24,8 @@
 
 <div id="navigation">
 <br/>
-<h1>polycore</h1>
+<h1>conky-bubbles</h1>
+
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -41,16 +42,21 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
+  <li><a href="../modules/bubbles.html">bubbles</a></li>
   <li><a href="../modules/cairo_helpers.html">cairo_helpers</a></li>
+  <li><a href="../modules/config_awesomewm.html">config_awesomewm</a></li>
+  <li><a href="../modules/config_core.html">config_core</a></li>
+  <li><a href="../modules/config_enlightenment.html">config_enlightenment</a></li>
   <li><a href="../modules/data.html">data</a></li>
-  <li><a href="../modules/polycore.html">polycore</a></li>
   <li><a href="../modules/dimensions_theme.html">dimensions_theme</a></li>
-  <li><a href="../modules/polycore_theme.html">polycore_theme</a></li>
+  <li><a href="../modules/pcore2_theme.html">pcore2_theme</a></li>
   <li><strong>util</strong></li>
+  <li><a href="../modules/widget_container.html">widget_container</a></li>
   <li><a href="../modules/widget_core.html">widget_core</a></li>
   <li><a href="../modules/widget_cpu.html">widget_cpu</a></li>
   <li><a href="../modules/widget_drive.html">widget_drive</a></li>
   <li><a href="../modules/widget_gpu.html">widget_gpu</a></li>
+  <li><a href="../modules/widget_image.html">widget_image</a></li>
   <li><a href="../modules/widget_indicator.html">widget_indicator</a></li>
   <li><a href="../modules/widget_memory.html">widget_memory</a></li>
   <li><a href="../modules/widget_network.html">widget_network</a></li>
@@ -166,6 +172,32 @@
 	<td class="name" nowrap><a href="#shuffle">shuffle(array)</a></td>
 	<td class="summary">Shuffle a table in-place using Fisher-Yates shuffle.</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#merge_table">merge_table(source, merge)</a></td>
+	<td class="summary">Merge two tables
+ values in the second will overwrite values in the first, ideal for
+ merging config files</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#in_table">in_table(item, tbl)</a></td>
+	<td class="summary">Checks for Item in table</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#files_in_dir">files_in_dir(path)</a></td>
+	<td class="summary">Returns all files in a directory</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen_resolution">screen_resolution()</a></td>
+	<td class="summary">Returns the screen resolution</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen_width">screen_width()</a></td>
+	<td class="summary">Returns the screen resolution</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#screen_height">screen_height()</a></td>
+	<td class="summary">Returns the screen resolution</td>
+	</tr>
 </table>
 
 <br/>
@@ -217,7 +249,7 @@
          (<em>optional</em>)
         </li>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">func</span></span>
+            <span class="types"><span class="type">function</span></span>
          function to be memoized; should only take stringable
                      arguments and return a non-nil value
         </li>
@@ -240,7 +272,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">update_count</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types"><span class="type">integer</span></span>
          conky's $update_count
         </li>
     </ul>
@@ -480,7 +512,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">entries</span>
-            <span class="types"><span class="type">tab</span></span>
+            <span class="types"><span class="type">table</span></span>
          list of keys
         </li>
     </ul>
@@ -508,11 +540,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">func</span></span>
+            <span class="types"><span class="type">function</span></span>
          should take one argument and return one result
         </li>
         <li><span class="parameter">items</span>
-            <span class="types"><span class="type">tab</span></span>
+            <span class="types"><span class="type">table</span></span>
          array
         </li>
     </ul>
@@ -540,11 +572,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">func</span></span>
+            <span class="types"><span class="type">function</span></span>
          should take one argument and return one result
         </li>
         <li><span class="parameter">iter</span>
-            <span class="types"><span class="type">func</span></span>
+            <span class="types"><span class="type">function</span></span>
          iterator
         </li>
     </ul>
@@ -572,11 +604,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">func</span></span>
+            <span class="types"><span class="type">function</span></span>
          should take one argument and return one result
         </li>
         <li><span class="parameter">items</span>
-            <span class="types"><span class="type">tab</span></span>
+            <span class="types"><span class="type">table</span></span>
          array
         </li>
     </ul>
@@ -604,11 +636,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">func</span></span>
+            <span class="types"><span class="type">function</span></span>
          should take one argument and return one result
         </li>
         <li><span class="parameter">iter</span>
-            <span class="types"><span class="type">func</span></span>
+            <span class="types"><span class="type">function</span></span>
          iterator
         </li>
     </ul>
@@ -636,7 +668,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">func</span></span>
+            <span class="types"><span class="type">function</span></span>
          should take one argument and return one result
         </li>
         <li><span class="parameter">items</span>
@@ -668,7 +700,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">func</span></span>
+            <span class="types"><span class="type">function</span></span>
          should take one argument and return one result
         </li>
         <li><span class="parameter">items</span>
@@ -763,11 +795,152 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">array</span>
-            <span class="types"><span class="type">tab</span></span>
+            <span class="types"><span class="type">table</span></span>
 
         </li>
     </ul>
 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "merge_table"></a>
+    <strong>merge_table(source, merge)</strong>
+    </dt>
+    <dd>
+    Merge two tables
+ values in the second will overwrite values in the first, ideal for
+ merging config files
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">source</span>
+            <span class="types"><span class="type">table</span></span>
+         table to merge into
+        </li>
+        <li><span class="parameter">merge</span>
+            <span class="types"><span class="type">table</span></span>
+         second table to merge into the first overwriting values there
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">merged</span></span>
+        table
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "in_table"></a>
+    <strong>in_table(item, tbl)</strong>
+    </dt>
+    <dd>
+    Checks for Item in table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">item</span>
+            <span class="types"><span class="type">item</span></span>
+         to search for
+        </li>
+        <li><span class="parameter">tbl</span>
+            <span class="types"><span class="type">table</span></span>
+         table to search through
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolian
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "files_in_dir"></a>
+    <strong>files_in_dir(path)</strong>
+    </dt>
+    <dd>
+    Returns all files in a directory
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><span class="type">string</span></span>
+         full path to search
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen_resolution"></a>
+    <strong>screen_resolution()</strong>
+    </dt>
+    <dd>
+    Returns the screen resolution
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen_width"></a>
+    <strong>screen_width()</strong>
+    </dt>
+    <dd>
+    Returns the screen resolution
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        int screen width
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "screen_height"></a>
+    <strong>screen_height()</strong>
+    </dt>
+    <dd>
+    Returns the screen resolution
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        int screen height
+    </ol>
 
 
 
@@ -779,8 +952,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-05-09 11:36:49 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-09-22 21:24:24 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

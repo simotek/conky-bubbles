@@ -67,7 +67,7 @@ local theme = {
 
     --- A table of colors that are used for text in the "top" wigdets
     -- ie CpuTop, MemTop, GpuTop
-    -- @table strings containing hex colors without the leading #
+    -- a table of 5 strings containing hex colors without the leading #
     top_colors = {
         highlight_color,
         "dddddd",
@@ -78,15 +78,15 @@ local theme = {
 
     --- A table of colors that are used for temperature graphs
     -- in the CPU Widgets
-    -- @table strings containing hex colors without the leading #
+    -- a table temperature_colors strings containing hex colors without the leading #
     temperature_colors = temperature_colors,
 
     --- Font used in block widget for header
-    -- @table A table of args that can be passed to Static or Conky text
+    -- A table of args that can be passed to Static or Conky text
     header_font = {color=header_color,font_family="Sixteen", font_size=header_font_size, border_width=0.8, border_color=temperature_colors[2]},
     
     --- Font used in block widget for status text
-    -- @table A table of args that can be passed to Static or Conky text
+    -- A table of args that can be passed to Static or Conky text
     status_font = {color=temperature_colors[3],font_family="Sixteen-Mono", font_size=header_font_size, border_width=0.3, border_color=temperature_colors[2]},
 
 

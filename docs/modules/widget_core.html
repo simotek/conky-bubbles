@@ -24,7 +24,8 @@
 
 <div id="navigation">
 <br/>
-<h1>polycore</h1>
+<h1>conky-bubbles</h1>
+
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -35,25 +36,26 @@
 <li><a href="#Functions">Functions</a></li>
 <li><a href="#Class_Renderer">Class Renderer </a></li>
 <li><a href="#Class_Widget">Class Widget </a></li>
-<li><a href="#Class_Rows">Class Rows </a></li>
-<li><a href="#Class_Columns">Class Columns </a></li>
-<li><a href="#Class_Filler">Class Filler </a></li>
-<li><a href="#Class_Frame">Class Frame </a></li>
 </ul>
 
 
 <h2>Modules</h2>
 <ul class="nowrap">
+  <li><a href="../modules/bubbles.html">bubbles</a></li>
   <li><a href="../modules/cairo_helpers.html">cairo_helpers</a></li>
+  <li><a href="../modules/config_awesomewm.html">config_awesomewm</a></li>
+  <li><a href="../modules/config_core.html">config_core</a></li>
+  <li><a href="../modules/config_enlightenment.html">config_enlightenment</a></li>
   <li><a href="../modules/data.html">data</a></li>
-  <li><a href="../modules/polycore.html">polycore</a></li>
   <li><a href="../modules/dimensions_theme.html">dimensions_theme</a></li>
-  <li><a href="../modules/polycore_theme.html">polycore_theme</a></li>
+  <li><a href="../modules/pcore2_theme.html">pcore2_theme</a></li>
   <li><a href="../modules/util.html">util</a></li>
+  <li><a href="../modules/widget_container.html">widget_container</a></li>
   <li><strong>widget_core</strong></li>
   <li><a href="../modules/widget_cpu.html">widget_cpu</a></li>
   <li><a href="../modules/widget_drive.html">widget_drive</a></li>
   <li><a href="../modules/widget_gpu.html">widget_gpu</a></li>
+  <li><a href="../modules/widget_image.html">widget_image</a></li>
   <li><a href="../modules/widget_indicator.html">widget_indicator</a></li>
   <li><a href="../modules/widget_memory.html">widget_memory</a></li>
   <li><a href="../modules/widget_network.html">widget_network</a></li>
@@ -106,9 +108,13 @@
 	<td class="summary">Set a height if the Widget should have a fixed height.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#Widget.parent">Widget.parent</a></td>
+	<td class="summary">If a widget is inside another widget such as a frame or columns, rows
+ Then this will contain that</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#Widget:layout">Widget:layout(width, height)</a></td>
-	<td class="summary">Called at least once to inform the widget of the width and height
- it may occupy.</td>
+	<td class="summary">Called at least once to inform the widget of the width and height it may occupy.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Widget:render_background">Widget:render_background(cr)</a></td>
@@ -121,34 +127,6 @@
 	<tr>
 	<td class="name" nowrap><a href="#Widget:render">Widget:render(cr)</a></td>
 	<td class="summary">Called once per update to do draw dynamic content.</td>
-	</tr>
-</table>
-<h2><a href="#Class_Rows">Class Rows </a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#Rows:init">Rows:init(widgets)</a></td>
-	<td class="summary"></td>
-	</tr>
-</table>
-<h2><a href="#Class_Columns">Class Columns </a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#Columns:init">Columns:init(widgets)</a></td>
-	<td class="summary"></td>
-	</tr>
-</table>
-<h2><a href="#Class_Filler">Class Filler </a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#Filler:init">Filler:init(args)</a></td>
-	<td class="summary"></td>
-	</tr>
-</table>
-<h2><a href="#Class_Frame">Class Frame </a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#Frame:init">Frame:init(widget, args)</a></td>
-	<td class="summary"></td>
 	</tr>
 </table>
 
@@ -215,11 +193,11 @@
                           usually a Rows widget
         </li>
         <li><span class="parameter">width</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types"><span class="type">integer</span></span>
          Width of the surface that should be covered
         </li>
         <li><span class="parameter">height</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types"><span class="type">integer</span></span>
          Height of the surface that should be covered
         </li>
         </li></ul>
@@ -257,7 +235,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">update_count</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types"><span class="type">integer</span></span>
          Conky's $updates
         </li>
     </ul>
@@ -326,12 +304,26 @@
 
 </dd>
     <dt>
+    <a name = "Widget.parent"></a>
+    <strong>Widget.parent</strong>
+    </dt>
+    <dd>
+    If a widget is inside another widget such as a frame or columns, rows
+ Then this will contain that
+
+
+
+
+
+
+
+</dd>
+    <dt>
     <a name = "Widget:layout"></a>
     <strong>Widget:layout(width, height)</strong>
     </dt>
     <dd>
-    Called at least once to inform the widget of the width and height
- it may occupy.
+    Called at least once to inform the widget of the width and height it may occupy.
 
 
     <h3>Parameters:</h3>
@@ -387,7 +379,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">update_count</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types"><span class="type">integer</span></span>
          Conky's $updates
         </li>
     </ul>
@@ -427,179 +419,13 @@
 
 </dd>
 </dl>
-    <h2 class="section-header has-description"><a name="Class_Rows"></a>Class Rows </h2>
-
-          <div class="section-description">
-          Basic collection of widgets.
- Rows are drawn in a vertical stack starting at the top of the drawble
- surface.
-          </div>
-    <dl class="function">
-    <dt>
-    <a name = "Rows:init"></a>
-    <strong>Rows:init(widgets)</strong>
-    </dt>
-    <dd>
-
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">widgets</span>
-            <span class="types"><a class="type" href="../modules/widget_core.html#Widget">{Widget,...}</a></span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-</dl>
-    <h2 class="section-header has-description"><a name="Class_Columns"></a>Class Columns </h2>
-
-          <div class="section-description">
-          Display Widgets side by side
-          </div>
-    <dl class="function">
-    <dt>
-    <a name = "Columns:init"></a>
-    <strong>Columns:init(widgets)</strong>
-    </dt>
-    <dd>
-
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">widgets</span>
-            <span class="types"><a class="type" href="../modules/widget_core.html#Widget">{Widget,...}</a></span>
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-</dl>
-    <h2 class="section-header has-description"><a name="Class_Filler"></a>Class Filler </h2>
-
-          <div class="section-description">
-          Leave space between widgets.
- If either height or width is not specified, the available space
- inside a Rows or Columns widget will be distributed evenly between Fillers
- with no fixed height/width.
- A Filler may contain one other Widget which will have its dimensions
- restricted to those of the Filler.
-          </div>
-    <dl class="function">
-    <dt>
-    <a name = "Filler:init"></a>
-    <strong>Filler:init(args)</strong>
-    </dt>
-    <dd>
-
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">args</span> table of options
-        <ul>
-        <li><span class="parameter">width</span>
-            <span class="types">optional <span class="type">int</span></span>
-
-        </li>
-        <li><span class="parameter">height</span>
-            <span class="types">optional <span class="type">int</span></span>
-
-        </li>
-        <li><span class="parameter">widget</span>
-            <span class="types">optional <a class="type" href="../modules/widget_core.html#Widget">Widget</a></span>
-
-        </li>
-        </li></ul>
-    </ul>
-
-
-
-
-
-</dd>
-</dl>
-    <h2 class="section-header has-description"><a name="Class_Frame"></a>Class Frame </h2>
-
-          <div class="section-description">
-          Draw a static border and/or background around/behind another widget.
-          </div>
-    <dl class="function">
-    <dt>
-    <a name = "Frame:init"></a>
-    <strong>Frame:init(widget, args)</strong>
-    </dt>
-    <dd>
-
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">widget</span>
-            <span class="types"><a class="type" href="../modules/widget_core.html#Widget">Widget</a></span>
-         Widget to be wrapped
-        </li>
-        <li><span class="parameter">args</span> table of options
-        <ul>
-        <li><span class="parameter">padding</span>
-            <span class="types"><span class="type">number</span> or <span class="type">{number,...}</span></span>
-         Leave some space around the inside
-  of the frame.<br>
-  - number: same padding all around.<br>
-  - table of two numbers: {top & bottom, left & right}<br>
-  - table of three numbers: {top, left & right, bottom}<br>
-  - table of four numbers: {top, right, bottom, left}
-        </li>
-        <li><span class="parameter">margin</span>
-            <span class="types"><span class="type">number</span> or <span class="type">{number,...}</span></span>
-         Like padding but outside the border.
-        </li>
-        <li><span class="parameter">background_color</span>
-            <span class="types">optional <span class="type">{number,number,number,number}</span></span>
-
-        </li>
-        <li><span class="parameter">border_color</span>
-            <span class="types">optional <span class="type">{number,number,number,number}</span></span>
-
-         (<em>default</em> transparent)
-        </li>
-        <li><span class="parameter">border_width</span>
-            <span class="types">optional <span class="type">number</span></span>
-         border line width
-         (<em>default</em> 0)
-        </li>
-        <li><span class="parameter">border_sides</span>
-            <span class="types">optional <span class="type">{string,...}</span></span>
-         any combination of
-                                         "top", "right", "bottom" and/or "left"
-                                         (default: all sides)
-        </li>
-        </li></ul>
-    </ul>
-
-
-
-
-
-</dd>
-</dl>
 
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-05-09 11:36:49 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-09-22 21:24:24 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

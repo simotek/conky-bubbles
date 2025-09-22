@@ -1,5 +1,5 @@
---- The default polycore theme
--- @module polycore_theme
+--- A remake of the polycore theme
+-- @module pcore2_theme
 -- @alias pt
 
 pcall(function() require('cairo') end)
