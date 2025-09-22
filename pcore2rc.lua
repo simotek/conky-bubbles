@@ -4,13 +4,18 @@
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "?.lua;" .. package.path
 
+-- We need to know the current file so that we can tell conky to load itlo
+local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
+
 -- load polycore theme as default
-current_theme = require('src/themes/polycore')
+current_theme = require('src/themes/pcore2')
 
 local conkyrc = require('conkyrc')
 local polycore = require('src/polycore')
+local ch = require('src/cairo_helpers')
 local data = require('src/data')
 local core  = require('src/widgets/core')
+local containers  = require('src/widgets/containers')
 local cpu   = require('src/widgets/cpu')
 local drive = require('src/widgets/drive')
 local gpu   = require('src/widgets/gpu')
@@ -19,8 +24,8 @@ local mem   = require('src/widgets/memory')
 local net   = require('src/widgets/network')
 local text  = require('src/widgets/text')
 
-local Frame, Filler, Rows, Columns, Float, Stack = core.Frame, core.Filler,
-                                          core.Rows, core.Columns, core.Float, core.Stack
+local Frame, Filler, Rows, Columns, Float, Stack, Block = containers.Frame, containers.Filler,
+                                          containers.Rows, containers.Columns, containers.Float, containers.Stack, containers.Block
 local Cpu, CpuFrequencies, CpuTop = cpu.Cpu, cpu.CpuFrequencies, cpu.CpuTop
 local Drive = drive.Drive
 local Gpu, GpuTop = gpu.Gpu, gpu.GpuTop
@@ -29,10 +34,63 @@ local MemoryGrid, MemTop = mem.MemoryGrid, mem.MemTop
 local Network = net.Network
 local ConkyText, StaticText, TextLine = text.ConkyText, text.StaticText, text.TextLine
 
+-- lua 5.1 to 5.3 compatibility
+local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
 
 -- Draw debug information
 DEBUG = false
 
+local conkyrc = conky or {}
+
+local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
+
+local util = require('src/util')
+
+script_config = {
+    lua_load = script_dir .. rc_path,
+
+    -- positioning --
+    alignment = 'top_left',
+    gap_x = 0,
+    gap_y = 28,
+    minimum_width = 160,
+    maximum_width = 160,
+    minimum_height = 1080 - 28,
+    xinerama_head = 3,
+
+    -- font --
+    font = 'Ubuntu:pixelsize=10',
+    draw_shades = true,
+    default_shade_color = 'black',
+    --use_xft = true,  -- Use Xft (anti-aliased font and stuff)
+
+    -- colors --
+    own_window_colour = '131313',
+    own_window_argb_visual = true,
+    own_window_argb_value = 180,
+    default_color = 'fafafa',
+    color0 = '337777',  -- titles
+    color1 = 'b9b9b7',  -- secondary text color
+    color2 = 'bb5544',  -- high temperature warning color
+}
+
+core_config = require('src/config/core')
+
+if os.getenv("DESKTOP") == "Enlightenment" then
+    wm_config = require('src/config/enlightenment')
+else
+    wm_config = require('src/config/awesome')
+end
+
+tmp_config = util.merge_table(core_config, wm_config)
+config = util.merge_table(tmp_config, script_config)
+
+conkyrc.config = config
+-----------------
+----- START -----
+-----------------
+
+conkyrc.text = [[ ]]
 
 --- Called once on startup to initialize widgets.
 -- @treturn core.Renderer
@@ -67,15 +125,29 @@ function polycore.setup()
         end
     end
 
-    local title_font = {color=current_theme.highlight_color,font_family=current_theme.default_bold_font_family, font_size=20, align=CAIRO_TEXT_ALIGN_CENTER}
+    local title_gradient = cairo_pattern_create_mesh()
+    cairo_mesh_pattern_begin_patch(title_gradient)
+    cairo_mesh_pattern_line_to(title_gradient, 0, 0)
+    cairo_mesh_pattern_line_to(title_gradient, 540, 0)
+    cairo_mesh_pattern_line_to(title_gradient, 880, 40)
+    cairo_mesh_pattern_line_to(title_gradient, -50, 40)
+    cairo_mesh_pattern_line_to(title_gradient, 0, 0)
+
+    cairo_mesh_pattern_set_corner_color_rgba(title_gradient, 0, 1, 1, 1, 0.8)
+    cairo_mesh_pattern_set_corner_color_rgba(title_gradient, 1, unpack(ch.convert_string_to_rgba(current_theme.temperature_colors[1])), 0.8)
+    cairo_mesh_pattern_set_corner_color_rgba(title_gradient, 2, unpack(ch.convert_string_to_rgba(current_theme.temperature_colors[3])), 0.8)
+    cairo_mesh_pattern_set_corner_color_rgba(title_gradient, 3, unpack(ch.convert_string_to_rgba(current_theme.temperature_colors[1])), 0.8)
+    cairo_mesh_pattern_end_patch(title_gradient)
+
+    local title_font = {color=current_theme.highlight_color,font_family="Neuropol", font_size=26, align=CAIRO_TEXT_ALIGN_CENTER, border_width=0.8, border_color="224477AA", pattern=title_gradient}
     local centered_font = {color=current_theme.secondary_text_color,font_family=current_theme.default_font_family, font_size=current_theme.default_font_size, align=CAIRO_TEXT_ALIGN_CENTER}
-    local header_font = {color=current_theme.header_color,font_family=current_theme.default_font_family, font_size=current_theme.header_font_size}
+    local header_font = {color=current_theme.header_color,font_family=current_theme.default_font_family, font_size=current_theme.header_font_size, border_width=0.6, border_color="22447788"}
     local status_font = {color=current_theme.secondary_text_color,font_family=current_theme.default_font_family, font_size=current_theme.default_font_size, align=CAIRO_TEXT_ALIGN_RIGHT}
 
     local block_space = 12
 
     local widgets = {
-        StaticText("pCore2", title_font),
+        StaticText("pCoreBubbles", title_font),
         Filler{height=10},
         ConkyText("${time %d.%m.%Y}", centered_font),
         ConkyText("${time %H:%M}", centered_font),
@@ -90,7 +162,7 @@ function polycore.setup()
         Filler{height=7},
         CpuFrequencies{cores=8, min_freq=0.75, max_freq=4.3},
         Filler{height=10},
-        Columns{StaticText("[   top   ]", header_font), ConkyText("${cpu 0}%", status_font)},
+        Columns{StaticText("[   top   ]", header_font), ConkyText("${freq_g 1}%", status_font)},
         CpuTop({}),
         Filler{height=block_space},
 
