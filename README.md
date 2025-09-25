@@ -65,7 +65,7 @@ understood by inspecting the `bubbles.setup` function in `dimensionsrc.lua`. Mod
 
 Unlike polycore it is recommended that you keep your config in one file although you could use multiple .lua files and include them.
 
-![screenshot](pcore2.png)
+![screenshot](pcore2rc.png)
 Examples of the remake of the polycore theme
 
 ## Using Widgets
