@@ -4,63 +4,57 @@
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
 
-local widget = require('src/widget')
-local polycore = require('src/polycore')
+-- We need to know the current file so that we can tell conky to load itlo
+local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
+
+-- load polycore theme as default
+current_theme = require('src/themes/pcore2')
+
+local bubbles = require('src/bubbles')
+local data  = require('src/data')
+local util = require('src/util')
+local core = require('src/widgets/core')
+local containers = require('src/widgets/containers')
+local cpu = require('src/widgets/cpu')
+local drive = require('src/widgets/drive')
+local gpu = require('src/widgets/gpu')
+local mem = require('src/widgets/memory')
+local net = require('src/widgets/network')
+local text = require('src/widgets/text')
+
+local Frame, Filler, Rows, Columns, Float, Stack, Block = containers.Frame, containers.Filler,
+                                          containers.Rows, containers.Columns, containers.Float, containers.Stack, containers.Block
+
 
 -- Draw debug information
 DEBUG = false
 
 
 local conkyrc = conky or {}
-conkyrc.config = {
-    lua_load = script_dir .. "columns.lua",
-    lua_startup_hook = "conky_setup",
-    lua_draw_hook_post = "conky_update",
+script_config = {
+    lua_load = script_dir .. rc_path,
 
-    update_interval = 1,
-
-    -- awesome wm --
-    own_window = true,
-    own_window_class = 'conky',
-    own_window_type = 'override',
-    own_window_hints = 'undecorated,sticky,skip_taskbar,skip_pager',
-
-    double_buffer = true,
-
-    alignment = 'middle_middle',
+    alignment = 'top_left',
     gap_x = 0,
     gap_y = 0,
     minimum_width = 800,
     maximum_width = 800,
     minimum_height = 170,
 
-    draw_shades = false,
-    draw_outline = false,
-    draw_borders = false,
-    border_width = 0,
-    border_inner_margin = 0,
-    border_outer_margin = 0,
-
-    top_cpu_separate = true,
-    top_name_width = 10,
-    no_buffers = true,  -- include buffers in easyfree memory?
-    cpu_avg_samples = 2,
-    net_avg_samples = 1,
-
     -- font --
-    use_xft = true,  -- Use Xft (anti-aliased font and stuff)
     font = 'Ubuntu:pixelsize=10',
-    override_utf8_locale = true,
     xftalpha = 0,  -- Alpha of Xft font. Must be a value at or between 1 and 0.
+    draw_shades = true,
+    default_shade_color = 'black',
 
     -- colors --
     own_window_colour = '131313',
     own_window_argb_visual = true,
-    own_window_argb_value = 180,
+    own_window_argb_value = 0,
     default_color = 'fafafa',
-    color0 = '448888',  -- titles
+    color0 = '337777',  -- titles
     color1 = 'b9b9b7',  -- secondary text color
-
+    color2 = 'bb5544',  -- high temperature warning color
 
     -- drives: name dir --
     template5 = [[
@@ -71,6 +65,19 @@ ${goto 652}${color1}${font Ubuntu:pixelsize=10}${fs_used \2}  /  ${fs_size \2}#
 ${alignr 20}${fs_used_perc \2}%$font$color#
 $endif]],
 }
+
+core_config = require('src/config/core')
+
+if os.getenv("DESKTOP") == "Enlightenment" then
+    wm_config = require('src/config/enlightenment')
+else
+    wm_config = require('src/config/awesome')
+end
+
+tmp_config = util.merge_table(core_config, wm_config)
+config = util.merge_table(tmp_config, script_config)
+
+conkyrc.config = config
 
 -----------------
 ----- START -----
@@ -113,55 +120,52 @@ ${template5 root /}#
 ${voffset 5}#
 ${template5 home /home}#
 ${voffset 5}#
-${template5 blackstor /mnt/blackstor}#
 ]]
-
 
 --- Called once on startup to initialize widgets.
 -- @treturn widget.Renderer
-function polycore.setup()
+function bubbles.setup()
 
     local secondary_text_color = {.72, .72, .71, 1}  -- ~b9b9b7
 
-    local root = widget.Frame(widget.Columns{
-        widget.Rows{
-            widget.Filler{},
-            widget.Cpu{cores=6, inner_radius=28, gap=5, outer_radius=57},
-            widget.Filler{},
+    local root = Frame(core.Columns{
+        Rows{
+            Filler{},
+            cpu.Cpu{cores=6, inner_radius=28, gap=5, outer_radius=57},
+            Filler{},
         },
-        widget.Filler{width=10},
-        widget.MemoryGrid{columns=5},
-        widget.Filler{width=20},
-        widget.Rows{
-            widget.CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
-            widget.Filler{},
+        Filler{width=10},
+        mem.MemoryGrid{columns=5},
+        Filler{width=20},
+        Rows{
+            cpu.CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
+            Filler{},
         },
-        widget.Filler{width=30},
-        widget.Rows{
-            widget.Filler{height=5},
-            widget.Gpu(),
-            widget.Filler{height=5},
-            widget.GpuTop{lines=5, color=secondary_text_color},
+        core.Filler{width=30},
+        core.Rows{
+            core.Filler{height=5},
+            gpu.Gpu(),
+            core.Filler{height=5},
+            gpu.GpuTop{lines=5, color=secondary_text_color},
         },
-        widget.Filler{width=30},
-        widget.Rows{
-            widget.Filler{height=26},
-            widget.Network{interface="enp0s31f6", downspeed=5 * 1024, upspeed=1024},
+        core.Filler{width=30},
+        core.Rows{
+            core.Filler{height=26},
+            net.Network{interface="enp34s0u1u3u4", downspeed=5 * 1024, upspeed=1024},
         },
-        widget.Filler{width=30},
-        widget.Rows{
-            widget.Drive("/"),
-            widget.Filler{height=-9},
-            widget.Drive("/home"),
-            widget.Filler{height=-9},
-            widget.Drive("/mnt/blackstor"),
+        core.Filler{width=30},
+        core.Rows{
+            drive.Drive("/dev/system/root"),
+            core.Filler{height=-9},
+            drive.Drive("/dev/system/home"),
+            core.Filler{height=-9},
         },
     }, {
         border_color={0.8, 1, 1, 0.05},
         border_width = 1,
         padding = {40, 20, 20, 10},
     })
-    return widget.Renderer{root=root,
+    return core.Renderer{root=root,
                            width=conkyrc.config.minimum_width,
                            height=conkyrc.config.minimum_height}
 end

@@ -1,8 +1,8 @@
 -- Configuration file for LDoc documentation generator
 -- Run `ldoc .` to generate documentation.
 
-project = "polycore"
-description = "A conky config and library of Lua widgets"
+project = "conky-bubbles"
+description = "A library of Lua widgets and layout engine to create better conky configs"
 file = "src"
 dir = "docs"
 all = true

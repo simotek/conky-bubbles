@@ -1,0 +1,535 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>conky-bubbles</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Fields">Fields</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/bubbles.html">bubbles</a></li>
+  <li><a href="../modules/cairo_helpers.html">cairo_helpers</a></li>
+  <li><a href="../modules/config_awesomewm.html">config_awesomewm</a></li>
+  <li><a href="../modules/config_core.html">config_core</a></li>
+  <li><a href="../modules/config_enlightenment.html">config_enlightenment</a></li>
+  <li><a href="../modules/data.html">data</a></li>
+  <li><a href="../modules/dimensions_theme.html">dimensions_theme</a></li>
+  <li><strong>pcore2_theme</strong></li>
+  <li><a href="../modules/util.html">util</a></li>
+  <li><a href="../modules/widget_container.html">widget_container</a></li>
+  <li><a href="../modules/widget_core.html">widget_core</a></li>
+  <li><a href="../modules/widget_cpu.html">widget_cpu</a></li>
+  <li><a href="../modules/widget_drive.html">widget_drive</a></li>
+  <li><a href="../modules/widget_gpu.html">widget_gpu</a></li>
+  <li><a href="../modules/widget_image.html">widget_image</a></li>
+  <li><a href="../modules/widget_indicator.html">widget_indicator</a></li>
+  <li><a href="../modules/widget_memory.html">widget_memory</a></li>
+  <li><a href="../modules/widget_network.html">widget_network</a></li>
+  <li><a href="../modules/widget_text.html">widget_text</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>pcore2_theme</code></h1>
+<p>A remake of the polycore theme</p>
+<p></p>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#top_colors">top_colors</a></td>
+	<td class="summary">A table of colors that are used for text in the "top" wigdets
+ ie CpuTop, MemTop, GpuTop
+ a table of 5 strings containing hex colors without the leading #
+ This theme just uses the default color</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#header_font">header_font</a></td>
+	<td class="summary">Font used in block widget for header
+ A table of args that can be passed to Static or Conky text</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#status_font">status_font</a></td>
+	<td class="summary">Font used in block widget for status text
+ A table of args that can be passed to Static or Conky text</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#default_font_family">default_font_family</a></td>
+	<td class="summary">Font used by widgets if no other is specified.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#default_bold_font_family">default_bold_font_family</a></td>
+	<td class="summary">Bold Font used by widgets if no other is specified.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#default_font_size">default_font_size</a></td>
+	<td class="summary">Font size used by widgets if no other is specified.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#header_font_size">header_font_size</a></td>
+	<td class="summary">Font size used by widgets if no other is specified.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#default_text_color">default_text_color</a></td>
+	<td class="summary">Text color used by widgets if no other is specified.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#secondary_text_color">secondary_text_color</a></td>
+	<td class="summary">A secondary color text color you can use in your themes
+ currently it is not used by any of the widgets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#highlight_color">highlight_color</a></td>
+	<td class="summary">Color used to draw some widgets if no other is specified.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#header_color">header_color</a></td>
+	<td class="summary">Color used for drawing titles / headers (not used by widgets)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#graph_color">graph_color</a></td>
+	<td class="summary">Color used to draw graph widgets if no other is specified.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#background_color">background_color</a></td>
+	<td class="summary">Color used to draw some widgets if no other is specified.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#temperature_colors">temperature_colors</a></td>
+	<td class="summary">A table of colors that are used for temperature graphs
+ in the CPU Widgets
+ a table temperature_colors strings containing hex colors without the leading #</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#green_led_color">green_led_color</a></td>
+	<td class="summary">Color for Green LED's.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#red_led_color">red_led_color</a></td>
+	<td class="summary">Color for Red LED's.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "top_colors"></a>
+    <strong>top_colors</strong>
+    </dt>
+    <dd>
+    A table of colors that are used for text in the "top" wigdets
+ ie CpuTop, MemTop, GpuTop
+ a table of 5 strings containing hex colors without the leading #
+ This theme just uses the default color
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">default_text_color</span>
+
+        </li>
+        <li><span class="parameter">default_text_color</span>
+
+        </li>
+        <li><span class="parameter">default_text_color</span>
+
+        </li>
+        <li><span class="parameter">default_text_color</span>
+
+        </li>
+        <li><span class="parameter">default_text_color</span>
+
+        </li>
+        <li><span class="parameter">default_text_color</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "header_font"></a>
+    <strong>header_font</strong>
+    </dt>
+    <dd>
+    Font used in block widget for header
+ A table of args that can be passed to Static or Conky text
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">color</span>
+
+        </li>
+        <li><span class="parameter">font_family</span>
+
+        </li>
+        <li><span class="parameter">font_size</span>
+
+        </li>
+        <li><span class="parameter">border_width</span>
+
+        </li>
+        <li><span class="parameter">border_color</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "status_font"></a>
+    <strong>status_font</strong>
+    </dt>
+    <dd>
+    Font used in block widget for status text
+ A table of args that can be passed to Static or Conky text
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">color</span>
+
+        </li>
+        <li><span class="parameter">font_family</span>
+
+        </li>
+        <li><span class="parameter">font_size</span>
+
+        </li>
+        <li><span class="parameter">border_width</span>
+
+        </li>
+        <li><span class="parameter">border_color</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "default_font_family"></a>
+    <strong>default_font_family</strong>
+    </dt>
+    <dd>
+    Font used by widgets if no other is specified.
+
+
+    <ul>
+        <li><span class="parameter">default_font_family</span>
+            <span class="types"><span class="type">string</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "default_bold_font_family"></a>
+    <strong>default_bold_font_family</strong>
+    </dt>
+    <dd>
+    Bold Font used by widgets if no other is specified.
+
+
+    <ul>
+        <li><span class="parameter">default_bold_font_family</span>
+            <span class="types"><span class="type">string</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "default_font_size"></a>
+    <strong>default_font_size</strong>
+    </dt>
+    <dd>
+    Font size used by widgets if no other is specified.
+
+
+    <ul>
+        <li><span class="parameter">default_font_size</span>
+            <span class="types"><span class="type">integer</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "header_font_size"></a>
+    <strong>header_font_size</strong>
+    </dt>
+    <dd>
+    Font size used by widgets if no other is specified.
+
+
+    <ul>
+        <li><span class="parameter">default_font_size</span>
+            <span class="types"><span class="type">integer</span></span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "default_text_color"></a>
+    <strong>default_text_color</strong>
+    </dt>
+    <dd>
+    Text color used by widgets if no other is specified.
+
+
+    <ul>
+        <li><span class="parameter">default_text_color</span>
+            <span class="types"><span class="type">string</span></span>
+         a color hex string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "secondary_text_color"></a>
+    <strong>secondary_text_color</strong>
+    </dt>
+    <dd>
+    A secondary color text color you can use in your themes
+ currently it is not used by any of the widgets.
+
+
+    <ul>
+        <li><span class="parameter">secondary_text_color</span>
+            <span class="types"><span class="type">string</span></span>
+         a color hex string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "highlight_color"></a>
+    <strong>highlight_color</strong>
+    </dt>
+    <dd>
+    Color used to draw some widgets if no other is specified.
+
+
+    <ul>
+        <li><span class="parameter">default_graph_color</span>
+            <span class="types"><span class="type">string</span></span>
+         a color hex string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "header_color"></a>
+    <strong>header_color</strong>
+    </dt>
+    <dd>
+    Color used for drawing titles / headers (not used by widgets)
+
+
+    <ul>
+        <li><span class="parameter">header_color</span>
+            <span class="types"><span class="type">string</span></span>
+         a color hex string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "graph_color"></a>
+    <strong>graph_color</strong>
+    </dt>
+    <dd>
+    Color used to draw graph widgets if no other is specified.
+
+
+    <ul>
+        <li><span class="parameter">graph_color</span>
+            <span class="types"><span class="type">string</span></span>
+         a color hex string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "background_color"></a>
+    <strong>background_color</strong>
+    </dt>
+    <dd>
+    Color used to draw some widgets if no other is specified.
+
+
+    <ul>
+        <li><span class="parameter">background_color</span>
+            <span class="types"><span class="type">string</span></span>
+         a color hex string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "temperature_colors"></a>
+    <strong>temperature_colors</strong>
+    </dt>
+    <dd>
+    A table of colors that are used for temperature graphs
+ in the CPU Widgets
+ a table temperature_colors strings containing hex colors without the leading #
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "green_led_color"></a>
+    <strong>green_led_color</strong>
+    </dt>
+    <dd>
+    Color for Green LED's.
+
+
+    <ul>
+        <li><span class="parameter">green_led_color</span>
+            <span class="types"><span class="type">string</span></span>
+         a color hex string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "red_led_color"></a>
+    <strong>red_led_color</strong>
+    </dt>
+    <dd>
+    Color for Red LED's.
+
+
+    <ul>
+        <li><span class="parameter">red_led_color</span>
+            <span class="types"><span class="type">string</span></span>
+         a color hex string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-09-25 23:43:54 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

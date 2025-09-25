@@ -18,6 +18,8 @@ stds.polycore = {
         "DEBUG",
         "conky_setup",
         "conky_update",
+        "conky_update_background",
+        "current_theme"
     },
 }
 

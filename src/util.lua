@@ -2,6 +2,7 @@
 -- @module util
 
 local util = {}
+local lfs = require('lfs')
 
 --- Class creation
 -- @section class
@@ -127,6 +128,16 @@ end
 
 --- General utility functions
 -- @section general
+
+local read_cmd = util.memoize(1, function(cmd)
+    local pipe = io.popen(cmd)
+    local result = pipe:read("*a")
+    local success, exit_or_signal, n = pipe:close()
+    if not success then
+        print("\027[31mCommand '" .. cmd .. "' failed.\027[0m")
+    end
+    return result
+end)
 
 local log = math.log
 local log2, log10 = log(2), log(10)
@@ -286,6 +297,62 @@ function util.shuffle(array)
         local index = math.random(counter)
         array[index], array[counter] = array[counter], array[index]
     end
+end
+
+--- Merge two tables
+-- values in the second will overwrite values in the first, ideal for
+-- merging config files
+-- @tab source table to merge into
+-- @tab merge second table to merge into the first overwriting values there
+-- @treturn merged table
+function util.merge_table(source, merge) 
+    for k,v in pairs(merge) do source[k] = v end 
+    return source
+end
+
+--- Checks for Item in table
+-- @tparam item item to search for
+-- @tab tbl table to search through
+-- @return boolian
+function util.in_table(item, tbl)
+    for _, i in pairs(tbl) do
+        if i == item then
+            return true
+        end
+    end
+    return false
+end
+
+--- Returns all files in a directory
+-- @string path full path to search
+function util.files_in_dir(path)
+    local ret_list = {}
+    for file in lfs.dir(path) do
+        local full_file = path..file
+        if lfs.attributes(full_file,"mode") == "file" then 
+            table.insert(ret_list, full_file)
+        end
+    end
+
+    return ret_list
+end
+
+--- Returns the screen resolution
+-- @return string
+function util.screen_resolution()
+    return read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+")
+end
+
+--- Returns the screen resolution
+-- @return int screen width
+function util.screen_width()
+    return tonumber(read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+ | cut -f 1 -dx"))
+end
+
+--- Returns the screen resolution
+-- @return int screen height
+function util.screen_height()
+    return tonumber(read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+ | cut -f 2 -dx"))
 end
 
 return util
