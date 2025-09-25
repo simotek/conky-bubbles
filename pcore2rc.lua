@@ -45,19 +45,22 @@ local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 
 local util = require('src/util')
 
+local screen_height = util.screen_height()
+
 script_config = {
     lua_load = script_dir .. rc_path,
 
     -- positioning --
     alignment = 'top_left',
     gap_x = 0,
-    gap_y = 28,
+    gap_y = 68,
     minimum_width = 160,
     maximum_width = 160,
-    minimum_height = 1080 - 28,
-    xinerama_head = 3,
+    minimum_height = 660,
+    maximum_height = screen_height - 68 - 48,
+    xinerama_head = 0,
 
-    -- font --
+    -- font --W
     font = 'Ubuntu:pixelsize=10',
     draw_shades = true,
     default_shade_color = 'black',
@@ -128,8 +131,8 @@ function bubbles.setup()
     cairo_mesh_pattern_begin_patch(title_gradient)
     cairo_mesh_pattern_line_to(title_gradient, 0, 0)
     cairo_mesh_pattern_line_to(title_gradient, 540, 0)
-    cairo_mesh_pattern_line_to(title_gradient, 880, 40)
-    cairo_mesh_pattern_line_to(title_gradient, -50, 40)
+    cairo_mesh_pattern_line_to(title_gradient, 880, 60)
+    cairo_mesh_pattern_line_to(title_gradient, -50, 60)
     cairo_mesh_pattern_line_to(title_gradient, 0, 0)
 
     cairo_mesh_pattern_set_corner_color_rgba(title_gradient, 0, 1, 1, 1, 0.8)
@@ -138,7 +141,7 @@ function bubbles.setup()
     cairo_mesh_pattern_set_corner_color_rgba(title_gradient, 3, unpack(ch.convert_string_to_rgba(current_theme.temperature_colors[1])), 0.8)
     cairo_mesh_pattern_end_patch(title_gradient)
 
-    local title_font = {color=current_theme.highlight_color,font_family="Neuropol", font_size=26, align=CAIRO_TEXT_ALIGN_CENTER, border_width=0.8, border_color="224477AA", pattern=title_gradient}
+    local title_font = {color=current_theme.highlight_color,font_family="Michroma", font_size=32, align=CAIRO_TEXT_ALIGN_CENTER, border_width=0.8, border_color="224477AA", pattern=title_gradient}
     local centered_font = {color=current_theme.secondary_text_color,font_family=current_theme.default_font_family, font_size=current_theme.default_font_size, align=CAIRO_TEXT_ALIGN_CENTER}
     local header_font = {color=current_theme.header_color,font_family=current_theme.default_font_family, font_size=current_theme.header_font_size, border_width=0.6, border_color="22447788"}
     local status_font = {color=current_theme.secondary_text_color,font_family=current_theme.default_font_family, font_size=current_theme.default_font_size, align=CAIRO_TEXT_ALIGN_RIGHT}
@@ -146,7 +149,7 @@ function bubbles.setup()
     local block_space = 12
 
     local widgets = {
-        StaticText("pCoreBubbles", title_font),
+        StaticText("pCore2", title_font),
         Filler{height=10},
         ConkyText("${time %d.%m.%Y}", centered_font),
         ConkyText("${time %H:%M}", centered_font),
@@ -167,7 +170,9 @@ function bubbles.setup()
 
         -- See also widget.MemoryBar
         Columns{StaticText("[   mem   ]", header_font), ConkyText("${memperc}%", status_font)},
+        Filler{height=5},
         MemoryGrid{rows=5},
+        Filler{height=5},
         MemTop({}),
         Filler{height=block_space},
 

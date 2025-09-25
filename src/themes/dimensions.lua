@@ -3,10 +3,11 @@
 -- @alias dt
 
 pcall(function() require('cairo') end)
-local ch = require('src/cairo_helpers')
 
 -- Specified here so it can be used in multiple places
 local highlight_color = "3498d8"
+
+-- 6 Colors that scale from use at coldest temps to Hottest.
 local temperature_colors = {
         highlight_color,
         "025286",

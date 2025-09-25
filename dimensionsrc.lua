@@ -58,7 +58,7 @@ local script_config = {
     xinerama_head = 3,
 
     -- font --
-    font = 'Ubuntu:pixelsize=10',
+    font = 'SUSE:pixelsize=10',
     draw_shades = true,
     default_shade_color = 'black',
 
@@ -67,9 +67,6 @@ local script_config = {
     own_window_argb_visual = true,
     own_window_argb_value = 0,
     default_color = 'fafafa',
-    color0 = '337777',  -- titles
-    color1 = 'b9b9b7',  -- secondary text color
-    color2 = 'bb5544',  -- high temperature warning color
 }
 
 local core_config = require('src/config/core')

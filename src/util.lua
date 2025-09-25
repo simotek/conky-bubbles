@@ -2,7 +2,7 @@
 -- @module util
 
 local util = {}
-local lfs = require(lfs)
+local lfs = require('lfs')
 
 --- Class creation
 -- @section class

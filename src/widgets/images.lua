@@ -31,7 +31,7 @@ function Image:layout(width, height)
 end
 --- Draw an unchangeable image.
 -- Use this widget for images that will never be updated.
--- @type Image
+-- @type StaticImage
 local StaticImage = util.class(Widget)
 w.StaticImage = StaticImage
 
@@ -91,7 +91,7 @@ end
 
 --- Draw an unchangeable image.
 -- Use this widget for images that will never be updated.
--- @type Image
+-- @type RandomImage
 local RandomImage = util.class(Widget)
 w.RandomImage = RandomImage
 

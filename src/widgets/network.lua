@@ -37,11 +37,11 @@ function Network:init(args)
     local status_font = {color=current_theme.secondary_text_color,font_family=current_theme.default_font_family, font_size=current_theme.default_font_size, align=CAIRO_TEXT_ALIGN_RIGHT}
 
     self._rows = {}
-    self._rows[1] = Columns({StaticText("Down",{}), Filler{width=10}, ConkyText("${downspeed "..self.interface.."}", status_font)})
-    self._rows[2] = Columns({StaticText("Total",{}), Filler{width=10}, ConkyText("${totaldown "..self.interface.."}", status_font)})
+    self._rows[1] = Columns({StaticText("Down",{}), Filler{width=10}, ConkyText("${downspeed "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})})
+    self._rows[2] = Columns({StaticText("Total",{}), Filler{width=10}, ConkyText("${totaldown "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})})
     self._rows[3] = self._downspeed_graph
-    self._rows[4] = Columns({StaticText("Up",{}), Filler{width=10}, ConkyText("${upspeed "..self.interface.."}", status_font)})
-    self._rows[5] = Columns({StaticText("Total",{}), Filler{width=10}, ConkyText("${totalup "..self.interface.."}", status_font)})
+    self._rows[4] = Columns({StaticText("Up",{}), Filler{width=10}, ConkyText("${upspeed "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})})
+    self._rows[5] = Columns({StaticText("Total",{}), Filler{width=10}, ConkyText("${totalup "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})})
     self._rows[6] = self._upspeed_graph
 
 

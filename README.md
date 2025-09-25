@@ -1,43 +1,76 @@
-# polycore
+# Conky Bubbles
 
-**A conky config and library of Lua widgets**
+**Warning:** Currently this requires https://github.com/brndnmtthws/conky/pull/1501 to work correctly.
 
-![columns layout](examples/columns.png)
+**Conky's Little Helper**
+
+Conky bubbles aim's to create a set of good looking configs for conky that will work out of the box on a range of machines but are also easy to change if desired. It does this by auto detecting hardware (WIP), implementing a theme engine, a layout engine (no more manually moving everything up and down a few pixels at a time) and implementing a large library of widgets to cover common use cases. 
+
+Conky Bubbles is based on a heavily modified version of [polycore](https://github.com/philer/polycore) many thanks to philer for the hard work they put into that project.
+
+![dimensions layout](dimensionsrc.png)
 
 ## Features
 
 * Stylish replacements for conky's default bars and graphs
 * Allows complex layouts with minimal effort
-* Minimal resource overhead through caching
 * Easy to extend
 
 ## Requirements
 
-* conky 1.10+ (with Lua and cairo support)
+* conky 1.22+ (with Lua and cairo support)
 * basic understanding of conky and Lua
 * *optional:* `lm_sensors` to display CPU core temperature and fan rpm
 * *optional:* `nvidia-smi` to display NVIDIA video card stats
 
 ## Getting started
 
+### Usage
+
+You can run any of the existing configs running the following command from the `conky-bubbles` directory.
+
+* `conky -c dimensionsrc.lua`
+* `conky -c pcore2rc.lua`
+
+## Customisation
+
+### Config
+
+Unlike traditional conky config's with bubbles everything is rendered through lua rather then conky's traditional rendering system. As such `conkyrc.text` should remain blank.
+
+This repo ships several different conky configs using the "bubbles" engine along with several other examples, to easily identify files that are designed to run with conky, all such files in this repo end with `*rc.lua` such as [dimensionsrc.lua](dimensionsrc.lua)
+
+With the bubbles engine rc files contain several key parts
+* Conky Config - Window manager, window and other conky settings
+* Theme - Colors fonts etc
+* Widgets - The building blocks to create everything the user sees
+
+See a more detailed description of each below
+
+#### Conky Config
+To reduce the size of rc files some common settings that should be the same across all configs have been moved into separate files. General settings can be found in [src/config/core.lua](src/config/core.lua), currently there are specific settings for some window managers these can be found below
+* Awesome WM [src/config/awesome.lua](src/config/awesome.lua) (Default)
+* Enlightenment [src/config/enlightenment.lua](src/config/enlightenment.lua)
+
+If needed these values can be overwritten in the `script_config` section.
+
+#### Themes
+Themes allow you to use the same widget layout with a different set of colors and fonts, available themes are stored in [src/themes](src/themes/) and can be set with the following line `current_theme = require('src/themes/dimensions')` examples of the themes can be seen below.
+
+#### Widgets
+
 The `widget` module provides a number of basic and specialized modules
 as well as grouping and rendering facilities. Their basic usage is best
-understood by inspecting the `polycore.setup` function in `layout.lua`. Modifying this function is also the easiest way to get started. More examples can be found in [examples](examples).
+understood by inspecting the `bubbles.setup` function in `dimensionsrc.lua`. Modifying this function is also the easiest way to get started. More examples can be found in [examples](examples).
 
-You can either use a single-file setup (see [examples/columns.lua](examples/columns.lua)) or split the conky config and Widget layout into two files (see [conkyrc.lua](conkyrc.lua) and [layout.lua](layout.lua)).
+Unlike polycore it is recommended that you keep your config in one file although you could use multiple .lua files and include them.
 
-![screenshot](screenshots.png)
-*Wallpapers from pexels.com:
-[1](https://www.pexels.com/photo/gray-mountain-2098403/),
-[2](https://www.pexels.com/photo/photo-of-night-sky-1819650/),
-[3](https://www.pexels.com/photo/green-leafed-trees-1144687/),
-[4](https://www.pexels.com/photo/ocean-water-and-black-rock-formations-1590247/),
-[5](https://www.pexels.com/photo/people-gathered-beside-bonfire-1368388/)
-and [the one above](https://www.pexels.com/photo/black-and-white-photography-of-sand-2387819/)*
+![screenshot](pcore2.png)
+Examples of the remake of the polycore theme
 
 ## Using Widgets
 
-*See [philer.github.io/polycore/modules/widget.html](https://philer.github.io/polycore/modules/widget.html) for a full API reference.*
+*See [simotek.github.io//modules/widget.html](https://simotek.github.io/conky-bubbles/modules/widget.html) for a full API reference.*
 
 Widgets are rendered by a `widget.Renderer` instance and can have a cached background. A `widget.Rows` or `widget.Columns` instance can serve as root of a complex layout of nested widgets. 
 It makes sense to combine this with normal conky text rendering - in fact some Widgets (e.g. `widget.Network` and `widget.Drive`) assume this.
@@ -48,26 +81,46 @@ If the respective property is not defined (`nil`) the layout engine
 will assign an automatic amount of space, split evenly between this and other flexible widgets.
 
 The following Widget classes are currently available:
+* **Core**
+  * **`Widget`** the base class - Does nothing by itself.
+* **Containers**
+  * **`Stack`** Allows you to stack multiple widgets on top of each other
+  * **`Float`** Place a Widget at a certain X, Y coordinate, can be useful with a `Stack` to layout widgets manually
+  * **`Rows`** a container for multiple widgets to be rendered in a vertical stack - It can also be useful to subclass this in order to create composite widgets with a combined `:update()` (see the implementation of `Drive` as an example).
+  * **`Columns`** like `Rows` but horizontal
+  * **`Filler`** Leave some empty space. Can also wrap another widget to restrict its size.
+  * **`Frame`** Provides background color, border, padding and margin for other Widgets.
+  * **`Block`** Fancy Frame with Area for Title Widgets and Body Widgets, used as the main part of the Dimensions rc
+* **Text**
+  * **`StaticText`** Display unchanging text
+  * **`ConkyText`** Display a line of text that can include conky variables and will be updated once per second. Is run through `conky_parse()`
+  * **`TextLine`** Display a dynamic line of text.
+* **Image**
+  * **`StaticText`** Display an unchangeable image.
+  * **`RandomImage`** Display a random image from a folder
+* **Indicator**
+  * **`Bar`** a basic bar similar to the one available in normal conky.
+  * **`Graph`** a basic graph similar to the one available in normal conky.
+  * **`LED`** a minimalistic indicator light with adjustable brightness and color.
+* **CPU**
+  * **`Cpu`** Polycore's polygon CPU, best with 4-8 Cores but can support more
+  * **`CpuRound`** A round CPU usage indicator best suited for high core counts.
+  * **`CpuCombo`** Merges CPU and CPU Round best for high core count's the default for the dimensions rc
+  * **`CpuFrequencies`** Bar-like indicator of frequencies for individual cores
+  * **`CpuTop`** Show processes currently using the CPU.
+* **Drive**
+  * **`Drive`** Bar plus temperature indicator for a HDD or SSD.
+* **GPU**
+  * **`Gpu`** Bars for GPU and VRAM usage - requires `nvidia-smi`
+  * **`GpuTop`** Show processes currently using the CPU.
+* **Memory**
+  * **`MemoryBar`** a bar visualizing RAM usage.
+  * **`MemoryGrid`** visualization of used (and buffered/cached) RAM in a randomized grid
+  * **`CpuTop`** Show processes currently using the CPU.
+* **`Network`**
+  * **`Network`** Graphs for up- and download speed along with text
 
-* **`Widget`** the base class - Does nothing by itself.
-* **`Rows`** a container for multiple widgets to be rendered in a vertical stack - It can also be useful to subclass this in order to create composite widgets with a combined `:update()` (see the implementation of `Drive` as an example).
-* **`Columns`** like `Rows` but horizontal
-* **`Filler`** Leave some empty space. Can also wrap another widget to restrict its size.
-* **`Frame`** Provides background color, border, padding and margin for other Widgets.
-* **`Bar`** a basic bar similar to the one available in normal conky.
-* **`MemoryBar`** a bar visualizing RAM usage.
-* **`Graph`** a basic graph similar to the one available in normal conky.
-* **`LED`** a minimalistic indicator light with adjustable brightness and color.
-* **`StaticText`** Display some unchangeable text.
-* **`TextLine`** Display a dynamic line of text.
-* **`Cpu`** CPU usage indiciator in the form of a polygon one segment per core - You guessed it, that's how this theme got its name.
-* **`CpuRound`** A round CPU usage indicator best suited for high core counts.
-* **`CpuFrequencies`** Bar-like indicator of frequencies for individual cores
-* **`MemoryGrid`** visualization of used (and buffered/cached) RAM in a randomized grid
-* **`Gpu`** Bars for GPU and VRAM usage - requires `nvidia-smi`
-* **`GpuTop`** Show processes currently using the CPU.
-* **`Network`** Graphs for up- and download speed - with space for conky.text in between.
-* **`Drive`** Bar plus temperature indicator for a HDD or SSD.
+
 
 ## Creating Widgets
 
