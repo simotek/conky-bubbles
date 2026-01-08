@@ -5,7 +5,9 @@ local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
 
 -- We need to know the current file so that we can tell conky to load itlo
-local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
+local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$"):gsub("@","")
+
+print (rc_path)
 
 -- load a theme as default
 current_theme = require('src/themes/dimensions')
@@ -55,7 +57,7 @@ local script_config = {
     minimum_width = screen_width,
     maximum_width = screen_width,
     minimum_height = 350,
-    xinerama_head = 3,
+    xinerama_head = 0,
 
     -- font --
     font = 'SUSE:pixelsize=10',
@@ -138,7 +140,8 @@ function bubbles.setup()
         Float(StaticText("たくさん楽しんでください",{font_family="Noto Sans CJK JP", font_size=16, border_width=0.8, border_color="55555588"}), {x=450, y=20}), -- {x=450, y=25}
         Float(Frame(Columns{
             Block("[ SYSTEM ]", "${uptime_short}",
-                {ConkyText("Processes :  ${processes}  ( ${running_processes} running )",{}),
+                {
+                 ConkyText("Processes :  ${processes}  ( ${running_processes} running )",{}),
                  ConkyText("Threads :  ${running_threads}",{}),
                  ConkyText("Connections :  ${tcp_portmon 1 65535 count}",{}),
                  Filler{},Filler{},Filler{}},

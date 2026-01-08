@@ -2,10 +2,11 @@
 
 -- Conky does not add our config directory to lua's PATH, so we do it manually
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
-package.path = script_dir .. "?.lua;" .. package.path
+package.path = script_dir .. "../?.lua;" .. package.path
 
 -- We need to know the current file so that we can tell conky to load itlo
-local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
+local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$"):gsub("@","")
+
 
 -- load polycore theme as default
 current_theme = require('src/themes/pcore2')
