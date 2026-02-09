@@ -48,6 +48,9 @@ local util = require('src/util')
 
 local screen_height = util.screen_height()
 
+local config_width = 180
+local config_height = screen_height - 68 - 48
+
 script_config = {
     lua_load = script_dir .. rc_path,
 
@@ -55,10 +58,10 @@ script_config = {
     alignment = 'top_left',
     gap_x = 0,
     gap_y = 68,
-    minimum_width = 160,
-    maximum_width = 160,
-    minimum_height = 660,
-    maximum_height = screen_height - 68 - 48,
+    minimum_width = config_width,
+    maximum_width = config_width,
+    minimum_height = config_height,
+    maximum_height = config_height,
     xinerama_head = 0,
 
     -- font --W
@@ -190,7 +193,7 @@ function bubbles.setup()
         StaticText("[   net   ]", header_font),
         -- Adjust the interface name for your system. Run `ifconfig` to find
         -- out yours. Common names are "eth0" and "wlan0".
-        Network{interface="enp0s13f0u1u4u4", downspeed=5 * 1024, upspeed=1024,
+        Network{interface="wlp9s0", downspeed=5 * 1024, upspeed=1024,
                        graph_height=22},
         Filler{height=block_space},
 
@@ -198,17 +201,12 @@ function bubbles.setup()
         -- they appear. That way external drives can be displayed automatically.
         drive.Drive("/", {device="nvme0n1p1", physical_device="nvme0n1"}),
         drive.Drive("/home", {device="nvme0n1p2", physical_device="nvme0n1"}),
-        core.Filler{height=600},
+        core.Filler{height=400},
         StaticImage("/home/simon/src/devel/conky-bubbles/assets/pcore2/9blocks.png",{})
     }
-    local root = core.Frame(core.Rows(widgets), {
-        padding={20, 20, 20, 20},
-        border_color={0.8, 1, 1, 0.05},
-        border_width = 1,
-        border_sides = {"right"},
-    })
+    local root = core.Float(core.Rows(widgets), {x=20, y=20, width=config_width+60, height=800})
     --local root = core.Rows(widgets)
     return core.Renderer{root=root,
-                           width=conkyrc.config.minimum_width,
-                           height=conkyrc.config.minimum_height}
+                           width=config_width,
+                           height=config_height}
 end
