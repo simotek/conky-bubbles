@@ -76,8 +76,13 @@ local wm_config = {}
 
 if os.getenv("DESKTOP") == "Enlightenment" then
     wm_config = require('src/config/enlightenment')
+    print("Bubbles: Using Enlightenment Config")
+elseif os.getenv("DESKTOP_SESSION") == "plasmawayland" then
+    wm_config = require('src/config/enlightenment')
+    print("Bubbles: Using Plasma Config")
 else
     wm_config = require('src/config/awesome')
+    print("Bubbles: Using Awesome Config")
 end
 
 local tmp_config = util.merge_table(core_config, wm_config)
@@ -176,7 +181,8 @@ function bubbles.setup()
                 background_image="assets/dimensions/div.png",
                 background_image_alpha=1.0,
             }),
-            Block("[ GPU ]", "${nvidia gpufreq} MHz", 
+            ---Block("[ GPU ]", "${nvidia gpufreq} MHz",
+            Block("[ GPU ]", "MHz", 
                 {Gpu(),
                 GpuTop({})},
             block_args),
@@ -185,7 +191,7 @@ function bubbles.setup()
                 background_image_alpha=1.0,
             }),
             Block("[ NET ]", "",
-                {Network{interface="enp0s13f0u1u4u4", downspeed=5 * 1024, upspeed=1024}},
+                {Network{interface="wlp9s0", downspeed=5 * 1024, upspeed=1024}},
             block_args),
             Frame(Filler{width=block_space},{
                 background_image="assets/dimensions/div_left.png",
