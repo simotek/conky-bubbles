@@ -133,6 +133,10 @@ function Rows:layout(width, height)
             end
         end
         filler_height = height_remaining / actual_fillers
+
+        if filler_height < 0 then
+            filler_height = 0
+        end
     end
     for _, widget in ipairs(self._children) do
         local widget_height = filler_height
@@ -278,6 +282,10 @@ function Columns:layout(width, height)
             end
         end
         filler_width = width_remaining / actual_fillers
+
+        if filler_width < 0 then
+            filler_width = 0
+        end
     end
 
     for _, widget in ipairs(self._children) do
@@ -688,7 +696,6 @@ function Frame:init(widget, args)
             imlib_free_image()
         end
     end
-
     if widget.width and self._expand ~= true then
         self.width = widget.width + self._x_left + self._x_right
     else

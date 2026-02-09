@@ -63,43 +63,48 @@ w.Renderer = Renderer
 -- @int args.height Height of the surface that should be covered
 function Renderer:init(args)
     self._root = args.root
-    self._width = args.width
-    self._height = args.height
+    self._width = conky_window.width
+    self._height = conky_window.height
     self._background_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                                          args.width,
-                                                          args.height)
+                                                                self._width,
+                                                                self._height)
     self._main_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                                          args.width,
-                                                          args.height)
+                                                                self._width,
+                                                                self._height)
 end
 
 --- Layout all Widgets and cache their backgrounds.
 -- Call this once to create the initial layout.
 -- Will be called again automatically each time the layout changes.
 function Renderer:layout()
-    local size_changed = false
-    if (conky_window.width > 0 and
-        conky_window.width ~= self._width) then
-        self._width = conky_window.width
-        size_changed = true
-    end
 
-    if (conky_window.height > 0 and 
-        conky_window.height ~= self._height) then
-        self._height = conky_window.height
-        size_changed = true
-    end
+    if 1 then
+        local size_changed = false
+        if (conky_window.width > 0 and
+            conky_window.width ~= self._width) then
+            self._width = conky_window.width
+            size_changed = true
+        end
 
-    if size_changed then
-        print("Window: "..self._width..","..self._height)
-        cairo_surface_destroy(self._background_surface)
-        self._background_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                                              self._width,
-                                                              self._height)
-        cairo_surface_destroy(self._main_surface)
-        self._main_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                                              self._width,
-                                                              self._height)
+        if (conky_window.height > 0 and 
+            conky_window.height ~= self._height) then
+            self._height = conky_window.height
+            size_changed = true
+        end
+
+        if size_changed then
+            print("Window: "..conky_window.width..","..conky_window.height)
+            print("Window: "..self._width..","..self._height)
+
+            cairo_surface_destroy(self._background_surface)
+            self._background_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+                                                                self._width,
+                                                                self._height)
+            cairo_surface_destroy(self._main_surface)
+            self._main_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+                                                                self._width,
+                                                                self._height)
+        end
     end
 
     local widgets = self._root:layout(self._width, self._height) or {}
