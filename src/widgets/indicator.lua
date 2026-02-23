@@ -280,7 +280,7 @@ function LED:init(args)
     local tmp_color = args.color or current_theme.graph_color
     self._color = ch.convert_string_to_rgba(tmp_color)
     if args.background_color then
-        self._background_color = convert_string_to_rgba(args.background_color) or current_theme.background_color
+        self._background_color = ch.convert_string_to_rgba(args.background_color) or current_theme.background_color
     else
         local r, g, b = unpack(self._color)
         self._background_color = {0.2 * r, 0.2 * g, 0.2 * b, 0.75}
@@ -294,7 +294,7 @@ end
 
 --- @tparam ?string color a string containing a hex color value
 function LED:set_color(color)
-    self._color = convert_string_to_rgba(color)
+    self._color = ch.convert_string_to_rgba(color)
 end
 
 function LED:layout(width, height)
