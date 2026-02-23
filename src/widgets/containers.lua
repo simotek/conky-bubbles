@@ -686,8 +686,9 @@ function Frame:init(widget, args)
     if self._has_background_image then
         -- use imlib2 to calc background image size
         local imlib2img = imlib_load_image(self._background_image)
-        if self._background_image == nil then
+        if imlib2img == nil then
             self._has_background_image = false
+            self._background_image = nil
             print("Error: Bubbles Frame: Couldn't load background image"..self._background_image)
         else
             imlib_context_set_image(imlib2img)
