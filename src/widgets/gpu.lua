@@ -100,6 +100,12 @@ function GpuTop:update(update_count)
             if self._process_names[i].needs_rebuild or self._process_mem[i].needs_rebuild then
                 rebuild = true
             end
+        else
+            self._process_names[i]:set_text("")
+            self._process_mem[i]:set_text("")
+            if self._process_names[i].needs_rebuild or self._process_mem[i].needs_rebuild then
+                rebuild = true
+            end
         end
     end
 
