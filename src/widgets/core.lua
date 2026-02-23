@@ -174,8 +174,6 @@ function Renderer:layout()
     self._update_widgets = {}
     self._render_widgets = {}
 
-    local DEBUG = false
-
     for widget, x, y, _width, _height in util.imap(unpack, ordered_widgets) do
 
         if widget.render_background then
@@ -211,7 +209,6 @@ function Renderer:layout()
         cairo_destroy(wcr)
     end
 
-    DEBUG = false
     if DEBUG then
         local cr = cairo_create(wsr)
         --local version_info = table.concat{"conky ", conky_version,
@@ -278,7 +275,7 @@ function Renderer:render(cr)
     for widget, wsr, _width, _height in util.imap(unpack, self._render_widgets) do
         local wcr = cairo_create(wsr)
         -- This one
-        local DEBUG = false
+        -- local DEBUG = false
         if DEBUG then
             cairo_set_source_rgba(wcr, 1, 0, 0, 1)
             if _width * _height ~= 0 then
