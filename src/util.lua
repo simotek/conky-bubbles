@@ -323,6 +323,15 @@ function util.in_table(item, tbl)
     return false
 end
 
+function util.in_ordered_table(item, tbl)
+    for _, i in ipairs(tbl) do
+        if i[1] == item then
+            return true
+        end
+    end
+    return false
+end
+
 --- Returns all files in a directory
 -- @string path full path to search
 function util.files_in_dir(path)

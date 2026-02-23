@@ -132,7 +132,7 @@ function Renderer:layout()
     -- the root widget as there parent
     for w, x, y, _width, _height  in util.imap(unpack, widgets) do
         if w.parent == root_widget then
-            if not util.in_table(w, ordered_widgets) then
+            if not util.in_ordered_table(w, ordered_widgets) then
                 table.insert(ordered_widgets, {w, x, y, _width, _height})
             end
         end
@@ -151,7 +151,7 @@ function Renderer:layout()
             current_list_size = current_list_size + 1
             if w._children then
                 for _, c in pairs(w._children) do
-                    if not util.in_table(c, ordered_widgets) then
+                    if not util.in_ordered_table(c, ordered_widgets) then
                         for wt, x, y, _width, _height in util.imap(unpack, widgets) do
                             if c == wt then
                                 table.insert(ordered_widgets, {wt, x, y, _width, _height})
@@ -165,7 +165,7 @@ function Renderer:layout()
 
     -- This shouldn't happen but just in case
     for w, x, y, _width, _height in util.imap(unpack, widgets) do
-        if not util.in_table(w, ordered_widgets) then
+        if not util.in_ordered_table(w, ordered_widgets) then
             table.insert(ordered_widgets, {w, x, y, _width, _height})
         end
     end
