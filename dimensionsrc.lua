@@ -125,7 +125,7 @@ function bubbles.setup()
         -- Background
         Float(Frame(Filler{}, {
                 background_image="assets/dimensions/bg_2650_inner.png",
-                background_image_alpha=0.7,
+                background_image_alpha=0.93,
                 border_color={0.8, 1, 1, 0.05},
                 border_width = 1,
                 -- T R B L
