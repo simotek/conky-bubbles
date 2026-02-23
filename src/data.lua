@@ -67,6 +67,13 @@ end
 -- Called at the begin of each update to greatly improve performance.
 -- @function eager_loader:load
 function EagerLoader:load()
+    -- clean up results that were not requested in the last update
+    for var, _ in pairs(self._results) do
+        if not self._vars[var] then
+            self._results[var] = nil
+        end
+    end
+
     local vars = {}
 
     -- age remembered variables, queue outdated ones for evaluation
