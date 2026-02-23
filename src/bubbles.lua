@@ -7,10 +7,6 @@ local ch = require('src/cairo_helpers')
 local data = require('src/data')
 local util = require('src/util')
 
---- Draw debug information
--- @bool DEBUG
-DEBUG = false
-
 os.setlocale("C")  -- decimal dot
 
 local bubbles = {
