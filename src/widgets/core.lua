@@ -21,6 +21,8 @@ if not current_theme then
 end
 
 w = {}
+local color_cache = nil
+
 --- Generate a temperature based color.
 -- Colors are chosen based on float offset in a pre-defined color gradient.
 -- @number temperature current temperature (or any other type of numeric value)
@@ -32,11 +34,13 @@ function w.temperature_color(temperature, low, high)
     local hot = ch.convert_string_to_rgba(current_theme.temperature_colors[1])
     local weight = 0
 
-    local rgb_colors = {}
-
-    for i,v in ipairs(current_theme.temperature_colors) do
-        rgb_colors[i] = ch.convert_string_to_rgba(v)
+    if not color_cache then
+        color_cache = {}
+        for i,v in ipairs(current_theme.temperature_colors) do
+            color_cache[i] = ch.convert_string_to_rgba(v)
+        end
     end
+    local rgb_colors = color_cache
 
     if type(temperature) == "number" and temperature > -math.huge and temperature < math.huge then
         local idx = (temperature - low) / (high - low) * (#rgb_colors - 1) + 1
