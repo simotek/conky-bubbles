@@ -234,6 +234,12 @@ end
 -- @int update_count Conky's $updates
 function Renderer:update(update_count)
     local reflow = false
+
+    if (conky_window.width > 0 and conky_window.width ~= self._width) or
+       (conky_window.height > 0 and conky_window.height ~= self._height) then
+        reflow = true
+    end
+
     for _, widget in ipairs(self._update_widgets) do
         if not widget.parent then
             reflow = widget:update(update_count) or reflow
@@ -241,15 +247,13 @@ function Renderer:update(update_count)
     end
     if reflow then
         -- TBD: This was being called everytime
-        -- self:layout()
+        self:layout()
     end
 end
 
 function Renderer:paint_background(cr)
-    --cairo_set_source_surface(cr, self._background_surface, 0, 0)
-    --cairo_paint(cr)
-    -- Layout was being called everytime
-    self:layout()
+    cairo_set_source_surface(cr, self._background_surface, 0, 0)
+    cairo_paint(cr)
 end
 
 --- Render to the given context
