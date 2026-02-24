@@ -602,8 +602,8 @@ function CpuCombo:render(cr)
                                           r * 1.2, g * 1.2, b * 1.2, 1)
         if h_rel < .95 then  -- prevent pixelated edge
             cairo_pattern_add_color_stop_rgba(gradient, h_rel + .045, r, g, b, .83)
-            cairo_pattern_add_color_stop_rgba(gradient, h_rel + .33,  r, g, b, .47)
-            cairo_pattern_add_color_stop_rgba(gradient, 1,            r, g, b, .45)
+            cairo_pattern_add_color_stop_rgba(gradient, h_rel + .33,  r, g, b, .57)
+            cairo_pattern_add_color_stop_rgba(gradient, 1,            r, g, b, .55)
         end
         cairo_set_source(cr, gradient)
         cairo_pattern_destroy(gradient)
