@@ -64,7 +64,7 @@ function StaticImage:layout(width, height)
     self.height = height
 end
 
-function StaticImage:render(cr)
+function StaticImage:render_background(cr)
     if self._image == nil then return end
 
     local scale_width = self.width/self._image_width
@@ -157,7 +157,7 @@ function RandomImage:layout(width, height)
     self._height = height
 end
 
-function RandomImage:render(cr)
+function RandomImage:render_background(cr)
 
     if self._image == nil then return end
 
