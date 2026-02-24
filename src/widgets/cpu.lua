@@ -523,7 +523,7 @@ function CpuCombo:render(cr)
     ch.alpha_gradient_radial(cr, mx, my, self._inner_radius,
                                  mx, my,
                                  self._outer_radius * (1 + 0.5 * avg_percentage / 100),
-                                 r, g, b, {0, 0, 0.05, 0.2, 1, 0})
+                                 r, g, b, {0, 0.0, 0.05, 0.5, 1, 0.0})
     cairo_paint(cr)
 
     -- temperature text
@@ -538,7 +538,7 @@ function CpuCombo:render(cr)
                                  my - self._inner_radius * 0.5,
                                  0,
                                  mx, my, self._inner_radius,
-                                 r, g, b, {0, 0.4, 0.66, 0.15, 1, 0.1})
+                                 r, g, b, {0, 0.5, 0.66, 0.25, 1, 0.2})
     cairo_fill(cr)
 
     -- usage curve
@@ -596,14 +596,14 @@ function CpuCombo:render(cr)
         cairo_stroke_preserve(cr)
 
         local h_rel = self._percentages[core]/100
-        cairo_pattern_add_color_stop_rgba(gradient, 0,            r, g, b, .33)
+        cairo_pattern_add_color_stop_rgba(gradient, 0,            r, g, b, .53)
         cairo_pattern_add_color_stop_rgba(gradient, h_rel - .045, r, g, b, .75)
         cairo_pattern_add_color_stop_rgba(gradient, h_rel,
                                           r * 1.2, g * 1.2, b * 1.2, 1)
         if h_rel < .95 then  -- prevent pixelated edge
-            cairo_pattern_add_color_stop_rgba(gradient, h_rel + .045, r, g, b, .53)
-            cairo_pattern_add_color_stop_rgba(gradient, h_rel + .33,  r, g, b, .27)
-            cairo_pattern_add_color_stop_rgba(gradient, 1,            r, g, b, .25)
+            cairo_pattern_add_color_stop_rgba(gradient, h_rel + .045, r, g, b, .83)
+            cairo_pattern_add_color_stop_rgba(gradient, h_rel + .33,  r, g, b, .47)
+            cairo_pattern_add_color_stop_rgba(gradient, 1,            r, g, b, .45)
         end
         cairo_set_source(cr, gradient)
         cairo_pattern_destroy(gradient)
@@ -661,7 +661,6 @@ end
 function CpuFrequencies:render_background(cr)
     cairo_set_source_rgba(cr, unpack(self._text_color))
 
-
     -- shadow outline
     ch.polygon(cr, {
         self._polygon_coordinates[1] - 1, self._polygon_coordinates[2] - 1,
@@ -669,7 +668,7 @@ function CpuFrequencies:render_background(cr)
         self._polygon_coordinates[5] + 1, self._polygon_coordinates[6] + 1,
         self._polygon_coordinates[7] - 1, self._polygon_coordinates[8] + 1,
     })
-    cairo_set_source_rgba(cr, 0, 0, 0, .4)
+    cairo_set_source_rgba(cr, 0, 0, 0, 0.6)
     cairo_set_line_width(cr, 1)
     cairo_stroke(cr)
 end
@@ -697,11 +696,11 @@ function CpuFrequencies:render(cr)
     for _, label in ipairs(self._tick_labels) do
         cairo_text_hp_show(cr, label[1], label[2], label[3], self._bold_font_family, 16, CAIRO_TEXT_ALIGN_CENTER)
     end
-    cairo_set_source_rgba(cr, r, g, b, 66)
+    cairo_set_source_rgba(cr, r, g, b, .66)
 
     -- background --
     ch.polygon(cr, self._polygon_coordinates)
-    cairo_set_source_rgba(cr, r, g, b, .15)
+    cairo_set_source_rgba(cr, r, g, b, .25)
     cairo_fill_preserve(cr)
     cairo_set_source_rgba(cr, r, g, b, .3)
     cairo_stroke_preserve(cr)

@@ -164,7 +164,7 @@ function Graph:render_background(cr)
 
     -- background
     cairo_rectangle(cr, 0, 0, self._width + 1, self._height + 1)
-    ch.alpha_gradient(cr, 0, 0, 0, self._height, r, g, b, {0, .15, 1, .03})
+    ch.alpha_gradient(cr, 0, 0, 0, self._height, r, g, b, {0, .20, 1, .08})
     cairo_fill(cr)
 
     -- grid
