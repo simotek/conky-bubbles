@@ -206,7 +206,11 @@ function Cpu:render(cr)
             ch.polygon(cr, self._segment_coordinates[core])
         end
         local gradient = cairo_pattern_create_linear(unpack(self._gradient_coordinates[core]))
-        r, g, b = w.temperature_color(self._temperatures[core%#self._temperatures+1], 40, 100)
+        local temp = nil
+        if #self._temperatures > 0 then
+            temp = self._temperatures[core%#self._temperatures+1]
+        end
+        r, g, b = w.temperature_color(temp, 40, 100)
         cairo_set_source_rgba(cr, 0, 0, 0, .4)
         cairo_set_line_width(cr, 1.5)
         cairo_stroke_preserve(cr)
@@ -587,7 +591,11 @@ function CpuCombo:render(cr)
         cairo_arc_negative(cr, mx, my, self._mid_radius, slice*use_core+offset, slice*(use_core-1)+offset)
 
         local gradient = cairo_pattern_create_linear(unpack(self._gradient_coordinates[use_core]))
-        r, g, b = w.temperature_color(self._temperatures[use_core%#self._temperatures+1], 40, 100)
+        local temp = nil
+        if #self._temperatures > 0 then
+            temp = self._temperatures[use_core%#self._temperatures+1]
+        end
+        r, g, b = w.temperature_color(temp, 40, 100)
         cairo_set_source_rgba(cr, 0, 0, 0, .7)
         cairo_set_line_width(cr, 1.5)
         cairo_stroke_preserve(cr)

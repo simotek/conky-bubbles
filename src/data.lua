@@ -49,6 +49,14 @@ local function convert_unit(from, to, value)
     return value
 end
 
+--- Check if command exists on system os
+-- @treturn true if command exists
+function data.command_exists(command_name)
+  -- 'command -v' returns a 0 exit status if the command is found, non-zero otherwise.
+  -- Redirecting standard output and error to /dev/null prevents console clutter.
+  local success = os.execute("command -v " .. command_name .. " >/dev/null 2>&1")
+  return success
+end
 
 -- Gather parameters for expensive calls and run them in bulk on the next update.
 local EagerLoader = util.class()
@@ -127,7 +135,7 @@ function EagerLoader:get(remember, var, ...)
     return self._results[var]
 end
 
-
+data.gpu=nil
 -- local ConkyLoader = util.class(EagerLoader)
 local conky_loader = EagerLoader(function(vars)
     local output = conky_parse("<|" .. table.concat(vars, "|><|") .. "|>")
@@ -169,7 +177,13 @@ end
 -- relies on lm_sensors to be installed
 -- @treturn {number,...}
 function data.cpu_temperatures()
-    return util.map(tonumber, read_cmd("sensors"):gmatch("Core %d: +%+(%d%d)"))
+    local cores = util.map(tonumber, read_cmd("sensors"):gmatch("Core %d: +%+(%d%d)"))
+    if #cores ~= 0 then
+        print("cores not nil"..cores)
+        return cores
+    end
+    -- CPU doesn't return per core info just return single CPU Temp
+    return util.map(tonumber, read_cmd("sensors"):gmatch("CPU: +[%+%-]?(%d+%.?%d*)"))
 end
 
 --- Get the current speed of fans in the system
@@ -203,58 +217,97 @@ end
 -- Relies on nvidia-smi to be installed.
 -- @treturn number
 function data.gpu_percentage()
-    return tonumber(nvidia_loader:get("utilization.gpu"))
+    if data.gpu == "nvidia" then
+        return tonumber(nvidia_loader:get("utilization.gpu"))
+    else
+        return 0
+    end
 end
 
 --- Get current GPU frequency.
 -- @treturn number in MHz
 function data.gpu_frequency()
-    return tonumber(nvidia_loader:get("clocks.current.graphics"))
+    if data.gpu == "nvidia" then
+        return tonumber(nvidia_loader:get("clocks.current.graphics"))
+    else
+        return 0
+    end
 end
 
 --- Get current GPU temperature.
 -- Relies on nvidia-smi to be installed.
 -- @treturn number temperature in °C
 function data.gpu_temperature()
-    return tonumber(nvidia_loader:get("temperature.gpu"))
+    if data.gpu == "nvidia" then
+        return tonumber(nvidia_loader:get("temperature.gpu"))
+    else
+        return 0
+    end
 end
 
 --- Get current VRAM usage.
 -- Relies on nvidia-smi to be installed.
 -- @treturn number,number used, total in MiB
 function data.gpu_memory()
-    return tonumber(nvidia_loader:get("memory.used")),
-           tonumber(nvidia_loader:get("memory.total"))
+    if data.gpu == "nvidia" then
+        return tonumber(nvidia_loader:get("memory.used")),
+               tonumber(nvidia_loader:get("memory.total"))
+    else
+        return 0,0
+    end
 end
 
 --- Get current GPU power draw.
 -- Relies on nvidia-smi to be installed.
 -- @treturn number power draw in W
 function data.gpu_power_draw()
-    return tonumber(nvidia_loader:get("power.draw"))
+    if data.gpu == "nvidia" then
+        return tonumber(nvidia_loader:get("power.draw"))
+    else
+        return 0
+    end
 end
 
 --- Get current GPU power draw.
 -- Relies on nvidia-smi to be installed.
 -- @treturn number power draw in W
 function data.gpu_power_limit()
-    return tonumber(nvidia_loader:get("power.limit"))
+    if data.gpu == "nvidia" then
+        return tonumber(nvidia_loader:get("power.limit"))
+    else
+        return 0
+    end
 end
 
 --- Get list of GPU processes with individual VRAM usage in MiB.
 -- Relies on nvidia-smi to be installed.
 -- @treturn {{string,number},...} list of {name, mem} value pairs.
 function data.gpu_top()
-    local output = read_cmd("nvidia-smi -q -d PIDS")
-    local processes = {}
-    for name, mem in output:gmatch("Name%s+: ([^\n]*)\n%s+Used GPU Memory%s+: (%d+)") do
-        name = name:match(".*[/\\](.+)") or name
-        processes[#processes + 1] = {name, tonumber(mem)}
+    if data.gpu == "nvidia" then
+        local output = read_cmd("nvidia-smi -q -d PIDS")
+        local processes = {}
+        for name, mem in output:gmatch("Name%s+: ([^\n]*)\n%s+Used GPU Memory%s+: (%d+)") do
+            name = name:match(".*[/\\](.+)") or name
+            processes[#processes + 1] = {name, tonumber(mem)}
+        end
+        table.sort(processes, function(proc1, proc2) return proc1[2] > proc2[2] end)
+        return processes
+    else
+        return nil
     end
-    table.sort(processes, function(proc1, proc2) return proc1[2] > proc2[2] end)
-    return processes
 end
 
+--- Internal function to set correct gpu
+function data.set_gpu()
+    if data.command_exists("nvidia-smi") then
+        data.gpu = "nvidia"
+        return true
+    elseif data.command_exists("amdgpu_top  --smi") then
+        data.gpu = "amd"
+        return true
+    end
+    return false
+end
 
 --- Is the given path a mount? (see conky's is_mounted)
 -- @string path

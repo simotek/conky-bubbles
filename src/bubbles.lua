@@ -15,6 +15,11 @@ local bubbles = {
 
 --- Takes care of initializing the widget layout.
 local function setup()
+    data.set_gpu()
+    if not data.command_exists("sensors") then
+        print("Please install Sensors package for Temperature information.")
+    end
+    
     bubbles.renderer = bubbles.setup()
     bubbles.renderer:layout()
 end

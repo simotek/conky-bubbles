@@ -28,6 +28,10 @@ w.Gpu = Gpu
 
 --- no options
 function Gpu:init()
+    if data.gpu == nil then
+        print("GPU Module requires nvidia-smi or amdgpu_top to be installed")
+    end
+
     self._usebar = core.Bar{ticks={.25, .5, .75}, unit="%"}
 
     local _, mem_total = data.gpu_memory()
@@ -61,6 +65,9 @@ w.GpuTop = GpuTop
 -- @tparam ?number args.font_size
 -- @tparam ?string args.color a string containing a hex color code (default: `default_text_color`)
 function GpuTop:init(args)
+    if data.gpu == nil then
+        print("GPU Module requires nvidia-smi or amdgpu_top to be installed")
+    end
     self._lines = args.lines or 5
     self._font_family = args.font_family or current_theme.default_font_family
     self._font_size = args.font_size or current_theme.default_font_size
@@ -91,20 +98,22 @@ function GpuTop:update(update_count)
 
     local rebuild = false
 
-    for i=1,self._lines do
-        if #self._processes >= i then
-            -- Like conky just use the first 10 chars
-            self._process_names[i]:set_text(string.sub(self._processes[i][1],1,11))
-            self._process_mem[i]:set_text(self._processes[i][2].."MiB" or "")
+    if self._processes then
+        for i=1,self._lines do
+            if #self._processes >= i then
+                -- Like conky just use the first 10 chars
+                self._process_names[i]:set_text(string.sub(self._processes[i][1],1,11))
+                self._process_mem[i]:set_text(self._processes[i][2].."MiB" or "")
 
-            if self._process_names[i].needs_rebuild or self._process_mem[i].needs_rebuild then
-                rebuild = true
-            end
-        else
-            self._process_names[i]:set_text("")
-            self._process_mem[i]:set_text("")
-            if self._process_names[i].needs_rebuild or self._process_mem[i].needs_rebuild then
-                rebuild = true
+                if self._process_names[i].needs_rebuild or self._process_mem[i].needs_rebuild then
+                    rebuild = true
+                end
+            else
+                self._process_names[i]:set_text("")
+                self._process_mem[i]:set_text("")
+                if self._process_names[i].needs_rebuild or self._process_mem[i].needs_rebuild then
+                    rebuild = true
+                end
             end
         end
     end
