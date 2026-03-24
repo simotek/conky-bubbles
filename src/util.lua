@@ -336,6 +336,12 @@ end
 -- @string path full path to search
 function util.files_in_dir(path)
     local ret_list = {}
+    
+    if not lfs.attributes(path, "mode") then
+        print("Path doesn't exist: "..path)
+        return ret_list
+    end
+
     for file in lfs.dir(path) do
         local full_file = path..file
         if lfs.attributes(full_file,"mode") == "file" then 
