@@ -179,7 +179,6 @@ end
 function data.cpu_temperatures()
     local cores = util.map(tonumber, read_cmd("sensors"):gmatch("Core %d: +%+(%d%d)"))
     if #cores ~= 0 then
-        print("cores not nil"..cores)
         return cores
     end
     -- CPU doesn't return per core info just return single CPU Temp
