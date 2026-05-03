@@ -3,6 +3,7 @@
 
 local util = {}
 local lfs = require('lfs')
+local has_cjson, cjson = pcall(require, 'cjson')
 
 --- Class creation
 -- @section class
@@ -24,6 +25,35 @@ function util.class(parent)
     return cls
 end
 
+--- General
+-- @section general
+
+--- conky version
+-- @return the conky version
+function util.conky_version()
+    -- conky_build_info is a global string provided by Conky, e.g., "Conky 1.18.1 compiled on Linux"
+    -- The version number is typically the second word.
+    local version_string = util.get_nth_word(conky_build_info, 2)
+    local hyphen_pos = version_string:find("-")
+    if hyphen_pos then
+        -- Remove everything after and including the first hyphen
+        version_string = version_string:sub(1, hyphen_pos - 1)
+    end
+    return version_string
+end
+
+--- Get the Nth word from a string.
+-- Words are separated by spaces.
+-- @string str The input string.
+-- @int n The 1-based index of the word to retrieve.
+-- @treturn string|nil The Nth word, or nil if not found.
+function util.get_nth_word(str, n)
+    local words = {}
+    for word in str:gmatch("%S+") do -- %S+ matches one or more non-whitespace characters
+        table.insert(words, word)
+    end
+    return words[n]
+end
 
 --- Memoization
 -- @section memo
@@ -352,22 +382,85 @@ function util.files_in_dir(path)
     return ret_list
 end
 
+--- Reads the system environment and returns true if WAYLAND_DISPLAY is set.
+-- @treturn boolean True if WAYLAND_DISPLAY is set, false otherwise.
+function util.is_wayland_display_set()
+    -- os.getenv returns nil if the environment variable is not set.
+    return os.getenv("WAYLAND_DISPLAY") ~= nil
+end
+
+--- Parses kscreen-doctor JSON output and returns the width, height, and scale
+-- of the screen with the highest priority (lowest numerical priority value).
+-- @string cmd_output JSON output from `kscreen-doctor -j`
+-- @treturn number,number,number width, height, scale
+function util.get_kde_screen_info(cmd_output)
+    if not cmd_output or cmd_output == "" then return nil, nil, nil end
+
+    if not has_cjson then
+        print("bubbles: cjson library is not installed, cannot parse kscreen-doctor output")
+        return nil, nil, nil
+    end
+
+    -- Decode the JSON payload
+    local success, parsed_data = pcall(cjson.decode, cmd_output)
+    if not success or not parsed_data or type(parsed_data.outputs) ~= "table" then
+        return nil, nil, nil
+    end
+
+    local highest_priority = math.huge
+    local target = nil
+
+    -- Find the display with the highest priority (lowest number, e.g., 1 is primary)
+    for _, display in ipairs(parsed_data.outputs) do
+        -- Ensure we only consider connected/enabled displays with a valid non-zero geometry
+        if display.connected and display.enabled and display.size and 
+           display.size.width and display.size.width > 0 and 
+           display.size.height and display.size.height > 0 then
+            
+            local priority = display.priority or math.huge
+            if priority < highest_priority then
+                highest_priority = priority
+                target = display
+            end
+        end
+    end
+
+    if target then
+        local scale = target.scale or 1
+        return target.size.width, target.size.height, scale
+    end
+    return nil, nil, nil
+end
+
 --- Returns the screen resolution
 -- @return string
 function util.screen_resolution()
+    if Using_Wayland then
+        if os.getenv("DESKTOP_SESSION") == "plasmawayland" then
+            local w, h, scale = util.get_kde_screen_info(read_cmd("kscreen-doctor -j"))
+            if w and h and scale then
+                return string.format("%dx%d", math.floor(w / scale), math.floor(h / scale))
+            end
+        elseif not data.command_exists("wlr-randr") then
+            print("Please install wlr-randr package for accurate screen information.")
+            -- Todo: Implement wlr-randr 
+        end
+    end
     return read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+")
 end
 
 --- Returns the screen resolution
 -- @return int screen width
 function util.screen_width()
-    return tonumber(read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+ | cut -f 1 -dx"))
+    local res = util.screen_resolution()
+    return tonumber(res:match("(%d+)x"))
 end
 
 --- Returns the screen resolution
 -- @return int screen height
 function util.screen_height()
-    return tonumber(read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+ | cut -f 2 -dx"))
+    local res = util.screen_resolution()
+    return tonumber(res:match("x(%d+)"))
 end
 
 return util

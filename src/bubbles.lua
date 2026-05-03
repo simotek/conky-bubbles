@@ -15,6 +15,8 @@ local bubbles = {
 
 --- Takes care of initializing the widget layout.
 local function setup()
+    print(util.conky_version())
+
     data.set_gpu()
     if not data.command_exists("sensors") then
         print("Please install Sensors package for Temperature information.")
@@ -22,6 +24,7 @@ local function setup()
     
     bubbles.renderer = bubbles.setup()
     bubbles.renderer:layout()
+
 end
 
 --- Called once per update cycle to (re-)draw the entire surface background.

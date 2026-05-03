@@ -17,13 +17,20 @@ function ch.create_cr(conky_window)
     if conky_window == nil then
         return nil
     end
-    local cs = cairo_xlib_surface_create(conky_window.display,
+    local cs = nil
+    local cr = nil
+    if (util.conky_version() < "1.22.4" ) then
+       cs = cairo_xlib_surface_create(conky_window.display,
                                          conky_window.drawable,
                                          conky_window.visual,
                                          conky_window.text_width,
                                          conky_window.text_height)
-    local cr = cairo_create(cs)
-    cairo_surface_destroy(cs)
+      cr = cairo_create(cs)
+      cairo_surface_destroy(cs)
+    else
+      cs = conky_surface()
+      cr = cairo_create(cs)
+    end
     return cr
 end
 

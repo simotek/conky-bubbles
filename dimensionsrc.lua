@@ -45,6 +45,8 @@ local DEBUG = false
 
 local conkyrc = conky or {}
 
+Using_Wayland = util.is_wayland_display_set()
+
 -- Todo auto detect this.
 local screen_width = util.screen_width()
 
@@ -69,6 +71,7 @@ local script_config = {
     own_window_argb_visual = true,
     own_window_argb_value = 0,
     default_color = 'fafafa',
+
 }
 
 local core_config = require('src/config/core')
@@ -86,6 +89,10 @@ else
 end
 
 local tmp_config = util.merge_table(core_config, wm_config)
+if Using_Wayland then
+    local wayland_config = require('src/config/wayland')
+    tmp_config = util.merge_table(tmp_config, wayland_config)
+end
 local config = util.merge_table(tmp_config, script_config)
 
 conkyrc.config = config
@@ -145,7 +152,7 @@ function bubbles.setup()
         Float(StaticText("たくさん楽しんでください",{font_family="Noto Sans CJK JP", font_size=16, border_width=0.8, border_color="55555588"}), {x=450, y=20}), -- {x=450, y=25}
         Float(Frame(Columns{
             Block("[ SYSTEM ]", "${uptime_short}",
-                {
+            {
                  ConkyText("Processes :  ${processes}  ( ${running_processes} running )",{}),
                  ConkyText("Threads :  ${running_threads}",{}),
                  ConkyText("Connections :  ${tcp_portmon 1 65535 count}",{}),
@@ -155,7 +162,7 @@ function bubbles.setup()
                 background_image="assets/dimensions/div.png",
                 background_image_alpha=1.0,
             }),
-            Block("[ CPU ]", "${cpu 0}%",
+            Block("[ CPU ]", "${cpu}%",
                 {CpuCombo{cores=16, inner_radius=25, mid_radius=57, outer_radius=68, gap=6, grid=5},
                 Filler{}},
             block_args),
@@ -163,7 +170,7 @@ function bubbles.setup()
                 background_image="assets/dimensions/div.png",
                 background_image_alpha=1.0,
             }),
-            Block("[ FREQ ]", "${freq_g 0}GHz",
+            Block("[ FREQ ]", "${freq_g 1}GHz",
                 { CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
                 Filler{height=6},
                 CpuTop({})}, 
@@ -191,7 +198,7 @@ function bubbles.setup()
                 background_image_alpha=1.0,
             }),
             Block("[ NET ]", "",
-                {Network{interface="wlp9s0", downspeed=5 * 1024, upspeed=1024}},
+                {Network{interface="eth2", downspeed=5 * 1024, upspeed=1024}},
             block_args),
             Frame(Filler{width=block_space},{
                 background_image="assets/dimensions/div_left.png",
