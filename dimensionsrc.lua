@@ -7,8 +7,6 @@ package.path = script_dir .. "../?.lua;" .. package.path
 -- We need to know the current file so that we can tell conky to load itlo
 local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$"):gsub("@","")
 
-print (rc_path)
-
 -- load a theme as default
 current_theme = require('src/themes/dimensions')
 
@@ -16,25 +14,19 @@ local bubbles = require('src/bubbles')
 local data  = require('src/data')
 local util = require('src/util')
 local ch = require('src/cairo_helpers')
-local core  = require('src/widgets/core')
-local containers  = require('src/widgets/containers')
-local cpu   = require('src/widgets/cpu')
-local drive = require('src/widgets/drive')
-local gpu   = require('src/widgets/gpu')
-local images = require('src/widgets/images')
-local mem   = require('src/widgets/memory')
-local net   = require('src/widgets/network')
-local text  = require('src/widgets/text')
+local cl = require('src/config_loader')
+local widgets = require('src/widgets/widgets')
 
-local Frame, Filler, Rows, Columns, Float, Stack, Block = containers.Frame, containers.Filler,
-                                          containers.Rows, containers.Columns, containers.Float, containers.Stack, containers.Block
-local CpuCombo, CpuFrequencies, CpuTop = cpu.CpuCombo, cpu.CpuFrequencies, cpu.CpuTop
-local Drive = drive.Drive
-local Gpu, GpuTop = gpu.Gpu, gpu.GpuTop
-local StaticImage, RandomImage = images.StaticImage, images.RandomImage
-local MemoryGrid, MemTop = mem.MemoryGrid, mem.MemTop
-local Network = net.Network
-local ConkyText, StaticText, TextLine = text.ConkyText, text.StaticText, text.TextLine
+local Frame, Filler, Rows, Columns, Float, Stack, Block = widgets.containers.Frame, widgets.containers.Filler,
+      widgets.containers.Rows, widgets.containers.Columns, widgets.containers.Float, widgets.containers.Stack,
+      widgets.containers.Block
+local CpuCombo, CpuFrequencies, CpuTop = widgets.cpu.CpuCombo, widgets.cpu.CpuFrequencies, widgets.cpu.CpuTop
+local Drive = widgets.drive.Drive
+local Gpu, GpuTop = widgets.gpu.Gpu, widgets.gpu.GpuTop
+local StaticImage, RandomImage = widgets.images.StaticImage, widgets.images.RandomImage
+local MemoryGrid, MemTop = widgets.mem.MemoryGrid, widgets.mem.MemTop
+local Network = widgets.net.Network
+local ConkyText, StaticText, TextLine = widgets.text.ConkyText, widgets.text.StaticText, widgets.text.TextLine
 
 -- lua 5.1 to 5.3 compatibility
 local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
@@ -74,28 +66,7 @@ local script_config = {
 
 }
 
-local core_config = require('src/config/core')
-local wm_config = {}
-
-if os.getenv("DESKTOP") == "Enlightenment" then
-    wm_config = require('src/config/enlightenment')
-    print("Bubbles: Using Enlightenment Config")
-elseif os.getenv("DESKTOP_SESSION") == "plasmawayland" then
-    wm_config = require('src/config/enlightenment')
-    print("Bubbles: Using Plasma Config")
-else
-    wm_config = require('src/config/awesome')
-    print("Bubbles: Using Awesome Config")
-end
-
-local tmp_config = util.merge_table(core_config, wm_config)
-if Using_Wayland then
-    local wayland_config = require('src/config/wayland')
-    tmp_config = util.merge_table(tmp_config, wayland_config)
-end
-local config = util.merge_table(tmp_config, script_config)
-
-conkyrc.config = config
+conkyrc.config = cl.load_config(script_config)
 
 -----------------
 ----- START -----
@@ -211,8 +182,8 @@ function bubbles.setup()
                 background_image_alpha=1.0,
             }),
             Block("[ DISK ]", "",
-                {drive.Drive("/", {device="nvme0n1p1", physical_device="nvme0n1"}),
-                drive.Drive("/home", {device="nvme0n1p2", physical_device="nvme0n1"})},
+                {Drive("/", {device="nvme0n1p1", physical_device="nvme0n1"}),
+                 Drive("/home", {device="nvme0n1p2", physical_device="nvme0n1"})},
             block_args),
             }, {
                 -- T R B L
@@ -225,7 +196,7 @@ function bubbles.setup()
         Float(ConkyText("${time %A}",{font_family="SUSE Thin", font_size=48, border_width=0.8, border_color="55555588"}), {x=screen_width-460, y=main_height-25+70}),
     }
 
-    return core.Renderer{root=root,
+    return widgets.core.Renderer{root=root,
                            width=conkyrc.config.minimum_width,
                            height=conkyrc.config.minimum_height}
 end

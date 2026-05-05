@@ -13,32 +13,29 @@ current_theme = require('src/themes/pcore2')
 
 local bubbles = require('src/bubbles')
 local ch = require('src/cairo_helpers')
+local cl = require('src/config_loader')
 local data = require('src/data')
-local core  = require('src/widgets/core')
-local containers  = require('src/widgets/containers')
-local cpu   = require('src/widgets/cpu')
-local drive = require('src/widgets/drive')
-local gpu   = require('src/widgets/gpu')
-local images = require('src/widgets/images')
-local mem   = require('src/widgets/memory')
-local net   = require('src/widgets/network')
-local text  = require('src/widgets/text')
+local util = require('src/util')
+local widgets = require('src/widgets/widgets')
 
-local Frame, Filler, Rows, Columns, Float, Stack, Block = containers.Frame, containers.Filler,
-                                          containers.Rows, containers.Columns, containers.Float, containers.Stack, containers.Block
-local Cpu, CpuFrequencies, CpuTop = cpu.Cpu, cpu.CpuFrequencies, cpu.CpuTop
-local Drive = drive.Drive
-local Gpu, GpuTop = gpu.Gpu, gpu.GpuTop
-local StaticImage = images.StaticImage
-local MemoryGrid, MemTop = mem.MemoryGrid, mem.MemTop
-local Network = net.Network
-local ConkyText, StaticText, TextLine = text.ConkyText, text.StaticText, text.TextLine
+
+local Frame, Filler, Rows, Columns, Float, Stack, Block = widgets.containers.Frame, widgets.containers.Filler,
+      widgets.containers.Rows, widgets.containers.Columns, widgets.containers.Float, widgets.containers.Stack,
+      widgets.containers.Block
+local Cpu, CpuFrequencies, CpuTop = widgets.cpu.Cpu, widgets.cpu.CpuFrequencies, widgets.cpu.CpuTop
+local Drive = widgets.drive.Drive
+local Gpu, GpuTop = widgets.gpu.Gpu, widgets.gpu.GpuTop
+local StaticImage = widgets.images.StaticImage
+local MemoryGrid, MemTop = widgets.mem.MemoryGrid, widgets.mem.MemTop
+local Network = widgets.net.Network
+local ConkyText, StaticText, TextLine = widgets.text.ConkyText, widgets.text.StaticText, widgets.text.TextLine
 
 -- lua 5.1 to 5.3 compatibility
 local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
 
 -- Draw debug information
 DEBUG = false
+Using_Wayland = util.is_wayland_display_set()
 
 local conkyrc = conky or {}
 
@@ -48,10 +45,10 @@ local util = require('src/util')
 
 local screen_height = util.screen_height()
 
-local config_width = 180
+local config_width = 280
 local config_height = screen_height - 68 - 48
 
-script_config = {
+local script_config = {
     lua_load = script_dir .. rc_path,
 
     -- positioning --
@@ -80,18 +77,8 @@ script_config = {
     color2 = 'bb5544',  -- high temperature warning color
 }
 
-core_config = require('src/config/core')
+conkyrc.config = cl.load_config(script_config)
 
-if os.getenv("DESKTOP") == "Enlightenment" then
-    wm_config = require('src/config/enlightenment')
-else
-    wm_config = require('src/config/awesome')
-end
-
-tmp_config = util.merge_table(core_config, wm_config)
-config = util.merge_table(tmp_config, script_config)
-
-conkyrc.config = config
 -----------------
 ----- START -----
 -----------------
@@ -104,7 +91,7 @@ function bubbles.setup()
     -- Write fan speeds. This requires lm_sensors to be installed.
     -- Run `sensonrs` to see if any fans are reported. If not, remove
     -- this section and the corresponding line below.
-    local fan_rpm_text = text.TextLine{align=CAIRO_TEXT_ALIGN_CENTER, color=current_theme.secondary_text_color}
+    local fan_rpm_text = TextLine{align=CAIRO_TEXT_ALIGN_CENTER, color=current_theme.secondary_text_color}
     fan_rpm_text.update = function(self)
         local fans = data.fan_rpm()
         self:set_text(table.concat{fans[1], " rpm   ·   ", fans[2], " rpm"})
@@ -112,7 +99,7 @@ function bubbles.setup()
 
     -- Write individual CPU core temperatures as text.
     -- This also relies on lm_sensors.
-    local cpu_temps_text = text.TextLine{align=CAIRO_TEXT_ALIGN_CENTER, color=current_theme.secondary_text_color}
+    local cpu_temps_text = TextLine{align=CAIRO_TEXT_ALIGN_CENTER, color=current_theme.secondary_text_color}
     cpu_temps_text.update = function(self)
         local cpu_temps = data.cpu_temperatures()
         self:set_text(table.concat(cpu_temps, " · ") .. " °C")
@@ -120,7 +107,7 @@ function bubbles.setup()
 
     -- Write individual CPU core temperatures as text.
     -- This also relies on lm_sensors.
-    local gpu_power_text = text.TextLine{align="right", font_size=10.1}
+    local gpu_power_text = TextLine{align="right", font_size=10.1}
     gpu_power_text.update = function(self)
         local fans = data.fan_rpm()
         local gpu_power_draw = string.format("%.0f", data.gpu_power_draw())
@@ -152,7 +139,7 @@ function bubbles.setup()
 
     local block_space = 12
 
-    local widgets = {
+    local widg = {
         StaticText("pCore2", title_font),
         Filler{height=10},
         ConkyText("${time %d.%m.%Y}", centered_font),
@@ -199,14 +186,14 @@ function bubbles.setup()
 
         -- Mount paths. Devices that aren't mounted will not be rendered until
         -- they appear. That way external drives can be displayed automatically.
-        drive.Drive("/", {device="nvme0n1p1", physical_device="nvme0n1"}),
-        drive.Drive("/home", {device="nvme0n1p2", physical_device="nvme0n1"}),
-        core.Filler{height=400},
+        Drive("/", {device="nvme0n1p1", physical_device="nvme0n1"}),
+        Drive("/home", {device="nvme0n1p2", physical_device="nvme0n1"}),
+        Filler{height=400},
         StaticImage("/home/simon/src/devel/conky-bubbles/assets/pcore2/9blocks.png",{})
     }
-    local root = core.Float(core.Rows(widgets), {x=20, y=20, width=config_width+60, height=800})
+    local root = Float(Rows(widg), {x=40, y=20, width=config_width-40, height=800})
     --local root = core.Rows(widgets)
-    return core.Renderer{root=root,
+    return widgets.core.Renderer{root=root,
                            width=config_width,
                            height=config_height}
 end
