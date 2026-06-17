@@ -4,6 +4,7 @@
 local lfs = require('lfs')
 
 local util = require('src/util')
+local has_cjson, cjson = pcall(require, 'cjson')
 
 -- lua 5.1 to 5.3 compatibility
 local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
@@ -150,6 +151,62 @@ local nvidia_loader = EagerLoader(function(vars)
 end)
 data.nvidia_loader = nvidia_loader
 
+--- Loader for running commands that return JSON and caching/parsing the results.
+-- @type JsonEagerLoader
+local JsonEagerLoader = util.class()
+data.JsonEagerLoader = JsonEagerLoader
+
+--- Create a JsonEagerLoader instance.
+-- @string cmd The command to execute that returns a JSON string.
+function JsonEagerLoader:init(cmd)
+    self._cmd = cmd
+    self._loaded = false
+    self._parsed_data = nil
+end
+
+--- Reset the loader state.
+-- Call this at the start of each update cycle to allow lazy-loading.
+function JsonEagerLoader:load()
+    self._loaded = false
+    self._parsed_data = nil
+end
+
+--- Retrieve parsed JSON data using a string path.
+-- @param parser A dot-separated string path (e.g., "outputs.1.size.width")
+-- @return The requested value, or nil if not found or parsing failed.
+function JsonEagerLoader:get(parser)
+    if not self._loaded then
+        self._loaded = true
+        if not has_cjson then
+            print("\027[31mJsonEagerLoader: cjson is not installed, cannot parse command output.\027[0m")
+            return nil
+        end
+
+        local raw_output = read_cmd(self._cmd)
+        if raw_output and raw_output ~= "" then
+            local parsed = cjson.decode(raw_output)
+            self._parsed_data = parsed
+        end
+    end
+
+    if not self._parsed_data or type(parser) ~= "string" then
+        return nil
+    end
+
+    local current = self._parsed_data
+    for segment in string.gmatch(parser, "[^%.]+") do
+        if type(current) ~= "table" then return nil end
+        local num = tonumber(segment)
+        current = current[num or segment]
+    end
+    return current
+end
+
+local amd_stats_loader = JsonEagerLoader("amdgpu_top -d -gm --json")
+data.amd_stats_loader = amd_stats_loader
+
+local amd_process_loader = JsonEagerLoader("amdgpu_top -d -p --json")
+data.amd_process_loader = amd_process_loader
 
 --- Get the current usage percentages of individual CPU cores
 -- @int cores number of CPU cores
@@ -218,6 +275,8 @@ end
 function data.gpu_percentage()
     if data.gpu == "nvidia" then
         return tonumber(nvidia_loader:get("utilization.gpu"))
+    elseif data.gpu == "amd" then
+        return tonumber(amd_stats_loader:get("1.gpu_activity.GFX.value"))
     else
         return 0
     end
@@ -228,6 +287,8 @@ end
 function data.gpu_frequency()
     if data.gpu == "nvidia" then
         return tonumber(nvidia_loader:get("clocks.current.graphics"))
+    elseif data.gpu == "amd" then
+        return tonumber(amd_stats_loader:get("1.Sensors.GFX_SCLK.value"))
     else
         return 0
     end
@@ -239,6 +300,9 @@ end
 function data.gpu_temperature()
     if data.gpu == "nvidia" then
         return tonumber(nvidia_loader:get("temperature.gpu"))
+    elseif data.gpu == "amd" then
+        local temp = tonumber(amd_stats_loader:get("1.gpu_metrics.temperature_gfx"))
+        return temp and (temp / 100) or 0
     else
         return 0
     end
@@ -251,6 +315,9 @@ function data.gpu_memory()
     if data.gpu == "nvidia" then
         return tonumber(nvidia_loader:get("memory.used")),
                tonumber(nvidia_loader:get("memory.total"))
+    elseif data.gpu == "amd" then
+        return tonumber(amd_stats_loader:get("1.VRAM.Total VRAM Usage.value")) or 0,
+               tonumber(amd_stats_loader:get("1.VRAM.Total VRAM.value")) or 0
     else
         return 0,0
     end
@@ -262,6 +329,9 @@ end
 function data.gpu_power_draw()
     if data.gpu == "nvidia" then
         return tonumber(nvidia_loader:get("power.draw"))
+    elseif data.gpu == "amd" then
+        local power = tonumber(amd_stats_loader:get("1.gpu_metrics.average_socket_power"))
+        return power and (power / 1000) or 0
     else
         return 0
     end
@@ -288,6 +358,33 @@ function data.gpu_top()
         for name, mem in output:gmatch("Name%s+: ([^\n]*)\n%s+Used GPU Memory%s+: (%d+)") do
             name = name:match(".*[/\\](.+)") or name
             processes[#processes + 1] = {name, tonumber(mem)}
+        end
+        table.sort(processes, function(proc1, proc2) return proc1[2] > proc2[2] end)
+        return processes
+    elseif data.gpu == "amd" then
+        local processes = {}
+        local raw_processes = amd_process_loader:get("devices.1.fdinfo") or amd_process_loader:get("devices.1.Fdinfo")
+        
+        if type(raw_processes) == "table" then
+            for k, proc in pairs(raw_processes) do
+                if type(proc) == "table" then
+                    local name = proc.name or proc.comm or "unknown"
+                    name = name:match(".*[/\\](.+)") or name
+                    local raw_vram = 0
+                    local usage1 = proc.usage or proc.Usage
+                    if type(usage1) == "table" then
+                        local usage2 = usage1.usage or usage1.Usage or usage1
+                        local vram_table = usage2.VRAM or usage2.vram or usage1.VRAM or usage1.vram
+                        if type(vram_table) == "table" then
+                            raw_vram = vram_table.value or vram_table.Value or 0
+                        else
+                            raw_vram = vram_table or 0
+                        end
+                    end
+                    local vram = tonumber(raw_vram) or 0
+                    processes[#processes + 1] = {name, vram}
+                end
+            end
         end
         table.sort(processes, function(proc1, proc2) return proc1[2] > proc2[2] end)
         return processes

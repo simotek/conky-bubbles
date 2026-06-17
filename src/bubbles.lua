@@ -46,6 +46,8 @@ local function update()
     data.conky_loader:load()
     local update_count = tonumber(data.conky_loader:get('$updates'))
     util.reset_data(update_count)
+    data.amd_stats_loader:load()
+    data.amd_process_loader:load()
     data.nvidia_loader:load()
 
     bubbles.renderer:update(update_count)

@@ -46,12 +46,14 @@ function Gpu:init()
     core.Rows.init(self, self._rows)
 end
 
-function Gpu:update()
+function Gpu:update(update_count)
     self._usebar:set_fill(data.gpu_percentage() / 100)
 
     local color = {w.temperature_color(data.gpu_temperature(), 30, 80)}
     self._usebar.color = color
     self._membar.color = color
+
+    return core.Rows.update(self, update_count)
 end
 
 --- Table of processes for the GPU, sorted by VRAM usage
