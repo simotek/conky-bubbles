@@ -261,14 +261,6 @@ function data.memory(unit)
     return unpack(results)
 end
 
---- Get volume of down- and uploaded data since last conky update cycle.
--- @string interface e.g. "eth0"
--- @treturn number,number downspeed and upspeed in KiB
-function data.network_speed(interface)
-    local result = conky_loader:get("${downspeedf %s}|${upspeedf %s}", interface, interface)
-    return unpack(util.map(tonumber, result:gmatch("%d+%p?%d*")))
-end
-
 --- Get current GPU usage in percent.
 -- Relies on nvidia-smi to be installed.
 -- @treturn number
@@ -502,5 +494,74 @@ data.hddtemp = util.memoize(5, function()
     end
     return temperatures
 end)
+
+function data.get_active_network_interface()
+    local output = read_cmd("ip -br link show")
+    local wired_interfaces = {}
+    local wireless_interfaces = {}
+    local unknown_interfaces = {}
+
+    for line in output:gmatch("([^\n]+)") do
+        local name, state, _ = line:match("^%s*(%S+)%s+(%S+)%s+.*")
+
+        if name and state == "UP" then
+            -- Ignore loopback devices
+            if name == "lo" then
+                goto continue
+            end
+
+            -- Ignore tunnel devices (e.g., tun0)
+            if name:match("^tun") then
+                goto continue
+            end
+
+            -- Ignore VLANs (e.g., eth0.100, enp1s0.200)
+            if name:match("%.%d+$") then
+                goto continue
+            end
+
+            -- Ignore bridges (e.g., br0, docker0)
+            if name:match("^br") or name:match("^docker") then
+                goto continue
+            end
+
+            -- Categorize as wired or wireless based on common prefixes
+            if name:match("^(eth|enp|pci)") then -- Common wired prefixes
+                table.insert(wired_interfaces, name)
+            elseif name:match("^(wlan|wlp|wifi|ra|mlan)") then -- Common wireless prefixes (added ra, mlan for broader coverage)
+                table.insert(wireless_interfaces, name)
+            else -- Fallback for other active, non-ignored interfaces
+                table.insert(unknown_interfaces, name)
+            end
+        end
+        ::continue::
+    end
+
+    -- Prioritize wired interfaces over wireless
+    return wired_interfaces[1] or wireless_interfaces[1] or unknown_interfaces[1] or nil
+end
+
+--- Get the IP address of the active network interface.
+-- Uses `data.get_active_network_interface` to determine the interface.
+-- @treturn string|nil The IP address, or nil if no active interface or IP found.
+function data.get_active_network_address()
+    local active_interface = data.get_active_network_interface()
+    if active_interface then
+
+        local ip_address = conky_loader:get("${addr %s}", active_interface)
+        return ip_address 
+    end
+    return ""
+end
+
+--- Get volume of down- and uploaded data since last conky update cycle.
+-- @string interface e.g. "eth0"
+-- @treturn number,number downspeed and upspeed in KiB
+function data.network_speed(interface)
+    local result = conky_loader:get("${downspeedf %s}|${upspeedf %s}", interface, interface)
+    return unpack(util.map(tonumber, result:gmatch("%d+%p?%d*")))
+end
+
+
 
 return data
