@@ -11,7 +11,7 @@ local ch = require('src/cairo_helpers')
 local core = require('src/widgets/core')
 local text = require('src/widgets/text')
 local Widget = core.Widget
-local ConkyText, StaticText = text.ConkyText, text.StaticText
+local ConkyText, StaticText, TextLine = text.ConkyText, text.StaticText, text.TextLine
 
 -- lua 5.1 to 5.3 compatibility
 local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
@@ -809,13 +809,20 @@ w.Block = Block
 --                                         (default: all sides)
 function Block:init(header_text, secondary_text, widgets, args)
     self._spacing = args.spacing or 0
+    self._secondary_fn = args.secondary_fn
+    self._secondary_text_template = secondary_text
 
     local top_row = nil
 
     if secondary_text ~= "" then
         local stat_font = {align=CAIRO_TEXT_ALIGN_RIGHT}
         stat_font = util.merge_table(stat_font, current_theme.status_font)
-        top_row = Columns{StaticText(header_text, current_theme.header_font), Filler{}, ConkyText(secondary_text, stat_font)}
+        if self._secondary_fn then
+            self._secondary_text_widget = TextLine(stat_font)
+            top_row = Columns{StaticText(header_text, current_theme.header_font), Filler{}, self._secondary_text_widget}
+        else
+            top_row = Columns{StaticText(header_text, current_theme.header_font), Filler{}, ConkyText(secondary_text, stat_font)}
+        end
     else
         top_row = StaticText(header_text, current_theme.header_font)
     end
@@ -823,7 +830,18 @@ function Block:init(header_text, secondary_text, widgets, args)
     local main_widget = Rows{top_row, Filler{height=self._spacing}, unpack(widgets)}
 
     Frame.init(self, main_widget, args)
+end
 
+function Block:update(update_count)
+    if self._secondary_fn and self._secondary_text_widget then
+        local returns = { self._secondary_fn() }
+        local text_str = self._secondary_text_template:gsub("%%([1-5])", function(digit)
+            local idx = tonumber(digit)
+            return tostring(returns[idx] or "")
+        end)
+        self._secondary_text_widget:set_text(text_str)
+    end
+    return Frame.update(self, update_count)
 end
 
 return w
