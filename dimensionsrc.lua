@@ -17,6 +17,8 @@ local ch = require('src/cairo_helpers')
 local cl = require('src/config_loader')
 local widgets = require('src/widgets/widgets')
 
+local mt = util.merge_table
+
 local Frame, Filler, Rows, Columns, Float, Stack, Block = widgets.containers.Frame, widgets.containers.Filler,
       widgets.containers.Rows, widgets.containers.Columns, widgets.containers.Float, widgets.containers.Stack,
       widgets.containers.Block
@@ -159,11 +161,10 @@ function bubbles.setup()
                 background_image="assets/dimensions/div.png",
                 background_image_alpha=1.0,
             }),
-            ---Block("[ GPU ]", "${nvidia gpufreq} MHz",
-            Block("[ GPU ]", "MHz", 
+            Block("[ GPU ]", "%1 MHz",
                 {Gpu(),
                 GpuTop({})},
-            block_args),
+                mt(block_args, { secondary_fn = data.gpu_frequency })),
             Frame(Filler{width=block_space},{
                 background_image="assets/dimensions/div.png",
                 background_image_alpha=1.0,
