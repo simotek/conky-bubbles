@@ -340,6 +340,38 @@ function util.merge_table(source, merge)
     return source
 end
 
+--- Merge two tables non-destructively, returning a new table.
+-- @tab t1 first table
+-- @tab t2 second table (overwrites t1)
+-- @treturn table a new merged table
+function util.merge(t1, t2)
+    local res = {}
+    for k, v in pairs(t1 or {}) do res[k] = v end
+    for k, v in pairs(t2 or {}) do res[k] = v end
+    return res
+end
+
+--- Recursively print the contents of a table to the terminal for debugging.
+-- @tab t The table to print
+-- @int[opt=0] indent The current indentation level (defaults to 0)
+function util.print_table(t, indent)
+    indent = indent or 0
+    local spacing = string.rep("  ", indent)
+    if type(t) ~= "table" then
+        print(spacing .. tostring(t))
+        return
+    end
+    for k, v in pairs(t) do
+        local key = type(k) == "string" and '"' .. k .. '"' or tostring(k)
+        if type(v) == "table" then
+            print(spacing .. "[" .. key .. "] => table:")
+            util.print_table(v, indent + 1)
+        else
+            print(spacing .. "[" .. key .. "] => " .. tostring(v))
+        end
+    end
+end
+
 --- Checks for Item in table
 -- @tparam item item to search for
 -- @tab tbl table to search through
@@ -402,8 +434,8 @@ function util.get_kde_screen_info(cmd_output)
     end
 
     -- Decode the JSON payload
-    local success, parsed_data = pcall(cjson.decode, cmd_output)
-    if not success or not parsed_data or type(parsed_data.outputs) ~= "table" then
+    local parsed_data = cjson.decode(cmd_output)
+    if not parsed_data or type(parsed_data.outputs) ~= "table" then
         return nil, nil, nil
     end
 
