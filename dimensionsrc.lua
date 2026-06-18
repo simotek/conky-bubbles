@@ -169,9 +169,9 @@ function bubbles.setup()
                 background_image="assets/dimensions/div.png",
                 background_image_alpha=1.0,
             }),
-            Block("[ NET ]", "",
-                {Network{interface="eth2", downspeed=5 * 1024, upspeed=1024}},
-            block_args),
+            Block("[ NET ]", "%1",
+                {Network{downspeed=5 * 1024, upspeed=1024}},
+            mt(block_args, { secondary_fn = data.get_active_network_address })),
             Frame(Filler{width=block_space},{
                 background_image="assets/dimensions/div_left.png",
                 background_image_alpha=1.0,
