@@ -141,9 +141,7 @@ local script_config = {
     minimum_height = height,
 
     -- colors --
-    own_window_colour = '131313',
-    own_window_argb_visual = true,
-    own_window_argb_value = 255,
+    own_window_colour = '131313FF',
     default_color = 'fafafa',
 }
 

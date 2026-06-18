@@ -69,9 +69,7 @@ script_config = {
     minimum_height = height,
 
     -- colors --
-    own_window_colour = '131313',
-    own_window_argb_visual = true,
-    own_window_argb_value = 230,
+    own_window_colour = '131313E6',
     default_color = 'fafafa',
 }
 

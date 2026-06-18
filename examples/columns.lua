@@ -48,9 +48,7 @@ script_config = {
     default_shade_color = 'black',
 
     -- colors --
-    own_window_colour = '131313',
-    own_window_argb_visual = true,
-    own_window_argb_value = 0,
+    own_window_colour = '13131300',
     default_color = 'fafafa',
     color0 = '337777',  -- titles
     color1 = 'b9b9b7',  -- secondary text color
