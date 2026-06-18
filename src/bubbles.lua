@@ -18,7 +18,7 @@ local function setup()
     print(util.conky_version())
 
     data.set_gpu()
-    if not data.command_exists("sensors") then
+    if not util.command_exists("sensors") then
         print("Please install Sensors package for Temperature information.")
     end
     
