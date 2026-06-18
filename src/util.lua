@@ -414,6 +414,15 @@ function util.files_in_dir(path)
     return ret_list
 end
 
+--- Check if command exists on system os
+-- @treturn true if command exists
+function util.command_exists(command_name)
+  -- 'command -v' returns a 0 exit status if the command is found, non-zero otherwise.
+  -- Redirecting standard output and error to /dev/null prevents console clutter.
+  local success = os.execute("command -v " .. command_name .. " >/dev/null 2>&1")
+  return success
+end
+
 --- Reads the system environment and returns true if WAYLAND_DISPLAY is set.
 -- @treturn boolean True if WAYLAND_DISPLAY is set, false otherwise.
 function util.is_wayland_display_set()
@@ -473,7 +482,7 @@ function util.screen_resolution()
             if w and h and scale then
                 return string.format("%dx%d", math.floor(w / scale), math.floor(h / scale))
             end
-        elseif not data.command_exists("wlr-randr") then
+        elseif not util.command_exists("wlr-randr") then
             print("Please install wlr-randr package for accurate screen information.")
             -- Todo: Implement wlr-randr 
         end

@@ -387,10 +387,10 @@ end
 
 --- Internal function to set correct gpu
 function data.set_gpu()
-    if data.command_exists("nvidia-smi") then
+    if util.command_exists("nvidia-smi") then
         data.gpu = "nvidia"
         return true
-    elseif data.command_exists("amdgpu_top  --smi") then
+    elseif util.command_exists("amdgpu_top  --smi") then
         data.gpu = "amd"
         return true
     end
