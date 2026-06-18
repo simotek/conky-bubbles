@@ -50,15 +50,6 @@ local function convert_unit(from, to, value)
     return value
 end
 
---- Check if command exists on system os
--- @treturn true if command exists
-function data.command_exists(command_name)
-  -- 'command -v' returns a 0 exit status if the command is found, non-zero otherwise.
-  -- Redirecting standard output and error to /dev/null prevents console clutter.
-  local success = os.execute("command -v " .. command_name .. " >/dev/null 2>&1")
-  return success
-end
-
 -- Gather parameters for expensive calls and run them in bulk on the next update.
 local EagerLoader = util.class()
 
