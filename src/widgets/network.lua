@@ -30,18 +30,30 @@ w.Network = Network
 -- @number[opt=1024] args.downspeed passed as args.max to download speed graph
 -- @number[opt=1024] args.upspeed passed as args.max to upload speed graph
 function Network:init(args)
-    self.interface = args.interface
+    self.provided_interface = args.interface
     self._downspeed_graph = ind.Graph{height=args.graph_height, max=args.downspeed or 1024}
     self._upspeed_graph = ind.Graph{height=args.graph_height, max=args.upspeed or 1024}
 
     local status_font = {color=current_theme.secondary_text_color,font_family=current_theme.default_font_family, font_size=current_theme.default_font_size, align=CAIRO_TEXT_ALIGN_RIGHT}
 
+    if self.provided_interface then
+       self.interface = self.provided_interface
+    else
+        self._last_interface = data.get_active_network_interface()
+        self.interface = self._last_interface
+    end
+
+    self._downspeed = ConkyText("${downspeed "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})
+    self._downtotal = ConkyText("${totaldown "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})
+    self._upspeed = ConkyText("${upspeed "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})
+    self._uptotal = ConkyText("${totalup "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})
+
     self._rows = {}
-    self._rows[1] = Columns({StaticText("Down",{}), Filler{width=10}, ConkyText("${downspeed "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})})
-    self._rows[2] = Columns({StaticText("Total",{}), Filler{width=10}, ConkyText("${totaldown "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})})
+    self._rows[1] = Columns({StaticText("Down",{}), Filler{width=10}, self._downspeed})
+    self._rows[2] = Columns({StaticText("Total",{}), Filler{width=10}, self._downtotal})
     self._rows[3] = self._downspeed_graph
-    self._rows[4] = Columns({StaticText("Up",{}), Filler{width=10}, ConkyText("${upspeed "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})})
-    self._rows[5] = Columns({StaticText("Total",{}), Filler{width=10}, ConkyText("${totalup "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})})
+    self._rows[4] = Columns({StaticText("Up",{}), Filler{width=10}, self._upspeed})
+    self._rows[5] = Columns({StaticText("Total",{}), Filler{width=10}, self._uptotal})
     self._rows[6] = self._upspeed_graph
 
 
@@ -49,7 +61,22 @@ function Network:init(args)
 end
 
 function Network:update()
-    local down, up = data.network_speed(self.interface)
+
+    local down, up = 0,0
+    if self.provided_interface then
+        down, up = data.network_speed(self.provided_interface)
+    else
+        down, up = data.network_speed(data.get_active_network_interface())
+
+        if self._last_interface ~= data.get_active_network_interface() then
+            self._last_interface = data.get_active_network_interface()
+            self.interface = self._last_interface
+            self._downspeed.SetText("${downspeed "..self.interface.."}")
+            self._downtotal.SetText("${totaldown "..self.interface.."}")
+            self._upspeed.SetText("${upspeed "..self.interface.."}")
+            self._uptotal.SetText("${totalup "..self.interface.."}")
+        end
+    end
     self._downspeed_graph:add_value(down)
     self._upspeed_graph:add_value(up)
 
