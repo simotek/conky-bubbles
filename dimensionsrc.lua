@@ -23,7 +23,7 @@ local Frame, Filler, Rows, Columns, Float, Stack, Block = widgets.containers.Fra
       widgets.containers.Rows, widgets.containers.Columns, widgets.containers.Float, widgets.containers.Stack,
       widgets.containers.Block
 local CpuCombo, CpuFrequencies, CpuTop = widgets.cpu.CpuCombo, widgets.cpu.CpuFrequencies, widgets.cpu.CpuTop
-local Drive = widgets.drive.Drive
+local Drive, DriveList = widgets.drive.Drive, widgets.drive.DriveList
 local Gpu, GpuTop = widgets.gpu.Gpu, widgets.gpu.GpuTop
 local StaticImage, RandomImage = widgets.images.StaticImage, widgets.images.RandomImage
 local MemoryGrid, MemTop = widgets.mem.MemoryGrid, widgets.mem.MemTop
@@ -181,8 +181,7 @@ function bubbles.setup()
                 background_image_alpha=1.0,
             }),
             Block("[ DISK ]", "",
-                {Drive("/", {device="nvme0n1p1", physical_device="nvme0n1"}),
-                 Drive("/home", {device="nvme0n1p2", physical_device="nvme0n1"})},
+                {DriveList()},
             block_args),
             }, {
                 -- T R B L

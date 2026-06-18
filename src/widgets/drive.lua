@@ -33,7 +33,7 @@ w.Drive = Drive
 function Drive:init(path, args)
     self._path = path
     if args then
-        self._device = args.physical_device or nil
+        self._device = args.device or nil
         self._physical_device = args.physical_device or nil
     else
         self._device = nil
@@ -115,6 +115,19 @@ function Drive:update()
     end
 
     return (self._is_mounted ~= was_mounted) or core.Rows.update(self)
+end
+
+--- Automatically generates and lists Drive widgets for all unique mount points.
+-- @type DriveList
+local DriveList = util.class(Rows)
+w.DriveList = DriveList
+
+function DriveList:init()
+    local children = {}
+    for _, info in ipairs(data.get_unique_mounts()) do
+        table.insert(children, Drive(info.mount, { device = info.device, physical_device = info.physical_device }))
+    end
+    core.Rows.init(self, children)
 end
 
 return w

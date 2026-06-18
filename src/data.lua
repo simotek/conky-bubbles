@@ -444,6 +444,96 @@ data.find_devices = util.memoize(10, function()
     return mounts
 end)
 
+--- Get unique mount points with their logical and physical devices.
+-- Ensures only one mount point is returned per logical partition device.
+-- @treturn table Array of tables containing {mount, device, physical_device}
+function data.get_unique_mounts()
+    if not has_cjson then
+        return {}
+    end
+
+    local raw_json = read_cmd("lsblk -J")
+    if not raw_json or raw_json == "" then
+        return {}
+    end
+
+    local success, parsed = pcall(cjson.decode, raw_json)
+    if not success or not parsed or not parsed.blockdevices then
+        return {}
+    end
+
+    local all_mounts = {}
+    local device_to_mounts = {}
+
+    local function is_excluded(mp)
+        return mp == "/boot/efi" or mp == "[SWAP]" or mp:match("%.snapshots") or
+               mp:match("^/var/lib/") or (mp:match("^/run/") and not mp:match("^/run/media/")) or
+               mp:match("^/snap/") or mp:match("^/flatpak/") or mp:match("^/sys/") or
+               mp:match("^/proc/") or mp:match("^/dev/")
+    end
+
+    local function traverse(node, phys_disk, parent_part)
+        if not node then return end
+        local name, dtype = node.name, node.type
+
+        if dtype == "disk" then
+            phys_disk, parent_part = name, nil
+        elseif dtype == "part" then
+            parent_part = name
+        end
+
+        local dev_store = (dtype ~= "disk" and dtype ~= "part" and parent_part) or name
+        local mps = type(node.mountpoints) == "table" and node.mountpoints or {node.mountpoint}
+
+        for _, mp in ipairs(mps) do
+            if type(mp) == "string" and mp ~= "" and mp ~= "null" and not is_excluded(mp) then
+                all_mounts[mp] = { device = dev_store, physical_device = phys_disk or name }
+                device_to_mounts[name] = device_to_mounts[name] or {}
+                table.insert(device_to_mounts[name], mp)
+            end
+        end
+
+        if node.children then
+            for _, child in ipairs(node.children) do
+                traverse(child, phys_disk, parent_part)
+            end
+        end
+    end
+
+    for _, device in ipairs(parsed.blockdevices) do
+        traverse(device, nil, nil)
+    end
+
+    local selected_mounts = {}
+    for _, m_list in pairs(device_to_mounts) do
+        table.sort(m_list, function(a, b) return #a < #b end)
+        local added = false
+        for _, m in ipairs(m_list) do
+            if m == "/" or m == "/home" then
+                table.insert(selected_mounts, m)
+                added = true
+            end
+        end
+        if not added and #m_list > 0 then
+            table.insert(selected_mounts, m_list[1])
+        end
+    end
+
+    table.sort(selected_mounts, function(a, b) return #a < #b end)
+
+    local unique_mounts = {}
+    for _, mount in ipairs(selected_mounts) do
+        local info = all_mounts[mount]
+        print("Mounts:" .. mount .. ":" .. info.device .. ":" .. info.physical_device)
+        table.insert(unique_mounts, {
+            mount = mount,
+            device = info.device,
+            physical_device = info.physical_device
+        })
+    end
+    return unique_mounts
+end
+
 
 --- Get current HDD/SSD temperatures.
 -- Relies on hwmon information in /sys/block. Requires drivetemp kernel module.
