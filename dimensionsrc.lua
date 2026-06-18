@@ -44,7 +44,7 @@ Using_Wayland = util.is_wayland_display_set()
 -- Todo auto detect this.
 local screen_width = util.screen_width()
 
-print ("Width: " .. screen_width .. ":" .. Using_Wayland)
+print ("Screen Width: " .. screen_width .. ":" .. tostring(Using_Wayland))
 
 local script_config = {
     lua_load = script_dir .. rc_path,
