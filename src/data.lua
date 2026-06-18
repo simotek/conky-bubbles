@@ -449,7 +449,7 @@ function data.get_unique_mounts()
     end
 
     local success, parsed = pcall(cjson.decode, raw_json)
-    if not success or not parsed or not parsed.blockdevices then
+    if not success or type(parsed) ~= "table" or type(parsed.blockdevices) ~= "table" then
         return {}
     end
 
@@ -484,7 +484,7 @@ function data.get_unique_mounts()
             end
         end
 
-        if node.children then
+        if type(node.children) == "table" then
             for _, child in ipairs(node.children) do
                 traverse(child, phys_disk, parent_part)
             end
