@@ -82,6 +82,14 @@ function ConkyText:init(text, args)
     end)
 end
 
+function ConkyText:setText(text)
+    self._lines = {}
+    self._render_lines = {}
+    local _, line_count = text:gsub("[^\n]*", function(line)
+        table.insert(self._lines, line)
+    end)
+end
+
 function ConkyText:update(update_count)
     local needs_rebuild = false
     local new_height = 0
