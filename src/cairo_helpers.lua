@@ -19,7 +19,7 @@ function ch.create_cr(conky_window)
     end
     local cs = nil
     local cr = nil
-    if (util.conky_version() < "1.22.4" ) then
+    if (util.conky_version() < "1.22.4" ) or not Using_Wayland then
        cs = cairo_xlib_surface_create(conky_window.display,
                                          conky_window.drawable,
                                          conky_window.visual,
