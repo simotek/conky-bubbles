@@ -553,18 +553,20 @@ end
 --- Returns the screen resolution
 -- @return string
 function util.screen_resolution()
+    -- Gnome needs to use the same command regardless of x11 or wayland
+    if os.getenv("DESKTOP_SESSION") == "gnome" then
+        -- note gnome still uses X11 as of 20260619
+        local w, h, scale = util.get_gnome_screen_info()
+        if w and h then
+            -- testing on the whole of 1 system indicates we may not need scale here
+            return string.format("%dx%d", w, h)
+        end
+    end
     if util.is_wayland_supported() then
         if os.getenv("DESKTOP_SESSION") == "plasmawayland" then
             local w, h, scale = util.get_kde_screen_info(read_cmd("kscreen-doctor -j"))
             if w and h and scale then
                 return string.format("%dx%d", math.floor(w / scale), math.floor(h / scale))
-            end
-        elseif os.getenv("DESKTOP_SESSION") == "gnome" then
-            -- note gnome still uses X11 as of 20260619
-            local w, h, scale = util.get_gnome_screen_info()
-            if w and h then
-                -- testing on the whole of 1 system indicates we may not need scale here
-                return string.format("%dx%d", w, h)
             end
         elseif util.command_exists("wlr-randr") then
             local w, h, scale = util.get_wlr_screen_info()
