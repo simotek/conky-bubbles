@@ -199,26 +199,49 @@ data.amd_stats_loader = amd_stats_loader
 local amd_process_loader = JsonEagerLoader("amdgpu_top -d -p --json")
 data.amd_process_loader = amd_process_loader
 
+local cached_core_count = nil
+
+--- Get the hardware CPU core count
+-- @treturn number
+function data.get_core_count()
+    if not cached_core_count then
+        cached_core_count = tonumber(read_cmd("nproc")) or 1
+    end
+    return cached_core_count
+end
+
 --- Get the current usage percentages of individual CPU cores
 -- @int cores number of CPU cores
 -- @treturn {number,...}
 function data.cpu_percentages(cores)
+    local actual_cores = data.get_core_count()
+    local limit = math.min(cores, actual_cores)
     local conky_string = "${cpu cpu1}"
-    for i = 2, cores do
+    for i = 2, limit do
         conky_string = conky_string .. "|${cpu cpu" .. i .. "}"
     end
-    return util.map(tonumber, conky_loader:get(conky_string):gmatch("%d+"))
+    local results = util.map(tonumber, conky_loader:get(conky_string):gmatch("%d+"))
+    for i = 1, cores do
+        results[i] = results[i] or 0
+    end
+    return results
 end
 
 --- Get the current frequencies at which individual CPU cores are running
 -- @int cores number of CPU cores
 -- @treturn {number,...}
 function data.cpu_frequencies(cores)
+    local actual_cores = data.get_core_count()
+    local limit = math.min(cores, actual_cores)
     local conky_string = "${freq_g 1}"
-    for i = 2, cores do
+    for i = 2, limit do
         conky_string = conky_string .. "|${freq_g " .. i .. "}"
     end
-    return util.map(tonumber, conky_loader:get(conky_string):gmatch("%d+[,.]?%d*"))
+    local results = util.map(tonumber, conky_loader:get(conky_string):gmatch("%d+[,.]?%d*"))
+    for i = 1, cores do
+        results[i] = results[i] or 0
+    end
+    return results
 end
 
 --- Get the current CPU core temperatures
