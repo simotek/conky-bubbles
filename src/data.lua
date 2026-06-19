@@ -16,7 +16,7 @@ local read_cmd = util.memoize(1, function(cmd)
     local result = pipe:read("*a")
     local success, exit_or_signal, n = pipe:close()
     if not success then
-        print("\027[31mCommand '" .. cmd .. "' failed.\027[0m")
+        print("Command '" .. cmd .. "' failed.")
     end
     return result
 end)
@@ -24,7 +24,7 @@ end)
 local read_number_from_file = util.memoize(1, function(path)
     local file = io.open(path, "r")
     if not file then
-        print("\027[31mFailed to open file '" .. path .. "'.\027[0m")
+        print("Failed to open file '" .. path .. "'.")
         return -1
     end
     local result = file:read("n")
@@ -169,7 +169,7 @@ function JsonEagerLoader:get(parser)
     if not self._loaded then
         self._loaded = true
         if not has_cjson then
-            print("\027[31mJsonEagerLoader: cjson is not installed, cannot parse command output.\027[0m")
+            print("JsonEagerLoader: cjson is not installed, cannot parse command output.")
             return nil
         end
 
@@ -440,6 +440,7 @@ end)
 -- @treturn table Array of tables containing {mount, device, physical_device}
 function data.get_unique_mounts()
     if not has_cjson then
+        print("data.get_unique_mounts: cjson is not available.")
         return {}
     end
 
@@ -449,7 +450,10 @@ function data.get_unique_mounts()
     end
 
     local success, parsed = pcall(cjson.decode, raw_json)
-    if not success or type(parsed) ~= "table" or type(parsed.blockdevices) ~= "table" then
+    if not success then
+        print("data.get_unique_mounts: Failed to parse JSON: " .. tostring(parsed))
+        return {}
+    elseif type(parsed) ~= "table" or type(parsed.blockdevices) ~= "table" then
         return {}
     end
 
@@ -497,7 +501,11 @@ function data.get_unique_mounts()
 
     local selected_mounts = {}
     for _, m_list in pairs(device_to_mounts) do
-        table.sort(m_list, function(a, b) return #a < #b end)
+        -- Add string tie-breaker to prevent Lua 5.3+ "invalid order function" crash on duplicates
+        table.sort(m_list, function(a, b)
+            if #a == #b then return a < b end
+            return #a < #b
+        end)
         local added = false
         for _, m in ipairs(m_list) do
             if m == "/" or m == "/home" then
@@ -510,17 +518,24 @@ function data.get_unique_mounts()
         end
     end
 
-    table.sort(selected_mounts, function(a, b) return #a < #b end)
+    table.sort(selected_mounts, function(a, b)
+        if #a == #b then return a < b end
+        return #a < #b
+    end)
 
     local unique_mounts = {}
+    local seen_mounts = {}
     for _, mount in ipairs(selected_mounts) do
-        local info = all_mounts[mount]
-        print("Mounts:" .. mount .. ":" .. info.device .. ":" .. info.physical_device)
-        table.insert(unique_mounts, {
-            mount = mount,
-            device = info.device,
-            physical_device = info.physical_device
-        })
+        if not seen_mounts[mount] then
+            seen_mounts[mount] = true
+            local info = all_mounts[mount]
+            print("Mounts:" .. mount .. ":" .. info.device .. ":" .. info.physical_device)
+            table.insert(unique_mounts, {
+                mount = mount,
+                device = info.device,
+                physical_device = info.physical_device
+            })
+        end
     end
     return unique_mounts
 end
