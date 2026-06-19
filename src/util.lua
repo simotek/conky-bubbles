@@ -520,6 +520,36 @@ function util.get_gnome_screen_info()
     return find_preferred(parsed_data)
 end
 
+--- Parses wlr-randr JSON output and returns the width, height, and scale
+-- of the current and preferred screen resolution.
+-- @treturn number,number,number width, height, scale
+function util.get_wlr_screen_info()
+    local cmd_output = read_cmd("wlr-randr --json")
+    if not cmd_output or cmd_output == "" then return nil, nil, nil end
+
+    if not has_cjson then
+        print("bubbles: cjson library is not installed, cannot parse wlr-randr output")
+        return nil, nil, nil
+    end
+
+    local success, parsed_data = pcall(cjson.decode, cmd_output)
+    if not success or type(parsed_data) ~= "table" then
+        return nil, nil, nil
+    end
+
+    for _, output in ipairs(parsed_data) do
+        if type(output) == "table" and type(output.modes) == "table" then
+            local scale = tonumber(output.scale) or 1
+            for _, mode in ipairs(output.modes) do
+                if mode.current == true and mode.preferred == true then
+                    return tonumber(mode.width), tonumber(mode.height), scale
+                end
+            end
+        end
+    end
+    return nil, nil, nil
+end
+
 --- Returns the screen resolution
 -- @return string
 function util.screen_resolution()
@@ -530,15 +560,19 @@ function util.screen_resolution()
                 return string.format("%dx%d", math.floor(w / scale), math.floor(h / scale))
             end
         elseif os.getenv("DESKTOP_SESSION") == "gnome" then
+            -- note gnome still uses X11 as of 20260619
             local w, h, scale = util.get_gnome_screen_info()
             if w and h then
                 -- testing on the whole of 1 system indicates we may not need scale here
                 return string.format("%dx%d", w, h)
             end
-            
-        elseif not util.command_exists("wlr-randr") then
+        elseif util.command_exists("wlr-randr") then
+            local w, h, scale = util.get_wlr_screen_info()
+            if w and h and scale then
+                return string.format("%dx%d", math.floor(w / scale), math.floor(h / scale))
+            end
+        else
             print("Please install wlr-randr package for accurate screen information.")
-            -- Todo: Implement wlr-randr 
         end
     else
         return read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+")
