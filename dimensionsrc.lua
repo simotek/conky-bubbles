@@ -136,7 +136,7 @@ function bubbles.setup()
                 background_image_alpha=1.0,
             }),
             Block("[ CPU ]", "${cpu}%",
-                {CpuCombo{cores=16, inner_radius=25, mid_radius=57, outer_radius=68, gap=6, grid=5},
+                {CpuCombo{cores=data.cpu_cores(), inner_radius=25, mid_radius=57, outer_radius=68, gap=6, grid=5},
                 Filler{}},
             block_args),
             Frame(Filler{width=block_space},{
@@ -144,7 +144,7 @@ function bubbles.setup()
                 background_image_alpha=1.0,
             }),
             Block("[ FREQ ]", "${freq_g 1}GHz",
-                { CpuFrequencies{cores=6, min_freq=0.75, max_freq=4.3},
+                { CpuFrequencies{cores=data.cpu_cores(), min_freq=0.75, max_freq=4.3},
                 Filler{height=6},
                 CpuTop({})}, 
             block_args),

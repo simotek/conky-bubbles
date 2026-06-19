@@ -203,7 +203,7 @@ local cached_core_count = nil
 
 --- Get the hardware CPU core count
 -- @treturn number
-function data.get_core_count()
+function data.cpu_cores()
     if not cached_core_count then
         cached_core_count = tonumber(read_cmd("nproc")) or 1
     end
@@ -214,7 +214,7 @@ end
 -- @int cores number of CPU cores
 -- @treturn {number,...}
 function data.cpu_percentages(cores)
-    local actual_cores = data.get_core_count()
+    local actual_cores = data.cpu_cores()
     local limit = math.min(cores, actual_cores)
     local conky_string = "${cpu cpu1}"
     for i = 2, limit do
@@ -231,7 +231,7 @@ end
 -- @int cores number of CPU cores
 -- @treturn {number,...}
 function data.cpu_frequencies(cores)
-    local actual_cores = data.get_core_count()
+    local actual_cores = data.cpu_cores()
     local limit = math.min(cores, actual_cores)
     local conky_string = "${freq_g 1}"
     for i = 2, limit do
