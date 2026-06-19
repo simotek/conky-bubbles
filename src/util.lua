@@ -164,7 +164,7 @@ local read_cmd = util.memoize(1, function(cmd)
     local result = pipe:read("*a")
     local success, exit_or_signal, n = pipe:close()
     if not success then
-        print("\027[31mCommand '" .. cmd .. "' failed.\027[0m")
+        print("Command '" .. cmd .. "' failed.")
     end
     return result
 end)
@@ -473,6 +473,49 @@ function util.get_kde_screen_info(cmd_output)
     return nil, nil, nil
 end
 
+--- Calls GNOME busctl JSON output and returns the width, height, and scale
+-- of the preferred screen resolution.
+-- @treturn number,number,number width, height, scale
+function util.get_gnome_screen_info()
+
+    local cmd_output = read_cmd("busctl --user call org.gnome.Mutter.DisplayConfig /org/gnome/Mutter/DisplayConfig org.gnome.Mutter.DisplayConfig GetCurrentState --json short")
+    
+    if not cmd_output or cmd_output == "" then return nil, nil, nil end
+
+    if not has_cjson then
+        print("bubbles: cjson library is not installed, cannot parse GNOME display output")
+        return nil, nil, nil
+    end
+
+    local success, parsed_data = pcall(cjson.decode, cmd_output)
+    if not success or type(parsed_data) ~= "table" then
+        return nil, nil, nil
+    end
+
+    local function find_preferred(node)
+        if type(node) == "table" then
+            -- Match D-Bus array/tuple struct format:
+            -- [id(string), width(number), height(number), refresh(number), scale(number), supported_scales(table), properties(table)]
+            if #node >= 7 and type(node[1]) == "string" and type(node[2]) == "number" and type(node[3]) == "number" then
+                local props = node[7]
+                if type(props) == "table" and props["is-preferred"] == true then
+                    return node[2], node[3], node[5] or 1
+                end
+            end
+            
+            for _, v in pairs(node) do
+                if type(v) == "table" then
+                    local w, h, s = find_preferred(v)
+                    if w then return w, h, s end
+                end
+            end
+        end
+        return nil, nil, nil
+    end
+
+    return find_preferred(parsed_data)
+end
+
 --- Returns the screen resolution
 -- @return string
 function util.screen_resolution()
@@ -482,12 +525,24 @@ function util.screen_resolution()
             if w and h and scale then
                 return string.format("%dx%d", math.floor(w / scale), math.floor(h / scale))
             end
+        elseif os.getenv("DESKTOP_SESSION") == "gnome" then
+            local w, h, scale = util.get_gnome_screen_info()
+            if w and h then
+                -- testing on the whole of 1 system indicates we may not need scale here
+                return string.format("%dx%d", w, h)
+            end
+            
         elseif not util.command_exists("wlr-randr") then
             print("Please install wlr-randr package for accurate screen information.")
             -- Todo: Implement wlr-randr 
         end
+    else
+        return read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+")
     end
-    return read_cmd("xrandr | grep primary | awk -F' ' '{print $4}' | cut -f 1 -d+")
+
+    print ("Screen Resolution not detected using 1920x1080")
+    return "1920x1080"
+    
 end
 
 --- Returns the screen resolution
