@@ -96,7 +96,7 @@ function GpuTop:init(args)
 end
 
 function GpuTop:update(update_count)
-    self._processes = data.gpu_top()
+    self._processes = data.gpu_top() or {}
 
     local rebuild = false
 

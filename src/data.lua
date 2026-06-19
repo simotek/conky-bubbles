@@ -257,9 +257,9 @@ end
 -- @treturn number
 function data.gpu_percentage()
     if data.gpu == "nvidia" then
-        return tonumber(nvidia_loader:get("utilization.gpu"))
+        return tonumber(nvidia_loader:get("utilization.gpu")) or 0
     elseif data.gpu == "amd" then
-        return tonumber(amd_stats_loader:get("1.gpu_activity.GFX.value"))
+        return tonumber(amd_stats_loader:get("1.gpu_activity.GFX.value")) or 0
     else
         return 0
     end
@@ -269,9 +269,9 @@ end
 -- @treturn number in MHz
 function data.gpu_frequency()
     if data.gpu == "nvidia" then
-        return tonumber(nvidia_loader:get("clocks.current.graphics"))
+        return tonumber(nvidia_loader:get("clocks.current.graphics")) or 0
     elseif data.gpu == "amd" then
-        return tonumber(amd_stats_loader:get("1.Sensors.GFX_SCLK.value"))
+        return tonumber(amd_stats_loader:get("1.Sensors.GFX_SCLK.value")) or 0
     else
         return 0
     end
@@ -282,7 +282,7 @@ end
 -- @treturn number temperature in °C
 function data.gpu_temperature()
     if data.gpu == "nvidia" then
-        return tonumber(nvidia_loader:get("temperature.gpu"))
+        return tonumber(nvidia_loader:get("temperature.gpu")) or 0
     elseif data.gpu == "amd" then
         local temp = tonumber(amd_stats_loader:get("1.gpu_metrics.temperature_gfx"))
         return temp and (temp / 100) or 0
@@ -296,8 +296,8 @@ end
 -- @treturn number,number used, total in MiB
 function data.gpu_memory()
     if data.gpu == "nvidia" then
-        return tonumber(nvidia_loader:get("memory.used")),
-               tonumber(nvidia_loader:get("memory.total"))
+        return tonumber(nvidia_loader:get("memory.used")) or 0,
+               tonumber(nvidia_loader:get("memory.total")) or 0
     elseif data.gpu == "amd" then
         return tonumber(amd_stats_loader:get("1.VRAM.Total VRAM Usage.value")) or 0,
                tonumber(amd_stats_loader:get("1.VRAM.Total VRAM.value")) or 0
@@ -311,7 +311,7 @@ end
 -- @treturn number power draw in W
 function data.gpu_power_draw()
     if data.gpu == "nvidia" then
-        return tonumber(nvidia_loader:get("power.draw"))
+        return tonumber(nvidia_loader:get("power.draw")) or 0
     elseif data.gpu == "amd" then
         local power = tonumber(amd_stats_loader:get("1.gpu_metrics.average_socket_power"))
         return power and (power / 1000) or 0
@@ -325,7 +325,7 @@ end
 -- @treturn number power draw in W
 function data.gpu_power_limit()
     if data.gpu == "nvidia" then
-        return tonumber(nvidia_loader:get("power.limit"))
+        return tonumber(nvidia_loader:get("power.limit")) or 0
     else
         return 0
     end
@@ -379,8 +379,12 @@ end
 --- Internal function to set correct gpu
 function data.set_gpu()
     if util.command_exists("nvidia-smi") then
-        data.gpu = "nvidia"
-        return true
+        -- Ensure the driver isn't broken/hanging and successfully finds a GPU
+        local check = read_cmd("nvidia-smi -L 2>/dev/null")
+        if check and check:match("GPU") then
+            data.gpu = "nvidia"
+            return true
+        end
     elseif util.command_exists("amdgpu_top  --smi") then
         data.gpu = "amd"
         return true

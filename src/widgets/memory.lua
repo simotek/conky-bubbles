@@ -38,7 +38,7 @@ w.MemoryBar = MemoryBar
 function MemoryBar:init(args)
     self._total = args.total
     local ticks, big_ticks
-    if self._total then
+    if self._total and self._total > 0 then
         local max_tick = floor(self._total)
         ticks = util.range(1 / self._total, max_tick / self._total, 1 / self._total)
         big_ticks = max_tick > 8 and 4 or nil
