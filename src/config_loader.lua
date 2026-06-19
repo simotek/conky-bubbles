@@ -24,7 +24,7 @@ function cl.load_config(script_config)
         or os.getenv("DESKTOP_SESSION") == "plasma" then
         wm_config = require('src/config/plasma_enlightenment')
         print("Bubbles: Using Plasma Config")
-    elseif os.getenv("DESKTOP") == "gnome" then
+    elseif os.getenv("DESKTOP_SESSION") == "gnome" then
         wm_config = require('src/config/gnome')
         print("Bubbles: Using Gnome Config")
     else
