@@ -502,7 +502,7 @@ function util.get_gnome_screen_info()
             -- [id(string), width(number), height(number), refresh(number), scale(number), supported_scales(table), properties(table)]
             if #node >= 7 and type(node[1]) == "string" and type(node[2]) == "number" and type(node[3]) == "number" then
                 local props = node[7]
-                if type(props) == "table" and props["is-preferred"] == true then
+                if type(props) == "table" and (props["is-current"] == true or props["is-preferred"] == true) then
                     return node[2], node[3], node[5] or 1
                 end
             end
