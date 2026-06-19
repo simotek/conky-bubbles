@@ -63,7 +63,7 @@ local script_config = {
     default_shade_color = 'black',
 
     -- colors --
-    own_window_colour = '13131300',
+    own_window_colour = '0000',
     default_color = 'fafafa',
 
 }
