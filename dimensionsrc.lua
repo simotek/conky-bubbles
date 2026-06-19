@@ -39,7 +39,7 @@ local DEBUG = false
 
 local conkyrc = conky or {}
 
-Using_Wayland = util.is_wayland_display_set()
+Using_Wayland = util.is_wayland_supported()
 
 -- Todo auto detect this.
 local screen_width = util.screen_width()

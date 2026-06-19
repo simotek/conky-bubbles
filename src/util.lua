@@ -423,9 +423,13 @@ function util.command_exists(command_name)
   return success
 end
 
---- Reads the system environment and returns true if WAYLAND_DISPLAY is set.
+--- Reads the system environment and returns true if WAYLAND_DISPLAY is set Unless its gnome which doesn't work.
 -- @treturn boolean True if WAYLAND_DISPLAY is set, false otherwise.
-function util.is_wayland_display_set()
+function util.is_wayland_supported()
+    -- Gnome doesn't support  wlr-layer-shell-unstable-v1 20260619
+    if os.getenv("DESKTOP_SESSION") == "gnome" then
+        return false
+    end
     -- os.getenv returns nil if the environment variable is not set.
     return os.getenv("WAYLAND_DISPLAY") ~= nil
 end
@@ -519,7 +523,7 @@ end
 --- Returns the screen resolution
 -- @return string
 function util.screen_resolution()
-    if Using_Wayland then
+    if util.is_wayland_supported() then
         if os.getenv("DESKTOP_SESSION") == "plasmawayland" then
             local w, h, scale = util.get_kde_screen_info(read_cmd("kscreen-doctor -j"))
             if w and h and scale then
