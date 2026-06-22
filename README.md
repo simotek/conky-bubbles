@@ -18,10 +18,11 @@ Conky Bubbles is based on a heavily modified version of [polycore](https://githu
 
 ## Requirements
 
-* conky 1.22+ (with Lua and cairo support)
+* conky 1.24+ (with Lua and cairo support)
 * basic understanding of conky and Lua
 * *optional:* `lm_sensors` to display CPU core temperature and fan rpm
 * *optional:* `nvidia-smi` to display NVIDIA video card stats
+* *optional:* `amdgpu_top` to display AMD video card stats
 
 ## Getting started
 
@@ -51,6 +52,10 @@ See a more detailed description of each below
 To reduce the size of rc files some common settings that should be the same across all configs have been moved into separate files. General settings can be found in [src/config/core.lua](src/config/core.lua), currently there are specific settings for some window managers these can be found below
 * Awesome WM [src/config/awesome.lua](src/config/awesome.lua) (Default)
 * Enlightenment [src/config/enlightenment.lua](src/config/enlightenment.lua)
+* Gnome [src/config/gnome.lua](src/config/gnome.lua)
+* Plasma [src/config/plasma.lua](src/config/plasma.lua)
+
+In addition for systems with native wayland support [src/config/wayland.lua](src/config/wayland.lua) is loaded
 
 If needed these values can be overwritten in the `script_config` section.
 
