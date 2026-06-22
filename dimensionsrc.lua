@@ -39,12 +39,10 @@ local DEBUG = false
 
 local conkyrc = conky or {}
 
-Using_Wayland = util.is_wayland_supported()
-
 -- Todo auto detect this.
 local screen_width = util.screen_width()
 
-print ("Screen Width: " .. screen_width .. ":" .. tostring(Using_Wayland))
+print ("Screen Width: " .. screen_width .. ":" .. tostring(util.is_wayland_supported()))
 
 local script_config = {
     lua_load = script_dir .. rc_path,
@@ -56,18 +54,13 @@ local script_config = {
     maximum_width = screen_width,
     minimum_height = 350,
     xinerama_head = 0,
-
-    -- font --
-    font = 'SUSE:pixelsize=10',
-    draw_shades = true,
-    default_shade_color = 'black',
-
+    
     -- colors --
     own_window_colour = '0000',
     default_color = 'fafafa',
-
 }
 
+-- Merge our config with the rest
 conkyrc.config = cl.load_config(script_config)
 
 -----------------

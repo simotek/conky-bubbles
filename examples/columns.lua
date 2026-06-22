@@ -3,8 +3,6 @@
 -- Conky does not add our config directory to lua's PATH, so we do it manually
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
-
--- We need to know the current file so that we can tell conky to load itlo
 local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
 
 -- load polycore theme as default
@@ -21,6 +19,7 @@ local gpu = require('src/widgets/gpu')
 local mem = require('src/widgets/memory')
 local net = require('src/widgets/network')
 local text = require('src/widgets/text')
+local cl = require('src/config_loader')
 
 local Frame, Filler, Rows, Columns, Float, Stack, Block = containers.Frame, containers.Filler,
                                           containers.Rows, containers.Columns, containers.Float, containers.Stack, containers.Block
@@ -64,18 +63,7 @@ ${alignr 20}${fs_used_perc \2}%$font$color#
 $endif]],
 }
 
-core_config = require('src/config/core')
-
-if os.getenv("DESKTOP") == "Enlightenment" then
-    wm_config = require('src/config/enlightenment')
-else
-    wm_config = require('src/config/awesome')
-end
-
-tmp_config = util.merge_table(core_config, wm_config)
-config = util.merge_table(tmp_config, script_config)
-
-conkyrc.config = config
+conkyrc.config = cl.load_config(script_config)
 
 -----------------
 ----- START -----

@@ -3,7 +3,6 @@
 -- Conky does not add our config directory to lua's PATH, so we do it manually
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
-
 local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
 
 -- load polycore theme as default
@@ -16,7 +15,6 @@ local core  = require('src/widgets/core')
 local containers  = require('src/widgets/containers')
 local ind = require('src/widgets/indicator')
 local text  = require('src/widgets/text')
-
 
 local GRAPH_SMOOTHINGS = {0, 0.2, 0.5, 0.7, 1.0}
 
@@ -69,21 +67,10 @@ script_config = {
     minimum_height = height,
 
     -- colors --
-    own_window_colour = '131313E6',
+    own_window_colour = 'E6131313',
     default_color = 'fafafa',
 }
 
-core_config = require('src/config/core')
-
-if os.getenv("DESKTOP") == "Enlightenment" then
-    wm_config = require('src/config/enlightenment')
-else
-    wm_config = require('src/config/awesome')
-end
-
-tmp_config = util.merge_table(core_config, wm_config)
-config = util.merge_table(tmp_config, script_config)
-
-conkyrc.config = config
+conkyrc.config = cl.load_config(script_config)
 
 conkyrc.text = ""

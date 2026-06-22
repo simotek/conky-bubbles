@@ -3,16 +3,16 @@
 -- Conky does not add our config directory to lua's PATH, so we do it manually
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
-
 local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
+
 
 current_theme = require('src/themes/dimensions')
 
-local util = require('src/util')
 local bubbles = require('src/bubbles')
 local core = require('src/widgets/core')
 local containers = require('src/widgets/containers')
 local text = require('src/widgets/text')
+local cl = require('src/config_loader')
 
 local width = 1000
 local height = 500
@@ -141,7 +141,7 @@ local script_config = {
     minimum_height = height,
 
     -- colors --
-    own_window_colour = '131313FF',
+    own_window_colour = 'FF131313',
     default_color = 'fafafa',
 }
 
@@ -153,9 +153,6 @@ else
     wm_config = require('src/config/awesome')
 end
 
-local tmp_config = util.merge_table(core_config, wm_config)
-local config = util.merge_table(tmp_config, script_config)
-
-conkyrc.config = config
+conkyrc.config = cl.load_config(script_config)
 
 conkyrc.text = ""

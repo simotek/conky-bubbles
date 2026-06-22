@@ -3,8 +3,6 @@
 -- Conky does not add our config directory to lua's PATH, so we do it manually
 local script_dir = debug.getinfo(1, 'S').source:match("^@(.*/)") or "./"
 package.path = script_dir .. "../?.lua;" .. package.path
-
--- We need to know the current file so that we can tell conky to load itlo
 local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$")
 
 -- load polycore theme as default
@@ -16,6 +14,7 @@ local bubbles = require('src/bubbles')
 local core  = require('src/widgets/core')
 local containers  = require('src/widgets/containers')
 local cpu   = require('src/widgets/cpu')
+local cl = require('src/config_loader')
 
 local Frame, Filler, Rows, Columns, Float, Stack, Block = containers.Frame, containers.Filler,
                                           containers.Rows, containers.Columns, containers.Float, containers.Stack, containers.Block
@@ -34,8 +33,12 @@ function bubbles.setup()
         local fn = data[data_fn]
         data[data_fn] = function()
             local results = fn(real_cores)
-            for i = real_cores + 1, 64 do
-                results[i] = results[(i - 1) % real_cores + 1] * (math.random() * 0.5 + 0.75)
+            local num_results = #results
+            for i = 1, 64 do
+                if results[i] == nil then
+                    local base_val = num_results > 0 and results[(i - 1) % num_results + 1] or 0
+                    results[i] = base_val * (math.random() * 0.5 + 0.75)
+                end
             end
             util.shuffle(results)
             return results
@@ -95,20 +98,10 @@ script_config = {
     minimum_height = height,
 
     -- colors --
-    own_window_colour = '131313E6',
+    own_window_colour = 'E6131313',
     default_color = 'fafafa',
 }
 
-core_config = require('src/config/core')
+conkyrc.config = cl.load_config(script_config)
 
-if os.getenv("DESKTOP") == "Enlightenment" then
-    wm_config = require('src/config/enlightenment')
-else
-    wm_config = require('src/config/awesome')
-end
-
-tmp_config = util.merge_table(core_config, wm_config)
-config = util.merge_table(tmp_config, script_config)
-
-conkyrc.config = config
 conkyrc.text = ""

@@ -35,7 +35,6 @@ local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
 
 -- Draw debug information
 DEBUG = false
-Using_Wayland = util.is_wayland_display_set()
 
 local conkyrc = conky or {}
 

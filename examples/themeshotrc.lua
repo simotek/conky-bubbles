@@ -15,6 +15,7 @@ local bubbles = require('src/bubbles')
 local data  = require('src/data')
 local util = require('src/util')
 local ch = require('src/cairo_helpers')
+local cl = require('src/config_loader')
 local core  = require('src/widgets/core')
 local containers  = require('src/widgets/containers')
 local cpu   = require('src/widgets/cpu')
@@ -53,13 +54,8 @@ local script_config = {
     minimum_height = 210,
     xinerama_head = 0,
 
-    -- font --
-    font = 'SUSE:pixelsize=10',
-    draw_shades = true,
-    default_shade_color = 'black',
-
     -- colors --
-    own_window_colour = '131313B4',
+    own_window_colour = 'B4131313',
     default_color = 'fafafa',
 }
 
@@ -72,10 +68,7 @@ else
     wm_config = require('src/config/awesome')
 end
 
-local tmp_config = util.merge_table(core_config, wm_config)
-local config = util.merge_table(tmp_config, script_config)
-
-conkyrc.config = config
+conkyrc.config = cl.load_config(script_config)
 
 -----------------
 ----- START -----
