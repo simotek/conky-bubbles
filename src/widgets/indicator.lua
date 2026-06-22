@@ -118,6 +118,109 @@ function Bar:render(cr)
     cairo_stroke(cr)
 end
 
+--- Traditional stack of rings you see in conky configs.
+-- 
+-- @type Rings
+local Rings = util.class(Widget)
+w.Rings = Rings
+
+--- @tparam table args table of options
+-- @tparam int args.start_angle
+-- @tparam int args.end_angle
+-- @tparam boolean args.reverse should the arc fill in the opposite direction
+-- @tparam args.number number of rings to draw
+-- @tparam[opt=6] int args.thickness of the ring
+-- @tparam ?string args.color a string containing a hex color code (default: `highlight_color`)
+-- @tparam ?string args.background_color a string containing the color for the background arc (default: `background_color`)
+-- @tparam ?string args.highlight_color you can use a different color for the end of the ring this is that
+-- @tparam boolean[opt] args.skip_background only draw the main ring
+-- @tparam boolean[opt] args.skip_highlight don't draw the highlight at the end
+-- @tparam int[opt] args.width fixed width in pixels
+-- @tparam int[opt] args.height fixed height in pixels
+function Rings:init(args)
+    self._start_angle = args.start_angle
+    self._end_angle = args.end_angle
+    self._reverse = args.reverse
+    self._rings = args.rings
+    self._thickness = (args.thickness or 4)
+    self._skip_background = args.skip_background or false
+    self._skip_highlight = args.skip_highlight or false
+    self._color = ch.convert_string_to_rgba(args.color or current_theme.highlight_color)
+    self._background_color = ch.convert_string_to_rgba(args.background_color or current_theme.background_color)
+    self._highlight_color = ch.convert_string_to_rgba(args.highlight_color or current_theme.secondary_text_color)
+    self.width = args.width or nil
+    self.height = args.height or nil
+
+    -- TBD: We should calculate these based off the number of rings and thinkness
+    if not self.width then
+        self._min_width = 64
+    end
+    if not self.height then
+        self._min_height = 64
+    end
+
+    local tmp_color = args.color or current_theme.highlight_color
+    self.color = ch.convert_string_to_rgba(tmp_color)
+
+    self._fraction = 0
+end
+
+function Rings:layout(width, height)
+    self._width = width
+    self._height = height
+end
+
+function Rings:render_background(cr)
+    if self._unit then
+        cairo_set_source_rgba(cr, unpack(current_theme.default_text_color))
+        cairo_text_hp_show(cr, self._width + 5, 6, self._unit, current_theme.default_font_family, current_theme.default_font_size)
+    end
+    -- fake shadow border
+    cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE)
+    cairo_set_line_width(cr, 1)
+    cairo_rectangle(cr, 0, 0, self._width + 1, self._thickness + 1)
+    cairo_set_source_rgba(cr, 0, 0, 0, .66)
+    cairo_stroke(cr)
+end
+
+--- Set the fill-ratio of the bar
+-- @number fraction between 0 and 1
+function Rings:set_fill(fraction)
+    self._fraction = fraction
+end
+
+function Rings:render(cr)
+    local r, g, b = unpack(self.color)
+    cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE)
+    cairo_set_line_width(cr, 1)
+
+    cairo_rectangle(cr, 0, 0, self._width, self._thickness)
+    ch.alpha_gradient(cr, 0, 0, self._width, 0, r, g, b, {
+        self._fraction - 0.33, 0.33,
+        self._fraction - 0.08, 0.66,
+        self._fraction - 0.01, 0.75,
+        self._fraction, 1,
+        self._fraction + 0.01,  0.2,
+        self._fraction + 0.1,  0.1,
+        1, 0.15,
+    })
+    cairo_fill(cr)
+
+    -- border
+    cairo_rectangle(cr, 1, 1, self._width - 1, self._thickness - 1)
+    cairo_set_source_rgba(cr, r, g, b, .2)
+    cairo_stroke(cr)
+
+    -- ticks
+    for _, tick in ipairs(self._tick_coordinates) do
+        cairo_move_to(cr, tick[1], tick[2])
+        cairo_rel_line_to(cr, 0, tick[3])
+    end
+    cairo_set_source_rgba(cr, r, g, b, .5)
+    cairo_stroke(cr)
+end
+
+
 --- Track changing data; similar to conky's graphs.
 -- @type Graph
 local Graph = util.class(Widget)
@@ -131,8 +234,8 @@ w.Graph = Graph
 -- @number[opt=0.5] args.smoothness Bézier curves smoothness.
 --                                  Set to 0 to draw straight lines instead,
 --                                  which may be slightly faster.
--- @int[opt] args.width fix width in pixels
--- @int[opt] args.height fixeheight in pixels
+-- @int[opt] args.width fixed width in pixels
+-- @int[opt] args.height fixed height in pixels
 -- @tparam ?string args.color a string containing a hex color code (default: `graph_color`)
 function Graph:init(args)
     self._max = args.max
