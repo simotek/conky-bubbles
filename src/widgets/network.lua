@@ -43,12 +43,24 @@ function Network:init(args)
         self.interface = self._last_interface
     end
 
-    self._downspeed = ConkyText("${downspeed "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})
-    self._downtotal = ConkyText("${totaldown "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})
-    self._upspeed = ConkyText("${upspeed "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})
-    self._uptotal = ConkyText("${totalup "..self.interface.."}", {align=CAIRO_TEXT_ALIGN_RIGHT})
+    local downspeed_text = ""
+    local downtotal_text = ""
+    local upspeed_text = ""
+    local uptotal_text = ""
+
+    if self.interface then
+        downspeed_text = "${downspeed "..self.interface.."}"
+        downtotal_text = "${totaldown "..self.interface.."}"
+        upspeed_text = "${upspeed "..self.interface.."}"
+        uptotal_text = "${totalup "..self.interface.."}"
+    end
 
     self._rows = {}
+    self._downspeed = ConkyText(downspeed_text, {align=CAIRO_TEXT_ALIGN_RIGHT})
+    self._downtotal = ConkyText(downtotal_text, {align=CAIRO_TEXT_ALIGN_RIGHT})
+    self._upspeed = ConkyText(upspeed_text, {align=CAIRO_TEXT_ALIGN_RIGHT})
+    self._uptotal = ConkyText(uptotal_text, {align=CAIRO_TEXT_ALIGN_RIGHT})
+
     self._rows[1] = Columns({StaticText("Down",{}), Filler{width=10}, self._downspeed})
     self._rows[2] = Columns({StaticText("Total",{}), Filler{width=10}, self._downtotal})
     self._rows[3] = self._downspeed_graph
@@ -66,15 +78,25 @@ function Network:update()
     if self.provided_interface then
         down, up = data.network_speed(self.provided_interface)
     else
-        down, up = data.network_speed(data.get_active_network_interface())
+        local new_interface = data.get_active_network_interface()
+        if new_interface then
+            down, up = data.network_speed(new_interface)
+        end
 
-        if self._last_interface ~= data.get_active_network_interface() then
-            self._last_interface = data.get_active_network_interface()
-            self.interface = self._last_interface
-            self._downspeed.SetText("${downspeed "..self.interface.."}")
-            self._downtotal.SetText("${totaldown "..self.interface.."}")
-            self._upspeed.SetText("${upspeed "..self.interface.."}")
-            self._uptotal.SetText("${totalup "..self.interface.."}")
+        if new_interface ~= self._last_interface then
+            self._last_interface = new_interface
+            self.interface = new_interface
+            if new_interface then
+                self._downspeed:setText("${downspeed "..self.interface.."}")
+                self._downtotal:setText("${totaldown "..self.interface.."}")
+                self._upspeed:setText("${upspeed "..self.interface.."}")
+                self._uptotal:setText("${totalup "..self.interface.."}")
+            else
+                self._downspeed:setText("")
+                self._downtotal:setText("")
+                self._upspeed:setText("")
+                self._uptotal:setText("")
+            end
         end
     end
     self._downspeed_graph:add_value(down)
