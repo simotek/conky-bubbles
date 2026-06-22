@@ -18,11 +18,11 @@ function cl.load_config(script_config)
     local wm_config = {}
 
     if os.getenv("DESKTOP") == "Enlightenment" then
-        wm_config = require('src/config/plasma_enlightenment')
+        wm_config = require('src/config/enlightenment')
         print("Bubbles: Using Enlightenment Config")
     elseif os.getenv("DESKTOP_SESSION") == "plasmawayland" 
         or os.getenv("DESKTOP_SESSION") == "plasma" then
-        wm_config = require('src/config/plasma_enlightenment')
+        wm_config = require('src/config/plasma')
         print("Bubbles: Using Plasma Config")
     elseif os.getenv("DESKTOP_SESSION") == "gnome" then
         wm_config = require('src/config/gnome')
