@@ -33,7 +33,7 @@ function cl.load_config(script_config)
     end
 
     local tmp_config = util.merge_table(core_config, wm_config)
-    if Using_Wayland then
+    if util.is_wayland_supported() then
         local wayland_config = require('src/config/wayland')
         tmp_config = util.merge_table(tmp_config, wayland_config)
     end
