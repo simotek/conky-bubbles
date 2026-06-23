@@ -107,8 +107,9 @@ function bubbles.setup()
         Network({downspeed=5 * 1024, upspeed=1024,
                        graph_height=22}),
         Filler({height=block_space}),
+        StaticText("[   disk   ]", header_font),
         DriveList(),
-        Filler({height=260}),
+        Filler({height=220}),
         Columns({
         Filler({}),
         StaticImage("/home/simon/src/devel/conky-bubbles/assets/pcore2/9blocks.png",{}),
