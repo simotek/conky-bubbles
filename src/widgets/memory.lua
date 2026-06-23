@@ -33,7 +33,7 @@ w.MemoryBar = MemoryBar
 --                            drawn. If omitted, total RAM will be used,
 --                            however no ticks can be drawn.
 -- @tparam[opt="GiB"] string args.unit passed to `Bar:init`
--- @tparam ?int args.thickness passed to `Bar:init`
+-- @tparam ?number args.thickness passed to `Bar:init`
 -- @tparam ?{number,number,number} args.color passed to `Bar:init`
 function MemoryBar:init(args)
     self._total = args.total
@@ -69,13 +69,13 @@ local MemoryGrid = util.class(Widget)
 w.MemoryGrid = MemoryGrid
 
 --- @tparam table args table of options
--- @tparam ?int args.rows Number of rows to draw.
+-- @tparam ?number args.rows Number of rows to draw.
 --                        For nil it will be determined based on Widget height.
--- @tparam ?int args.columns Number of columns to draw.
+-- @tparam ?number args.columns Number of columns to draw.
 --                           For nil it will be determined based on Widget width.
--- @tparam[opt=2] ?int args.point_size edge length of individual squares
--- @tparam[opt=1] ?int args.gap space between squares
--- @tparam[opt=true] ?bool args.shuffle randomize?
+-- @tparam ?number[opt=2] args.point_size edge length of individual squares
+-- @tparam ?number[opt=1] args.gap space between squares
+-- @tparam ?boolean[opt=true] args.shuffle randomize?
 -- @tparam ?{number,number,number} args.color (default: `highlight_color`)
 function MemoryGrid:init(args)
     self._rows = args.rows
@@ -150,7 +150,7 @@ local MemTop = util.class(core.Rows)
 w.MemTop = MemTop
 
 --- @tparam table args table of options
--- @tparam[opt=5] ?int args.lines how many processes to display
+-- @tparam ?number[opt=5] args.lines how many processes to display
 -- @tparam ?string args.font_family
 -- @tparam ?number args.font_size
 -- @tparam ?string args.color a string containing a hex color code (default: `default_text_color`)

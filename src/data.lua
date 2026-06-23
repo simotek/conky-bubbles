@@ -65,7 +65,7 @@ end
 
 --- Run a bulk conky_parse with collected strings from previous updates.
 -- Called at the begin of each update to greatly improve performance.
--- @function eager_loader:load
+-- @function EagerLoader:load
 function EagerLoader:load()
     -- clean up results that were not requested in the last update
     for var, _ in pairs(self._results) do
@@ -102,7 +102,7 @@ end
 -- data.eager_loader:get("$update")
 -- data.eager_loader:get("${cpu cpu%s}", 2)  -- usage of second CPU core
 -- data.eager_loader:get(5, "${fs_used_perc %s}", "/home")  -- cached for 5 updates
--- @function eager_loader:get
+-- @function EagerLoader:get
 -- @int[opt=1] remember
 -- @string var string to be evaluated by `conky_parse`
 -- @param[opt] ... Additional arguments passed to `var:format(...)`
@@ -417,7 +417,7 @@ end
 
 --- Is the given path a mount? (see conky's is_mounted)
 -- @string path
--- @treturn bool
+-- @treturn boolean
 function data.is_mounted(path)
     return "1" == conky_loader:get(5, "${if_mounted %s}1${endif}", path)
 end

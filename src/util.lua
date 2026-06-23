@@ -61,7 +61,7 @@ end
 local memoization_clearers = {}
 
 --- Wrap a function to store its results for fast access via identical arguments.
--- @tparam[opt] int delay number of updates that should pass before
+-- @tparam ?number delay number of updates that should pass before
 --                    data is cleared; use 0/false/nil to never clear
 -- @func fn function to be memoized; should only take stringable
 --                     arguments and return a non-nil value
@@ -86,7 +86,7 @@ end
 
 --- Clear outdated data gathered via `util.memoize`.
 -- Call this once per update cycle.
--- @int update_count conky's $update_count
+-- @tparam number update_count conky's $update_count
 function util.reset_data(update_count)
     for i = 1, #memoization_clearers do
         if update_count % memoization_clearers[i][1] == 0 then
@@ -103,7 +103,7 @@ end
 local CycleQueue = util.class()
 util.CycleQueue = CycleQueue
 
---- @tparam int|table items length of queue or array of initial items
+-- @tparam number|table items length of queue or array of initial items
 function CycleQueue:init(items)
     if type(items) == "table" then
         self._items = items
@@ -375,7 +375,7 @@ end
 --- Checks for Item in table
 -- @tparam item item to search for
 -- @tab tbl table to search through
--- @return boolian
+-- @treturn boolean
 function util.in_table(item, tbl)
     for _, i in pairs(tbl) do
         if i == item then

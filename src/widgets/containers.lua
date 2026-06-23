@@ -430,10 +430,10 @@ w.Float = Float
 
 --- @tparam ?Widget widget Inner widget, note that this object can only have one inner widget
 --- @tparam ?table args table of options
--- @tparam @int args.x x offset
--- @tparam @int args.y y offset
--- @tparam @int args.width width of inner widget
--- @tparam @int args.height height of inner widget
+-- @tparam ?number args.x x offset
+-- @tparam ?number args.y y offset
+-- @tparam ?number args.width width of inner widget
+-- @tparam ?number args.height height of inner widget
 function Float:init(widget, args)
     self._child = widget
     self._children = {self._child}
@@ -582,8 +582,8 @@ local Filler = util.class(Widget)
 w.Filler = Filler
 
 --- @tparam ?table args table of options
--- @tparam ?int args.width
--- @tparam ?int args.height
+-- @tparam ?number args.width
+-- @tparam ?number args.height
 -- @tparam ?Widget args.widget
 function Filler:init(args)
     if args then
@@ -644,7 +644,7 @@ w.Frame = Frame
 -- @tparam ?{string} args.background_image path to background image
 -- @tparam [opt=1.0] ?number args.background_image_alpha alpha of the image between 0.0 and 1.0
 -- @tparam[opt=transparent] ?{number,number,number,number} args.border_color
--- @tparam[opt=0] ?number args.border_width border line width
+-- @tparam ?number[opt=0] args.border_width border line width
 -- @tparam ?{string,...} args.border_sides any combination of
 --                                         "top", "right", "bottom" and/or "left"
 --                                         (default: all sides)

@@ -34,6 +34,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Class_creation">Class creation </a></li>
+<li><a href="#General">General </a></li>
 <li><a href="#Memoization">Memoization </a></li>
 <li><a href="#Class_CycleQueue">Class CycleQueue </a></li>
 <li><a href="#General_utility_functions">General utility functions </a></li>
@@ -47,6 +48,10 @@
   <li><a href="../modules/config_awesomewm.html">config_awesomewm</a></li>
   <li><a href="../modules/config_core.html">config_core</a></li>
   <li><a href="../modules/config_enlightenment.html">config_enlightenment</a></li>
+  <li><a href="../modules/config_gnome.html">config_gnome</a></li>
+  <li><a href="../modules/config_plasma.html">config_plasma</a></li>
+  <li><a href="../modules/config_wayland.html">config_wayland</a></li>
+  <li><a href="../modules/config_loader.html">config_loader</a></li>
   <li><a href="../modules/data.html">data</a></li>
   <li><a href="../modules/dimensions_theme.html">dimensions_theme</a></li>
   <li><a href="../modules/pcore2_theme.html">pcore2_theme</a></li>
@@ -61,6 +66,7 @@
   <li><a href="../modules/widget_memory.html">widget_memory</a></li>
   <li><a href="../modules/widget_network.html">widget_network</a></li>
   <li><a href="../modules/widget_text.html">widget_text</a></li>
+  <li><a href="../modules/widget.html">widget</a></li>
 </ul>
 
 </div>
@@ -79,10 +85,21 @@
 	<td class="summary">simple class creation helper</td>
 	</tr>
 </table>
+<h2><a href="#General">General </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#conky_version">conky_version()</a></td>
+	<td class="summary">conky version</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_nth_word">get_nth_word(str, n)</a></td>
+	<td class="summary">Get the Nth word from a string.</td>
+	</tr>
+</table>
 <h2><a href="#Memoization">Memoization </a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#memoize">memoize([delay], fn)</a></td>
+	<td class="name" nowrap><a href="#memoize">memoize(delay, fn)</a></td>
 	<td class="summary">Wrap a function to store its results for fast access via identical arguments.</td>
 	</tr>
 	<tr>
@@ -93,16 +110,12 @@
 <h2><a href="#Class_CycleQueue">Class CycleQueue </a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#CycleQueue:init">CycleQueue:init(items)</a></td>
-	<td class="summary"></td>
-	</tr>
-	<tr>
 	<td class="name" nowrap><a href="#CycleQueue:put">CycleQueue:put(item)</a></td>
 	<td class="summary">Add a value, causing the oldest value to disappear.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#CycleQueue:__len">CycleQueue:__len()</a></td>
-	<td class="summary">Get the length of this Queue as specified in <a href="../modules/util.html#CycleQueue:init">CycleQueue:init</a>.</td>
+	<td class="summary">Get the length of this Queue as specified in <code>CycleQueue:init</code>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#CycleQueue:__index">CycleQueue:__index(idx)</a></td>
@@ -179,12 +192,43 @@
  merging config files</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#merge">merge(t1, t2)</a></td>
+	<td class="summary">Merge two tables non-destructively, returning a new table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#print_table">print_table(t[, indent=0])</a></td>
+	<td class="summary">Recursively print the contents of a table to the terminal for debugging.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#in_table">in_table(item, tbl)</a></td>
 	<td class="summary">Checks for Item in table</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#files_in_dir">files_in_dir(path)</a></td>
 	<td class="summary">Returns all files in a directory</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#command_exists">command_exists(command_name)</a></td>
+	<td class="summary">Check if command exists on system os</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#is_wayland_supported">is_wayland_supported()</a></td>
+	<td class="summary">Reads the system environment and returns true if WAYLAND_DISPLAY is set Unless its gnome which doesn't work.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_kde_screen_info">get_kde_screen_info(cmd_output)</a></td>
+	<td class="summary">Parses kscreen-doctor JSON output and returns the width, height, and scale
+ of the screen with the highest priority (lowest numerical priority value).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_gnome_screen_info">get_gnome_screen_info()</a></td>
+	<td class="summary">Calls GNOME busctl JSON output and returns the width, height, and scale
+ of the preferred screen resolution.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get_wlr_screen_info">get_wlr_screen_info()</a></td>
+	<td class="summary">Parses wlr-randr JSON output and returns the width, height, and scale
+ of the current and preferred screen resolution.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#screen_resolution">screen_resolution()</a></td>
@@ -229,12 +273,67 @@
 
 </dd>
 </dl>
+    <h2 class="section-header "><a name="General"></a>General </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "conky_version"></a>
+    <strong>conky_version()</strong>
+    </dt>
+    <dd>
+    conky version
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the conky version
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_nth_word"></a>
+    <strong>get_nth_word(str, n)</strong>
+    </dt>
+    <dd>
+    Get the Nth word from a string.
+ Words are separated by spaces.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><span class="type">string</span></span>
+         The input string.
+        </li>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">integer</span></span>
+         The 1-based index of the word to retrieve.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">string</span> or <span class="type">nil</span></span>
+        The Nth word, or nil if not found.
+    </ol>
+
+
+
+
+</dd>
+</dl>
     <h2 class="section-header "><a name="Memoization"></a>Memoization </h2>
 
     <dl class="function">
     <dt>
     <a name = "memoize"></a>
-    <strong>memoize([delay], fn)</strong>
+    <strong>memoize(delay, fn)</strong>
     </dt>
     <dd>
     Wrap a function to store its results for fast access via identical arguments.
@@ -243,10 +342,9 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">delay</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types">optional <span class="type">number</span></span>
          number of updates that should pass before
                     data is cleared; use 0/false/nil to never clear
-         (<em>optional</em>)
         </li>
         <li><span class="parameter">fn</span>
             <span class="types"><span class="type">function</span></span>
@@ -272,7 +370,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">update_count</span>
-            <span class="types"><span class="type">integer</span></span>
+            <span class="types"><span class="type">number</span></span>
          conky's $update_count
         </li>
     </ul>
@@ -291,27 +389,6 @@
  Use # to get length, ipairs to iterate, [] to access individual values.
           </div>
     <dl class="function">
-    <dt>
-    <a name = "CycleQueue:init"></a>
-    <strong>CycleQueue:init(items)</strong>
-    </dt>
-    <dd>
-
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">items</span>
-            <span class="types"><span class="type">int</span> or <span class="type">table</span></span>
-         length of queue or array of initial items
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
     <dt>
     <a name = "CycleQueue:put"></a>
     <strong>CycleQueue:put(item)</strong>
@@ -337,7 +414,7 @@
     <strong>CycleQueue:__len()</strong>
     </dt>
     <dd>
-    Get the length of this Queue as specified in <a href="../modules/util.html#CycleQueue:init">CycleQueue:init</a>.
+    Get the length of this Queue as specified in <code>CycleQueue:init</code>.
  Implements # for Lua 5.2+
 
 
@@ -839,6 +916,63 @@
 
 </dd>
     <dt>
+    <a name = "merge"></a>
+    <strong>merge(t1, t2)</strong>
+    </dt>
+    <dd>
+    Merge two tables non-destructively, returning a new table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t1</span>
+            <span class="types"><span class="type">table</span></span>
+         first table
+        </li>
+        <li><span class="parameter">t2</span>
+            <span class="types"><span class="type">table</span></span>
+         second table (overwrites t1)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">table</span></span>
+        a new merged table
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "print_table"></a>
+    <strong>print_table(t[, indent=0])</strong>
+    </dt>
+    <dd>
+    Recursively print the contents of a table to the terminal for debugging.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><span class="type">table</span></span>
+         The table to print
+        </li>
+        <li><span class="parameter">indent</span>
+            <span class="types"><span class="type">integer</span></span>
+         The current indentation level (defaults to 0)
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
     <a name = "in_table"></a>
     <strong>in_table(item, tbl)</strong>
     </dt>
@@ -861,7 +995,8 @@
     <h3>Returns:</h3>
     <ol>
 
-        boolian
+           <span class="types"><span class="type">boolean</span></span>
+
     </ol>
 
 
@@ -884,6 +1019,122 @@
         </li>
     </ul>
 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "command_exists"></a>
+    <strong>command_exists(command_name)</strong>
+    </dt>
+    <dd>
+    Check if command exists on system os
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">command_name</span>
+        'command -v' returns a 0 exit status if the command is found, non-zero otherwise. Redirecting standard output and error to /dev/null prevents console clutter.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">true</span></span>
+        if command exists
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_wayland_supported"></a>
+    <strong>is_wayland_supported()</strong>
+    </dt>
+    <dd>
+    Reads the system environment and returns true if WAYLAND_DISPLAY is set Unless its gnome which doesn't work.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        True if WAYLAND_DISPLAY is set, false otherwise.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_kde_screen_info"></a>
+    <strong>get_kde_screen_info(cmd_output)</strong>
+    </dt>
+    <dd>
+    Parses kscreen-doctor JSON output and returns the width, height, and scale
+ of the screen with the highest priority (lowest numerical priority value).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cmd_output</span>
+            <span class="types"><span class="type">string</span></span>
+         JSON output from <code>kscreen-doctor -j</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number,number,number</span></span>
+        width, height, scale
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_gnome_screen_info"></a>
+    <strong>get_gnome_screen_info()</strong>
+    </dt>
+    <dd>
+    Calls GNOME busctl JSON output and returns the width, height, and scale
+ of the preferred screen resolution.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number,number,number</span></span>
+        width, height, scale
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_wlr_screen_info"></a>
+    <strong>get_wlr_screen_info()</strong>
+    </dt>
+    <dd>
+    Parses wlr-randr JSON output and returns the width, height, and scale
+ of the current and preferred screen resolution.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number,number,number</span></span>
+        width, height, scale
+    </ol>
 
 
 
@@ -953,7 +1204,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2025-09-25 23:43:54 </i>
+<i style="float:right;">Last updated 2026-06-23 21:58:48 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

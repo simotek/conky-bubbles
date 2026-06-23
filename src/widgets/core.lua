@@ -63,8 +63,8 @@ w.Renderer = Renderer
 -- @tparam table args table of options
 -- @tparam Widget args.root The Widget subclass that should be rendered,
 --                          usually a Rows widget
--- @int args.width Width of the surface that should be covered
--- @int args.height Height of the surface that should be covered
+-- @tparam ?number args.width Width of the surface that should be covered
+-- @tparam ?number args.height Height of the surface that should be covered
 function Renderer:init(args)
     self._root = args.root
     self._width = conky_window.width
@@ -235,7 +235,7 @@ function Renderer:layout()
 end
 
 --- Update all Widgets
--- @int update_count Conky's $updates
+-- @tparam ?number update_count Conky's $updates
 function Renderer:update(update_count)
     local reflow = false
 
@@ -308,19 +308,19 @@ w.Widget = Widget
 
 --- Set a width if the Widget should have a fixed width.
 -- Omit (=nil) if width should be adjusted dynamically.
--- @int Widget.width
+-- @tparam ?number Widget.width
 
 --- Set a height if the Widget should have a fixed height.
 -- Omit (=nil) if height should be adjusted dynamically.
--- @int Widget.height
+-- @tparam ?number Widget.height
 
 --- If a widget is inside another widget such as a frame or columns, rows
 -- Then this will contain that
 -- @tparam Widget Widget.parent
 
 --- Called at least once to inform the widget of the width and height it may occupy.
--- @tparam int width
--- @tparam int height
+-- @tparam number width
+-- @tparam number height
 function Widget:layout(width, height) end  -- luacheck: no unused
 
 --- Called at least once to allow the widget to draw static content.
@@ -333,7 +333,7 @@ function Widget:layout(width, height) end  -- luacheck: no unused
 -- Since this involves calls to all widgets' :layout functions,
 -- reflows should be used sparingly.
 -- @function Widget:update
--- @int update_count Conky's $updates
+-- @tparam ?number update_count Conky's $updates
 -- @treturn ?bool true(-ish) if a layout reflow should be triggered, causing
 --                all `Widget:layout` and `Widget:render_background` methods
 --                to be called again

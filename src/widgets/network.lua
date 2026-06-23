@@ -26,7 +26,7 @@ w.Network = Network
 
 --- @tparam table args table of options
 -- @string args.interface e.g. "eth0"
--- @tparam ?int args.graph_height passed to `Graph:init`
+-- @tparam ?number args.graph_height passed to `Graph:init`
 -- @number[opt=1024] args.downspeed passed as args.max to download speed graph
 -- @number[opt=1024] args.upspeed passed as args.max to upload speed graph
 function Network:init(args)

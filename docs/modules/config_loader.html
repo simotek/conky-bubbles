@@ -33,7 +33,7 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Class_Drive">Class Drive </a></li>
+<li><a href="#Functions">Functions</a></li>
 </ul>
 
 
@@ -47,7 +47,7 @@
   <li><a href="../modules/config_gnome.html">config_gnome</a></li>
   <li><a href="../modules/config_plasma.html">config_plasma</a></li>
   <li><a href="../modules/config_wayland.html">config_wayland</a></li>
-  <li><a href="../modules/config_loader.html">config_loader</a></li>
+  <li><strong>config_loader</strong></li>
   <li><a href="../modules/data.html">data</a></li>
   <li><a href="../modules/dimensions_theme.html">dimensions_theme</a></li>
   <li><a href="../modules/pcore2_theme.html">pcore2_theme</a></li>
@@ -55,7 +55,7 @@
   <li><a href="../modules/widget_container.html">widget_container</a></li>
   <li><a href="../modules/widget_core.html">widget_core</a></li>
   <li><a href="../modules/widget_cpu.html">widget_cpu</a></li>
-  <li><strong>widget_drive</strong></li>
+  <li><a href="../modules/widget_drive.html">widget_drive</a></li>
   <li><a href="../modules/widget_gpu.html">widget_gpu</a></li>
   <li><a href="../modules/widget_image.html">widget_image</a></li>
   <li><a href="../modules/widget_indicator.html">widget_indicator</a></li>
@@ -69,16 +69,19 @@
 
 <div id="content">
 
-<h1>Module <code>widget_drive</code></h1>
-<p>A collection of Disk Drive Widget classes</p>
+<h1>Module <code>config_loader</code></h1>
+<p>Helper function to generate conky config table
+ Configuration Loader Module
+ Helper module to generate and merge conky config tables based on the
+ currently running desktop environment and display server.</p>
 <p></p>
 
 
-<h2><a href="#Class_Drive">Class Drive </a></h2>
+<h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Drive:init">Drive:init(path, args)</a></td>
-	<td class="summary"></td>
+	<td class="name" nowrap><a href="#cl.load_config">cl.load_config(script_config)</a></td>
+	<td class="summary">Loads and merges the appropriate conky configurations.</td>
 	</tr>
 </table>
 
@@ -86,41 +89,34 @@
 <br/>
 
 
-    <h2 class="section-header has-description"><a name="Class_Drive"></a>Class Drive </h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
-          <div class="section-description">
-          Visualize drive usage and temperature in a colorized Bar.
- Also writes temperature as text.
- This widget is exptected to be combined with some special conky.text.
-          </div>
     <dl class="function">
     <dt>
-    <a name = "Drive:init"></a>
-    <strong>Drive:init(path, args)</strong>
+    <a name = "cl.load_config"></a>
+    <strong>cl.load_config(script_config)</strong>
     </dt>
     <dd>
-
+    Loads and merges the appropriate conky configurations.
+ Determines the current desktop environment and display server,
+ loads the respective configuration tables, and merges them with
+ the core configuration and the provided script configuration.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">path</span>
-            <span class="types"><span class="type">string</span></span>
-         e.g. "/home"
+        <li><span class="parameter">script_config</span>
+            <span class="types"><span class="type">table</span></span>
+         Custom configuration table to be merged on top of the defaults.
         </li>
-        <li><span class="parameter">args</span> table of options
-        <ul>
-        <li><span class="parameter">device</span>
-            <span class="types">optional <span class="type">string</span></span>
-         this code can't detect lvm's etc so hardcode
-        </li>
-        <li><span class="parameter">physical_device</span>
-            <span class="types">optional <span class="type">string</span></span>
-         this code can't detect lvm's etc so hardcode
-        </li>
-        </li></ul>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">table</span></span>
+        The fully merged configuration table.
+    </ol>
 
 
 

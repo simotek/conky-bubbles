@@ -24,10 +24,10 @@ local Bar = util.class(Widget)
 w.Bar = Bar
 
 --- @tparam table args table of options
--- @tparam[opt=6] int args.thickness vertical size of the bar
+-- @tparam ?number[opt=6] args.thickness vertical size of the bar
 -- @tparam ?string args.unit to be drawn behind the bar - 3 characters will fit
 -- @tparam ?{number,...} args.ticks relative offsets (between 0 and 1) of ticks
--- @tparam ?int args.big_ticks multiple of ticks to be drawn longer
+-- @tparam ?number args.big_ticks multiple of ticks to be drawn longer
 -- @tparam ?string args.color a string containing a hex color code (default: `highlight_color`)
 function Bar:init(args)
     self._ticks = args.ticks
@@ -126,13 +126,13 @@ w.Graph = Graph
 --- @tparam table args table of options
 -- @tparam number args.max maximum expected value to be represented;
 --                         may be expanded automatically as need arises
--- @int[opt=60] args.data_points how many values to store
--- @bool[opt=false] args.upside_down Draw graph from top to bottom?
+-- @tparam ?number[opt=60] args.data_points how many values to store
+-- @tparam ?boolean[opt=false] args.upside_down Draw graph from top to bottom?
 -- @number[opt=0.5] args.smoothness Bézier curves smoothness.
 --                                  Set to 0 to draw straight lines instead,
 --                                  which may be slightly faster.
--- @int[opt] args.width fix width in pixels
--- @int[opt] args.height fixeheight in pixels
+-- @tparam ?number args.width fixed width in pixels
+-- @tparam ?number args.height fixed height in pixels
 -- @tparam ?string args.color a string containing a hex color code (default: `graph_color`)
 function Graph:init(args)
     self._max = args.max
@@ -260,7 +260,7 @@ local LED = util.class(Widget)
 w.LED = LED
 
 --- @tparam table args table of options
--- @number args.radius size of the LED
+-- @tparam number args.radius size of the LED
 -- @number[opt=0] args.brightness between 0 and 1, how "on" should the LED be?
 --                                Can be changed later with `LED:set_brightness`
 -- @tparam ?string args.color color of the LED,

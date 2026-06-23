@@ -80,7 +80,7 @@ end
 -- @number[opt=1] r red color component
 -- @number[opt=0] g green color component
 -- @number[opt=0] b blue color component
--- @number[opt=0.7] a alpha color compnent (transparency)
+-- @number[opt=0.7] a alpha color component (transparency)
 function ch.show_point(cr, x, y, size, r, g, b, a)
     local size = 0.5 * (size or 4)
     cairo_move_to(cr, x - size, y - size)
@@ -174,8 +174,8 @@ end
 -- and 4 and 8 character hex representations with an alpha value.
 -- Strings may start with or without a # character.
 -- Returns r,g,b,a as doubles with values ranging from 0.0-1.0
--- @string str hex number to convert
--- @treturn r,g,b,a
+-- @string str hex string to convert
+-- @treturn {number,number,number,number} r, g, b, a
 function ch.convert_string_to_rgba(str)
     local r,g,b,a=1.0,1.0,1.0,1.0
 

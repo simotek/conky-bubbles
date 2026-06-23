@@ -28,8 +28,8 @@ w.Drive = Drive
 
 --- @string path e.g. "/home"
 --- @tparam table args table of options
--- @string args.device this code can't detect lvm's etc so hardcode
--- @string args.physical_device this code can't detect lvm's etc so hardcode
+-- @tparam ?string args.device this code can't detect lvm's etc so hardcode
+-- @tparam ?string args.physical_device this code can't detect lvm's etc so hardcode
 function Drive:init(path, args)
     self._path = path
     if args then

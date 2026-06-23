@@ -245,9 +245,9 @@ CpuRound.update = Cpu.update
 
 --- @tparam table args table of options
 -- @int args.cores How many cores does your CPU have?
--- @int args.inner_radius Size of inner circle
--- @int args.outer_radius Max radius for core at 100%
--- @int[opt] args.grid Number of grid lines to draw in the background.
+-- @number args.inner_radius Size of inner circle
+-- @number args.outer_radius Max radius for core at 100%
+-- @number[opt] args.grid Number of grid lines to draw in the background.
 function CpuRound:init(args)
     self._cores = args.cores
     self._inner_radius = args.inner_radius
@@ -394,11 +394,11 @@ CpuCombo.update = Cpu.update
 
 --- @tparam table args table of options
 -- @int args.cores How many cores does your CPU have?
--- @int args.inner_radius Size of inner circle
--- @int args.mid_radius 
--- @int args.outer_radius Max radius for core at 100%
--- @int args.gap space between central polygon and outer segments
--- @int[opt] args.grid Number of grid lines to draw in the background.
+-- @number args.inner_radius Size of inner circle
+-- @number args.mid_radius Size of mid circle
+-- @number args.outer_radius Max radius for core at 100%
+-- @number args.gap space between central polygon and outer segments
+-- @number[opt] args.grid Number of grid lines to draw in the background.
 function CpuCombo:init(args)
     self._cores = args.cores
     self._inner_radius = args.inner_radius
@@ -626,8 +626,8 @@ w.CpuFrequencies = CpuFrequencies
 
 --- @tparam table args table of options
 -- @int args.cores How many cores does your CPU have?
--- @number args.min_freq What is your CPU's minimum frequency?
--- @number args.min_freq What is your CPU's maximum frequency?
+-- @number args.min_freq What is your CPU's minimum frequency in GHz?
+-- @number args.max_freq What is your CPU's maximum frequency in GHz?
 -- @int[opt=16] args.height Maximum pixel height of the drawn shape
 function CpuFrequencies:init(args)
     self.cores = args.cores
@@ -737,7 +737,7 @@ local CpuTop = util.class(core.Rows)
 w.CpuTop = CpuTop
 
 --- @tparam table args table of options
--- @tparam[opt=5] ?int args.lines how many processes to display
+-- @tparam ?number[opt=5] args.lines how many processes to display
 -- @tparam ?string args.font_family
 -- @tparam ?number args.font_size
 -- @tparam ?string args.color a string containing a hex color code (default: `default_text_color`)

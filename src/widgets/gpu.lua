@@ -62,7 +62,7 @@ local GpuTop = util.class(core.Rows)
 w.GpuTop = GpuTop
 
 --- @tparam table args table of options
--- @tparam[opt=5] ?int args.lines how many processes to display
+-- @tparam ?number[opt=5] args.lines how many processes to display
 -- @tparam ?string args.font_family
 -- @tparam ?number args.font_size
 -- @tparam ?string args.color a string containing a hex color code (default: `default_text_color`)
