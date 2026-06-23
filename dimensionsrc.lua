@@ -18,6 +18,8 @@ local cl = require('src/config_loader')
 local widgets = require('src/widgets/widgets')
 
 local mt = util.merge_table
+-- lua 5.1 to 5.3 compatibility
+local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
 
 local Frame, Filler, Rows, Columns, Float, Stack, Block = widgets.containers.Frame, widgets.containers.Filler,
       widgets.containers.Rows, widgets.containers.Columns, widgets.containers.Float, widgets.containers.Stack,
@@ -28,13 +30,7 @@ local Gpu, GpuTop = widgets.gpu.Gpu, widgets.gpu.GpuTop
 local StaticImage, RandomImage = widgets.images.StaticImage, widgets.images.RandomImage
 local MemoryGrid, MemTop = widgets.mem.MemoryGrid, widgets.mem.MemTop
 local Network = widgets.net.Network
-local ConkyText, StaticText, TextLine = widgets.text.ConkyText, widgets.text.StaticText, widgets.text.TextLine
-
--- lua 5.1 to 5.3 compatibility
-local unpack = unpack or table.unpack  -- luacheck: read_globals unpack table
-
--- Draw debug information
-local DEBUG = false
+local ConkyText, StaticText = widgets.text.ConkyText, widgets.text.StaticText
 
 
 local conkyrc = conky or {}
@@ -129,7 +125,7 @@ function bubbles.setup()
                 background_image_alpha=1.0,
             }),
             Block("[ CPU ]", "${cpu}%",
-                {CpuCombo{cores=data.cpu_cores(), inner_radius=25, mid_radius=57, outer_radius=68, gap=6, grid=5},
+                {CpuCombo({inner_radius=25, mid_radius=57, outer_radius=68, gap=6, grid=5}),
                 Filler{}},
             block_args),
             Frame(Filler{width=block_space},{
@@ -137,7 +133,7 @@ function bubbles.setup()
                 background_image_alpha=1.0,
             }),
             Block("[ FREQ ]", "${freq_g 1}GHz",
-                { CpuFrequencies{cores=data.cpu_cores(), min_freq=0.75, max_freq=4.3},
+                { CpuFrequencies(),
                 Filler{height=6},
                 CpuTop({})}, 
             block_args),

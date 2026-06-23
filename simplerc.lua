@@ -28,8 +28,8 @@ local CpuCombo, CpuFrequencies, CpuTop = widgets.cpu.CpuCombo, widgets.cpu.CpuFr
 local DriveList = widgets.drive.DriveList
 local StaticImage = widgets.images.StaticImage
 local MemoryGrid, MemTop = widgets.mem.MemoryGrid, widgets.mem.MemTop
-local Network = widgets.net.Network
 local ConkyText, StaticText = widgets.text.ConkyText, widgets.text.StaticText
+local Network = widgets.net.Network
 
 -- Draw debug information
 DEBUG = false
@@ -39,7 +39,7 @@ local conkyrc = conky or {}
 local screen_height = util.screen_height()
 
 local config_width = 280
-local config_height = screen_height - 68 - 48
+local config_height = screen_height - 68 - 68
 
 local script_config = {
     lua_load = script_dir .. rc_path,
@@ -85,9 +85,9 @@ function bubbles.setup()
         ConkyText("${time %d.%m.%Y}", centered_font),
         ConkyText("${time %H:%M}", centered_font),-- see above
         Filler({height=8}),
-        CpuCombo({cores=data.cpu_cores(), inner_radius=25, mid_radius=57, outer_radius=68, gap=6, grid=5}),
+        CpuCombo({inner_radius=25, mid_radius=57, outer_radius=68, gap=6, grid=5}),
         Filler({height=7}),
-        CpuFrequencies({cores=data.cpu_cores(), min_freq=0.75, max_freq=4.3}),
+        CpuFrequencies(),
         Filler({height=10}),
         Columns({StaticText("[   top   ]", header_font), ConkyText("${freq_g 1}%", status_font)}),
         CpuTop({}),
@@ -108,10 +108,13 @@ function bubbles.setup()
                        graph_height=22}),
         Filler({height=block_space}),
         DriveList(),
-        Filler({height=400}),
-        StaticImage("/home/simon/src/devel/conky-bubbles/assets/pcore2/9blocks.png",{})
+        Filler({height=260}),
+        Columns({
+        Filler({}),
+        StaticImage("/home/simon/src/devel/conky-bubbles/assets/pcore2/9blocks.png",{}),
+        Filler({})})
     }
-    local root = Float(Rows(widg), {x=40, y=20, width=config_width-40, height=800})
+    local root = Float(Rows(widg), {x=40, y=20, width=config_width-40, height=config_height-80})
     return widgets.core.Renderer{root=root,
                            width=config_width,
                            height=config_height}

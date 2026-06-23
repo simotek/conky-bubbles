@@ -34,7 +34,7 @@ w.Cpu = Cpu
 -- @int args.segment_size radial thickness of outer segments
 -- @int args.rounded round edges for a circular look, default above 8 (boolean)
 function Cpu:init(args)
-    self._cores = args.cores
+    self._cores = args.cores or data.cpu_cores()
     self._inner_radius = args.inner_radius
     self._outer_radius = args.outer_radius
     self._gap = args.gap or 4
@@ -249,7 +249,7 @@ CpuRound.update = Cpu.update
 -- @number args.outer_radius Max radius for core at 100%
 -- @number[opt] args.grid Number of grid lines to draw in the background.
 function CpuRound:init(args)
-    self._cores = args.cores
+    self._cores = args.cores or data.cpu_cores()
     self._inner_radius = args.inner_radius
     self._outer_radius = args.outer_radius
     self._grid = args.grid
@@ -400,7 +400,7 @@ CpuCombo.update = Cpu.update
 -- @number args.gap space between central polygon and outer segments
 -- @number[opt] args.grid Number of grid lines to draw in the background.
 function CpuCombo:init(args)
-    self._cores = args.cores
+    self._cores = args.cores or data.cpu_cores()
     self._inner_radius = args.inner_radius
     self._mid_radius = args.mid_radius
     self._outer_radius = args.outer_radius
@@ -625,14 +625,15 @@ local CpuFrequencies = util.class(Widget)
 w.CpuFrequencies = CpuFrequencies
 
 --- @tparam table args table of options
--- @int args.cores How many cores does your CPU have?
--- @number args.min_freq What is your CPU's minimum frequency in GHz?
--- @number args.max_freq What is your CPU's maximum frequency in GHz?
+-- @int args.cores How many cores does your CPU have? This should be autodetected
+-- @number args.min_freq What is your CPU's minimum frequency in GHz? This should be autodetected
+-- @number args.max_freq What is your CPU's maximum frequency in GHz? This should be autodetected
 -- @int[opt=16] args.height Maximum pixel height of the drawn shape
 function CpuFrequencies:init(args)
-    self.cores = args.cores
-    self.min_freq = args.min_freq
-    self.max_freq = args.max_freq
+    args = args or {}
+    self.cores = args.cores or data.cpu_cores()
+    self.min_freq = args.min_freq or data.cpu_min_freq()
+    self.max_freq = args.max_freq or data.cpu_max_freq()
     self._height = args.height or 16
     self.height = self._height + 13
     self._text_color = ch.convert_string_to_rgba(current_theme.default_text_color)

@@ -244,6 +244,35 @@ function data.cpu_frequencies(cores)
     return results
 end
 
+local cached_cpu_freqs = false
+local cached_cpu_min_freq = 0
+local cached_cpu_max_freq = 0
+
+local function fetch_cpu_freq_limits()
+    if not cached_cpu_freqs then
+        local output = read_cmd("lscpu")
+        local max_freq = output:match("CPU max MHz:%s+(%d+%.?%d*)")
+        local min_freq = output:match("CPU min MHz:%s+(%d+%.?%d*)")
+        cached_cpu_max_freq = tonumber(max_freq)/1000 or 0
+        cached_cpu_min_freq = tonumber(min_freq)/1000 or 0
+        cached_cpu_freqs = true
+    end
+end
+
+--- Get the minimum CPU frequency in MHz
+-- @treturn number
+function data.cpu_min_freq()
+    fetch_cpu_freq_limits()
+    return cached_cpu_min_freq
+end
+
+--- Get the maximum CPU frequency in MHz
+-- @treturn number
+function data.cpu_max_freq()
+    fetch_cpu_freq_limits()
+    return cached_cpu_max_freq
+end
+
 --- Get the current CPU core temperatures
 -- relies on lm_sensors to be installed
 -- @treturn {number,...}
@@ -255,6 +284,9 @@ function data.cpu_temperatures()
     -- CPU doesn't return per core info just return single CPU Temp
     return util.map(tonumber, read_cmd("sensors"):gmatch("CPU: +[%+%-]?(%d+%.?%d*)"))
 end
+
+
+
 
 --- Get the current speed of fans in the system
 -- relies on lm_sensors to be installed
