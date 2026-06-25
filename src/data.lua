@@ -199,6 +199,9 @@ data.amd_stats_loader = amd_stats_loader
 local amd_process_loader = JsonEagerLoader("amdgpu_top -d -p --json")
 data.amd_process_loader = amd_process_loader
 
+--- Data Functions
+-- @section data_functions
+
 local cached_core_count = nil
 
 --- Get the hardware CPU core count
