@@ -115,7 +115,7 @@ function bubbles.setup()
         StaticImage("/home/simon/src/devel/conky-bubbles/assets/pcore2/9blocks.png",{}),
         Filler({})})
     }
-    local root = Float(Rows(widg), {x=40, y=20, width=config_width-40, height=config_height-80})
+    local root = Float(Rows(widg), {x=20, y=20, width=config_width-20, height=config_height-80})
     return widgets.core.Renderer{root=root,
                            width=config_width,
                            height=config_height}
