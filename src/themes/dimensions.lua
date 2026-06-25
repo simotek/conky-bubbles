@@ -97,7 +97,10 @@ local theme = {
 
     --- Color for Red LED's.
     -- @string red_led_color a color hex string
-    red_led_color = "8d2f25"
+    red_led_color = "8d2f25",
+
+    --- Path for images / assets for dimensionsrc based layouts
+    dimensionsrc_asset_path = "assets/dimensions/"
 }
 
 return theme

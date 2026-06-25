@@ -70,6 +70,8 @@ local main_height = 250
 
 local block_args = {padding = {13, 7, 15}, spacing=1}
 
+local asset_path = current_theme.dimensionsrc_asset_path or "assets/dimensions/"
+
 --- Called once on startup to initialize widgets.
 -- @treturn widget.Renderer
 function bubbles.setup()
@@ -93,7 +95,7 @@ function bubbles.setup()
     Stack{
         -- Background
         Float(Frame(Filler{}, {
-                background_image="assets/dimensions/bg_2650_inner.png",
+                background_image = asset_path.."bg_2650_inner.png",
                 background_image_alpha=0.93,
                 border_color={0.8, 1, 1, 0.05},
                 border_width = 1,
@@ -102,7 +104,7 @@ function bubbles.setup()
             }),
         {x=0, y=50, width=screen_width, height=main_height}),
         Float(Frame(Filler{},{
-                background_image="assets/dimensions/bg_2650_frame.png",
+                background_image = asset_path.."/bg_2650_frame.png",
                 background_image_alpha=1.0,
                 border_color={0.8, 1, 1, 0.05},
                 border_width = 1,
@@ -121,7 +123,7 @@ function bubbles.setup()
                  Filler{},Filler{},Filler{}},
             block_args),
             Frame(Filler{width=block_space},{
-                background_image="assets/dimensions/div.png",
+                background_image=asset_path.."/div.png",
                 background_image_alpha=1.0,
             }),
             Block("[ CPU ]", "${cpu}%",
@@ -129,7 +131,7 @@ function bubbles.setup()
                 Filler{}},
             block_args),
             Frame(Filler{width=block_space},{
-                background_image="assets/dimensions/div.png",
+                background_image=asset_path.."/div.png",
                 background_image_alpha=1.0,
             }),
             Block("[ FREQ ]", "${freq_g 1}GHz",
@@ -138,7 +140,7 @@ function bubbles.setup()
                 CpuTop({})}, 
             block_args),
             Frame(Filler{width=block_space},{
-                background_image="assets/dimensions/div.png",
+                background_image=asset_path.."/div.png",
                 background_image_alpha=1.0,
             }),
             Block("[ MEM ]", "${memperc}%",
@@ -147,7 +149,7 @@ function bubbles.setup()
                 MemTop({})},
             block_args),
             Frame(Filler{width=block_space},{
-                background_image="assets/dimensions/div.png",
+                background_image=asset_path.."/div.png",
                 background_image_alpha=1.0,
             }),
             Block("[ GPU ]", "%1 MHz",
@@ -155,20 +157,20 @@ function bubbles.setup()
                 GpuTop({})},
                 mt(block_args, { secondary_fn = data.gpu_frequency })),
             Frame(Filler{width=block_space},{
-                background_image="assets/dimensions/div.png",
+                background_image=asset_path.."/div.png",
                 background_image_alpha=1.0,
             }),
             Block("[ NET ]", "%1",
                 {Network{downspeed=5 * 1024, upspeed=1024}},
             mt(block_args, { secondary_fn = data.get_active_network_address })),
             Frame(Filler{width=block_space},{
-                background_image="assets/dimensions/div_left.png",
+                background_image=asset_path.."div_left.png",
                 background_image_alpha=1.0,
             }),
             Frame(RandomImage("/home/simon/Pictures/PhotoFrame/", {}),
                 {background_color="1b1b1b", expand=true, margin={12,0,12}, padding=8}),
             Frame(Filler{width=block_space},{
-                background_image="assets/dimensions/div_right.png",
+                background_image=asset_path.."div_right.png",
                 background_image_alpha=1.0,
             }),
             Block("[ DISK ]", "",
