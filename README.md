@@ -1,6 +1,6 @@
 # Conky Bubbles
 
-**Warning:** Currently this requires https://github.com/brndnmtthws/conky/pull/1501 to work correctly.
+**Warning:** Currently this requires conky 1.24.0 or later to work correctly.
 
 **Conky's Little Helper**
 
