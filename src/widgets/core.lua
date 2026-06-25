@@ -263,9 +263,6 @@ end
 --- Render to the given context
 -- @tparam cairo_t cr
 function Renderer:render(cr)
-    -- It doesn't render without these two lines
-    cairo_set_source_surface(cr, self._main_surface, 0, 0)
-    cairo_paint(cr)
     local mcr = cairo_create(self._main_surface)
     cairo_save(mcr)
     -- Clear previous render for transparent widgets
@@ -273,13 +270,8 @@ function Renderer:render(cr)
     cairo_set_operator(mcr, CAIRO_OPERATOR_SOURCE)
     cairo_paint(mcr)
     cairo_restore(mcr)
-    -- Overlay background surface
-    cairo_set_operator(mcr, CAIRO_OPERATOR_OVER);
-    cairo_set_source_surface(mcr, self._background_surface, 0, 0);
-    cairo_paint(mcr)
-    cairo_restore(mcr)
 
-    -- render forground widgets
+    -- render foreground widgets
     for widget, wsr, _width, _height in util.imap(unpack, self._render_widgets) do
         local wcr = cairo_create(wsr)
         -- This one
@@ -297,8 +289,10 @@ function Renderer:render(cr)
         widget:render(wcr)
         cairo_destroy(wcr)
     end
-    cairo_paint(mcr)
     cairo_destroy(mcr)
+
+    cairo_set_source_surface(cr, self._main_surface, 0, 0)
+    cairo_paint(cr)
 end
 
 --- Base Widget class.
