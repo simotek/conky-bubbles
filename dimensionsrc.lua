@@ -7,8 +7,11 @@ package.path = script_dir .. "../?.lua;" .. package.path
 -- We need to know the current file so that we can tell conky to load itlo
 local rc_path = debug.getinfo(1, 'S').source:match("[^/]*.lua$"):gsub("@","")
 
+
 -- load a theme as default
-current_theme = require('src/themes/dimensions')
+-- load theme dynamically, defaulting to 'dimensions'
+local theme_name = os.getenv("BUBBLES_THEME") or "dimensions"
+current_theme = require('src/themes/' .. theme_name)
 
 local bubbles = require('src/bubbles')
 local data  = require('src/data')
@@ -72,6 +75,9 @@ local block_args = {padding = {13, 7, 15}, spacing=1}
 
 local asset_path = current_theme.dimensionsrc_asset_path or "assets/dimensions/"
 
+print("Theme Name" .. theme_name .. ", Assets:" .. asset_path)
+
+
 --- Called once on startup to initialize widgets.
 -- @treturn widget.Renderer
 function bubbles.setup()
@@ -104,7 +110,7 @@ function bubbles.setup()
             }),
         {x=0, y=50, width=screen_width, height=main_height}),
         Float(Frame(Filler{},{
-                background_image = asset_path.."/bg_2650_frame.png",
+                background_image = asset_path.."bg_2650_frame.png",
                 background_image_alpha=1.0,
                 border_color={0.8, 1, 1, 0.05},
                 border_width = 1,
@@ -167,7 +173,7 @@ function bubbles.setup()
                 background_image=asset_path.."div_left.png",
                 background_image_alpha=1.0,
             }),
-            Frame(RandomImage("/home/simon/Pictures/PhotoFrame/", {}),
+            Frame(RandomImage("/home/simon/Pictures/PhotoFrameDemo/", {}),
                 {background_color="1b1b1b", expand=true, margin={12,0,12}, padding=8}),
             Frame(Filler{width=block_space},{
                 background_image=asset_path.."div_right.png",
